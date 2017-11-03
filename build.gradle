@@ -1,0 +1,40 @@
+group 'cz.melkamar.mirun'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+//apply plugin: 'antlr'
+apply plugin: 'idea'
+apply plugin: "com.github.johnrengelman.shadow"
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile "org.antlr:antlr4:4.5" // use ANTLR version 4
+}
+
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.1"
+    }
+}
+
+idea.module{
+    generatedSourceDirs += file('someextrafile')
+}
+
+jar.dependsOn << shadowJar
+
+task(runMain, dependsOn: 'classes', type: JavaExec) {
+    main = 'cz.melkamar.pyterpreter.PyMain'
+    classpath = sourceSets.main.runtimeClasspath
+}
