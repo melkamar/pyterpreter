@@ -1,4 +1,4 @@
-package cz.melkamar.pyterpreter;
+package cz.melkamar.pyterpreter.parser;
 
 import cz.melkamar.pyterpreter.antlr.*;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -37,13 +37,16 @@ public class AstPrinter {
                     ((TerminalNode) ctx.getChild(2)).getSymbol().getType() == Python3Parser.CLOSE_PAREN
                     ) toBeIgnored = true;
         }
+
+        StringBuilder indent = new StringBuilder();
+        for (int i = 0; i < indentation; i++) {
+            indent.append("  ");
+        }
+
         if (!toBeIgnored) {
             String ruleName = Python3Parser.ruleNames[ctx.getRuleIndex()];
-            if (ruleName.equals("integer"))
+            if (ruleName.equals("simple_stmt"))
                 System.out.print("");
-            for (int i = 0; i < indentation; i++) {
-                System.out.print("  ");
-            }
 
             /*
             * arith_expr - plus, minus
@@ -52,14 +55,19 @@ public class AstPrinter {
 
             if (ctx.getRuleIndex() == Python3Parser.RULE_arith_expr
                     || ctx.getRuleIndex() == Python3Parser.RULE_term)
-                System.out.println(ctx.getChild(1).getText());
+                System.out.println(indent + ctx.getChild(1).getText());
             else
-                System.out.println(ruleName);
+                System.out.println(indent + "[" + ruleName + "]");
         }
+
         for (int i = 0; i < ctx.getChildCount(); i++) {
             ParseTree element = ctx.getChild(i);
             if (element instanceof RuleContext) {
                 explore((RuleContext) element, indentation + (toBeIgnored ? 0 : 1));
+            } else {
+                System.out.println(indent + "{" + element.getText()
+                        .replace("\n", "\\n")
+                        .replace("\r", "\\r") + "}");
             }
         }
     }

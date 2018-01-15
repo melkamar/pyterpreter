@@ -1,4 +1,4 @@
-package cz.melkamar.pyterpreter;
+package cz.melkamar.pyterpreter.parser;
 
 import cz.melkamar.pyterpreter.antlr.*;
 import org.antlr.v4.runtime.ANTLRInputStream;
