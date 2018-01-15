@@ -40,8 +40,9 @@ public class PyMain {
 
             ParseTree parseTree = parserFacade.parse(testFile);
             AST ast = new AST(parseTree);
-//            ast.doTraversal();
             System.out.println(ast);
+            ast.doTraversal();
+
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
         }

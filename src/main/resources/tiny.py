@@ -1,7 +1,9 @@
-def f():
+def f(a, x, y):
     pass
 
-def g():
+
+def g(b):
     pass
 
-return f()+g()
+
+f() + g()
