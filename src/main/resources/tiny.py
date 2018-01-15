@@ -1,2 +1,7 @@
-1+2
-"a"+"b"
+def f():
+    pass
+
+def g():
+    pass
+
+return f()+g()

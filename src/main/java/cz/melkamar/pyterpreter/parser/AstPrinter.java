@@ -53,11 +53,11 @@ public class AstPrinter {
             * term - krát, děleno, atd.
             */
 
-            if (ctx.getRuleIndex() == Python3Parser.RULE_arith_expr
-                    || ctx.getRuleIndex() == Python3Parser.RULE_term)
-                System.out.println(indent + ctx.getChild(1).getText());
+            if (ctx.getRuleIndex() == Python3Parser.RULE_arith_expr || ctx.getRuleIndex() == Python3Parser.RULE_term){}
+//                System.out.println(indent + ctx.getChild(1).getText()+"  2");
+
             else
-                System.out.println(indent + "[" + ruleName + "]");
+                System.out.println(indent + "[" + ruleName + "]  3");
         }
 
         for (int i = 0; i < ctx.getChildCount(); i++) {
@@ -67,7 +67,7 @@ public class AstPrinter {
             } else {
                 System.out.println(indent + "{" + element.getText()
                         .replace("\n", "\\n")
-                        .replace("\r", "\\r") + "}");
+                        .replace("\r", "\\r") + "}  4");
             }
         }
     }
