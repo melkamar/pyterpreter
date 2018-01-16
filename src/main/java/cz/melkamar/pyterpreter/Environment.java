@@ -29,4 +29,8 @@ public class Environment {
     public void putValue(String name, Object value){
         env.put(name, value);
     }
+
+    public static Environment getDefaultEnvironment(){
+        return new Environment();
+    }
 }

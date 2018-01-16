@@ -8,7 +8,12 @@ import cz.melkamar.pyterpreter.Environment;
 public class PyRootNode extends PyNode {
     @Override
     public Object execute(Environment env) {
-        return null;
+        Object lastReturned = null;
+        for (PyNode node: children){
+            lastReturned = node.execute(env);
+        }
+
+        return lastReturned; // Root node does not return anything anywhere
     }
 
     @Override

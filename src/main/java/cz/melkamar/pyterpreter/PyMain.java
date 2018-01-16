@@ -18,7 +18,8 @@ import java.net.URISyntaxException;
 public class PyMain {
 
     public static void main(String[] args) throws IOException {
-        doStuff();
+//        doStuff();
+        runTests();
         if (true) return;
 
         ParserFacade parserFacade = new ParserFacade();
@@ -54,9 +55,8 @@ public class PyMain {
     }
 
 
-
-    public static void runTests(){
+    public static void runTests() {
         PyRootNode rootNode = AST.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
-        assert rootNode.children.size() == 1;
+        System.out.println(rootNode.execute(Environment.getDefaultEnvironment()));
     }
 }

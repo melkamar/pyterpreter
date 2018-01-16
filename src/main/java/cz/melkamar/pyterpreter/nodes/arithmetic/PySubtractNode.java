@@ -2,12 +2,13 @@ package cz.melkamar.pyterpreter.nodes.arithmetic;
 
 import cz.melkamar.pyterpreter.Environment;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
+import cz.melkamar.pyterpreter.nodes.BinaryNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 
 /**
  * Created by Martin Melka (martin.melka@gmail.com) on 16.01.2018 16:43.
  */
-public class PySubtractNode extends PyNode {
+public class PySubtractNode extends BinaryNode {
     @Override
     public void addChild(PyNode node) {
         super.addChild(node);
@@ -16,6 +17,12 @@ public class PySubtractNode extends PyNode {
 
     @Override
     public Object execute(Environment env) {
+        Object leftChildResult = children.get(0).execute(env);
+        Object rightChildResult = children.get(1).execute(env);
+
+        if (leftChildResult instanceof Long && rightChildResult instanceof Long)
+            return (Long) leftChildResult - (Long) rightChildResult;
+
         throw new NotImplementedException();
     }
 
