@@ -232,14 +232,14 @@ public class AST {
         return funcNode;
     }
 
-    public PyNode parseStatement(AST ast, int fromIndex, PyNode currentPyNode) {
-        if (fromIndex == ast.children.size()) return null;
-        if (fromIndex == ast.children.size() - 1) {
-            return parseTermNode(ast.children.get(fromIndex));
+    public PyNode parseStatement(AST ast, int toIndex, PyNode currentPyNode) {
+        if (toIndex < 0) return null;
+        if (toIndex == 0) {
+            return parseTermNode(ast.children.get(0));
         }
 
-        if (ast.isChildToken(fromIndex)) {
-            Token firstToken = ast.astChildAsToken(fromIndex);
+        if (ast.isChildToken(toIndex)) {
+            Token firstToken = ast.astChildAsToken(toIndex);
 
             // Defining a function
             if (firstToken.getType() == Python3Lexer.DEF) {
@@ -250,11 +250,11 @@ public class AST {
         }
 
         // +
-        if (ast.children.size() - fromIndex >= 3) { // At least three children
-            if (ast.isChildToken(fromIndex + 1)) {
+        if (toIndex >= 2) { // At least three children
+            if (ast.isChildToken(toIndex - 1)) {
 
                 PyNode aritNode = null;
-                switch (ast.astChildAsToken(fromIndex + 1).getType()) {
+                switch (ast.astChildAsToken(toIndex - 1).getType()) {
                     case Python3Lexer.ADD:
                         aritNode = new PyAddNode();
                         break;
@@ -265,8 +265,8 @@ public class AST {
                         throw new NotImplementedException();
                 }
 
-                PyNode left = parseTermNode(ast.children.get(fromIndex));
-                PyNode right = parseStatement(ast, fromIndex + 2, aritNode);
+                PyNode right = parseTermNode(ast.children.get(toIndex));
+                PyNode left = parseStatement(ast, toIndex - 2, aritNode);
 
                 aritNode.addChild(left);
                 aritNode.addChild(right);
@@ -277,27 +277,27 @@ public class AST {
         throw new NotImplementedException();
     }
 
-    /**
-     * Parse ast whose children are something + something [some more children]
-     *
-     * @param ast
-     * @param currentPyNode
-     * @return
-     */
-    public PyNode parseAddNode(AST ast, PyNode currentPyNode) {
-        assert ast.children.get(0).getNontokenType() == NODE_TYPE_TERM;
-        assert ast.children.get(2).getNontokenType() == NODE_TYPE_TERM;
-
-//        PyNode addPyNode = new PyNode("+", Python3Lexer.ADD, currentPyNode);
-        PyNode addPyNode = new PyAddNode();
-
-        PyNode leftChild = parseTermNode(ast.children.get(0));
-        // middle "child" is the add token
-        PyNode rightChild = parseTermNode(ast.children.get(2));
-        addPyNode.addChild(leftChild);
-        addPyNode.addChild(rightChild);
-        return addPyNode;
-    }
+//    /**
+//     * Parse ast whose children are something + something [some more children]
+//     *
+//     * @param ast
+//     * @param currentPyNode
+//     * @return
+//     */
+//    public PyNode parseAddNode(AST ast, PyNode currentPyNode) {
+//        assert ast.children.get(0).getNontokenType() == NODE_TYPE_TERM;
+//        assert ast.children.get(2).getNontokenType() == NODE_TYPE_TERM;
+//
+////        PyNode addPyNode = new PyNode("+", Python3Lexer.ADD, currentPyNode);
+//        PyNode addPyNode = new PyAddNode();
+//
+//        PyNode leftChild = parseTermNode(ast.children.get(0));
+//        // middle "child" is the add token
+//        PyNode rightChild = parseTermNode(ast.children.get(2));
+//        addPyNode.addChild(leftChild);
+//        addPyNode.addChild(rightChild);
+//        return addPyNode;
+//    }
 
     final static int NODE_TYPE_TERM = 1;
 
@@ -362,7 +362,7 @@ public class AST {
 
                 case "small_stmt":
                 case "stmt":
-                    PyNode node = parseStatement(ast, 0, currentPyNode);
+                    PyNode node = parseStatement(ast, ast.children.size()-1, currentPyNode);
                     currentPyNode.addChild(node);
                     break;
 

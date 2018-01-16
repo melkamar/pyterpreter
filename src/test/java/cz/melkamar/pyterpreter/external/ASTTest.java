@@ -20,13 +20,13 @@ public class ASTTest {
         assertTrue(firstChild instanceof PyAddNode);
         assertTrue(firstChild.children.size() == 2);
 
-        assertTrue(firstChild.children.get(0) instanceof PyNumberNode);
-        assertTrue((Long) (firstChild.children.get(0)).execute(null) == 1);
-        assertTrue(firstChild.children.get(1) instanceof PyAddNode);
+        assertTrue(firstChild.children.get(0) instanceof PyAddNode);
+        assertTrue((Long) (firstChild.children.get(1)).execute(null) == 6);
+        assertTrue(firstChild.children.get(1) instanceof PyNumberNode);
 
         // Check bottom two leaves are numbers
-        assertTrue(firstChild.children.get(1).children.get(1).children.get(1).children.get(1).children.get(0) instanceof PyNumberNode);
-        assertTrue(firstChild.children.get(1).children.get(1).children.get(1).children.get(1).children.get(1) instanceof PyNumberNode);
+        assertTrue(firstChild.children.get(0).children.get(0).children.get(0).children.get(0).children.get(0) instanceof PyNumberNode);
+        assertTrue(firstChild.children.get(0).children.get(0).children.get(0).children.get(0).children.get(1) instanceof PyNumberNode);
     }
 
     @Test
@@ -38,11 +38,11 @@ public class ASTTest {
         assertTrue(firstChild instanceof PySubtractNode);
         assertTrue(firstChild.children.size() == 2);
 
-        assertTrue(firstChild.children.get(0) instanceof PyNumberNode);
-        assertTrue((Long) (firstChild.children.get(0)).execute(null) == 1);
-        assertTrue(firstChild.children.get(1) instanceof PySubtractNode);
+        assertTrue(firstChild.children.get(1) instanceof PyNumberNode);
+        assertTrue((Long) (firstChild.children.get(1)).execute(null) == 3);
+        assertTrue(firstChild.children.get(0) instanceof PySubtractNode);
 
-        assertTrue((Long) (firstChild.children.get(1).children.get(0)).execute(null) == 4);
-        assertTrue((Long) (firstChild.children.get(1).children.get(1)).execute(null) == 3);
+        assertTrue((Long) (firstChild.children.get(0).children.get(0)).execute(null) == 1);
+        assertTrue((Long) (firstChild.children.get(0).children.get(1)).execute(null) == 4);
     }
 }
