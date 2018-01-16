@@ -158,24 +158,6 @@ public class ParseTree {
         }
     }
 
-//    class PyNode {
-//        String text;
-//        int type;
-//        PyNode parent;
-//        List<PyNode> children;
-//
-//        public PyNode(String text, int type, PyNode parent) {
-//            this.text = text;
-//            this.type = type;
-//            this.parent = parent;
-//            children = new ArrayList<>();
-//        }
-//
-//        public void addChild(PyNode child) {
-//            children.add(child);
-//        }
-//    }
-
     /**
      * Parse code into ParseTree and return the root node.
      */
@@ -446,36 +428,4 @@ public class ParseTree {
 
         return builder.toString();
     }
-
-//    public static void main(String[] args) {
-
-    // Generate the parser and lexer classes below using the grammar available here:
-    // https://github.com/bkiers/python3-parser
-//        Python3Lexer lexer = new Python3Lexer(new ANTLRInputStream("f(arg1='1')\n"));
-//        Python3Parser parser = new Python3Parser(new CommonTokenStream(lexer));
-
-//        ParseTree tree = parser.file_input();
-//        ParseTree ast = new ParseTree(tree);
-//
-//        System.out.println(ast);
-
-    // Output:
-    //
-    //    '- file_input
-    //       |- stmt
-    //       |  |- small_stmt
-    //       |  |  |- atom
-    //       |  |  |  '- TOKEN[type: 35, text: f]
-    //       |  |  '- trailer
-    //       |  |     |- TOKEN[type: 47, text: (]
-    //       |  |     |- arglist
-    //       |  |     |  |- test
-    //       |  |     |  |  '- TOKEN[type: 35, text: arg1]
-    //       |  |     |  |- TOKEN[type: 53, text: =]
-    //       |  |     |  '- test
-    //       |  |     |     '- TOKEN[type: 36, text: '1']
-    //       |  |     '- TOKEN[type: 48, text: )]
-    //       |  '- TOKEN[type: 34, text: \n]
-    //       '- TOKEN[type: -1, text: <EOF>]
-//    }
 }
