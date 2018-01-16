@@ -644,7 +644,7 @@ arglist
  ;
 
 /// # The reason that keywords are test nodes instead of NAME is that using NAME
-/// # results in an ambiguity. ast.c makes sure it's a NAME.
+/// # results in an ambiguity. parseTree.c makes sure it's a NAME.
 /// argument: test [comp_for] | test '=' test  # Really [keyword '='] test
 argument
  : test comp_for? 

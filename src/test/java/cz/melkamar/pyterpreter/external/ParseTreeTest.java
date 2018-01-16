@@ -10,10 +10,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 
-public class ASTTest {
+public class ParseTreeTest {
     @Test
     public void additionAstStructure() {
-        PyRootNode rootNode = AST.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
+        PyRootNode rootNode = ParseTree.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
         assertEquals(rootNode.children.size(), 1);
 
         PyNode firstChild = rootNode.children.get(0);
@@ -31,7 +31,7 @@ public class ASTTest {
 
     @Test
     public void subtractionAstStructure(){
-        PyRootNode rootNode = AST.astFromCode("1 - 4 - 3");
+        PyRootNode rootNode = ParseTree.astFromCode("1 - 4 - 3");
         assertEquals(rootNode.children.size(), 1);
 
         PyNode firstChild = rootNode.children.get(0);

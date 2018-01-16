@@ -10,13 +10,13 @@ import org.junit.Test;
 public class ExecuteTest {
     @Test
     public void addition() {
-        PyRootNode rootNode = AST.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
+        PyRootNode rootNode = ParseTree.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
         Assert.assertEquals(1L + 2 + 3 + 4 + 5 + 6, ((Long) rootNode.execute(null)).longValue());
     }
 
     @Test
     public void subtraction() {
-        PyRootNode rootNode = AST.astFromCode("6-5-2-3");
+        PyRootNode rootNode = ParseTree.astFromCode("6-5-2-3");
         Assert.assertEquals(6L - 5 - 2 - 3, ((Long) rootNode.execute(null)).longValue());
     }
 }

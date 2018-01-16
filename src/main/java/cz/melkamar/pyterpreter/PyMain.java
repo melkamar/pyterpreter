@@ -1,14 +1,9 @@
 package cz.melkamar.pyterpreter;
 
-import cz.melkamar.pyterpreter.antlr.Python3Lexer;
-import cz.melkamar.pyterpreter.antlr.Python3Parser;
-import cz.melkamar.pyterpreter.external.AST;
+import cz.melkamar.pyterpreter.external.ParseTree;
 import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import cz.melkamar.pyterpreter.parser.AstPrinter;
 import cz.melkamar.pyterpreter.parser.ParserFacade;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,8 +38,8 @@ public class PyMain {
             URI uri = PyMain.class.getResource("/tinier.py").toURI();
             testFile = new File(uri);
 
-            ParseTree parseTree = parserFacade.parse(testFile);
-            AST ast = new AST(parseTree);
+            org.antlr.v4.runtime.tree.ParseTree parseTree = parserFacade.parse(testFile);
+            ParseTree ast = new ParseTree(parseTree);
             System.out.println(ast);
             ast.generateAST();
 
@@ -56,7 +51,9 @@ public class PyMain {
 
 
     public static void runTests() {
-        PyRootNode rootNode = AST.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
+        String code = "x=5";
+        ParseTree.printParseTree(code);
+        PyRootNode rootNode = ParseTree.astFromCode(code);
         System.out.println(rootNode.execute(Environment.getDefaultEnvironment()));
     }
 }

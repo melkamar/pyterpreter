@@ -35,7 +35,6 @@ import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.tree.ParseTree;
 
 import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 
@@ -73,10 +72,10 @@ import java.util.*;
  * </code>
  * </pre>
  * <p>
- * In other word: all inner nodes that have a single child are removed from the AST.
+ * In other word: all inner nodes that have a single child are removed from the ParseTree.
  */
 @SuppressWarnings("Duplicates")
-public class AST {
+public class ParseTree {
 
     /**
      * The payload will either be the name of the parser rule, or the token
@@ -85,26 +84,26 @@ public class AST {
     private final Object payload;
 
     /**
-     * All child nodes of this AST.
+     * All child nodes of this ParseTree.
      */
-    private final List<AST> children;
+    private final List<ParseTree> children;
 
-    public AST(ParseTree tree) {
+    public ParseTree(org.antlr.v4.runtime.tree.ParseTree tree) {
         this(null, tree);
     }
 
-    private AST(AST ast, ParseTree tree) {
-        this(ast, tree, new ArrayList<AST>());
+    private ParseTree(ParseTree parseTree, org.antlr.v4.runtime.tree.ParseTree tree) {
+        this(parseTree, tree, new ArrayList<ParseTree>());
     }
 
-    private AST(AST parent, ParseTree tree, List<AST> children) {
+    private ParseTree(ParseTree parent, org.antlr.v4.runtime.tree.ParseTree tree, List<ParseTree> children) {
 
         this.payload = getPayload(tree);
         this.children = children;
 
         if (parent == null) {
-            // We're at the root of the AST, traverse down the parse tree to fill
-            // this AST with nodes.
+            // We're at the root of the ParseTree, traverse down the parse tree to fill
+            // this ParseTree with nodes.
             walk(tree, this);
         } else {
             parent.children.add(this);
@@ -115,13 +114,13 @@ public class AST {
         return payload;
     }
 
-    public List<AST> getChildren() {
+    public List<ParseTree> getChildren() {
         return new ArrayList<>(children);
     }
 
-    // Determines the payload of this AST: a string in case it's an inner node (which
+    // Determines the payload of this ParseTree: a string in case it's an inner node (which
     // is the name of the parser rule), or a Token in case it is a leaf node.
-    private Object getPayload(ParseTree tree) {
+    private Object getPayload(org.antlr.v4.runtime.tree.ParseTree tree) {
         if (tree.getChildCount() == 0) {
             // A leaf node: return the tree's payload, which is a Token.
             return tree.getPayload();
@@ -133,23 +132,23 @@ public class AST {
         }
     }
 
-    // Fills this AST based on the parse tree.
-    private static void walk(ParseTree tree, AST ast) {
+    // Fills this ParseTree based on the parse tree.
+    private static void walk(org.antlr.v4.runtime.tree.ParseTree tree, ParseTree parseTree) {
 
         if (tree.getChildCount() == 0) {
-            // We've reached a leaf. We must create a new instance of an AST because
+            // We've reached a leaf. We must create a new instance of an ParseTree because
             // the constructor will make sure this new instance is added to its parent's
             // child nodes.
-            new AST(ast, tree);
+            new ParseTree(parseTree, tree);
         } else if (tree.getChildCount() == 1) {
             // We've reached an inner node with a single child: we don't include this in
-            // our AST.
-            walk(tree.getChild(0), ast);
+            // our ParseTree.
+            walk(tree.getChild(0), parseTree);
         } else if (tree.getChildCount() > 1) {
 
             for (int i = 0; i < tree.getChildCount(); i++) {
 
-                AST temp = new AST(ast, tree.getChild(i));
+                ParseTree temp = new ParseTree(parseTree, tree.getChild(i));
 
                 if (!(temp.payload instanceof Token)) {
                     // Only traverse down if the payload is not a Token.
@@ -177,17 +176,38 @@ public class AST {
 //        }
 //    }
 
+    /**
+     * Parse code into ParseTree and return the root node.
+     */
     public static PyRootNode astFromCode(String code) {
         Python3Lexer lexer = new Python3Lexer(new ANTLRInputStream(code));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         Python3Parser parser = new Python3Parser(tokens);
 
-        ParseTree parseTree = parser.file_input();
-        AST ast = new AST(parseTree);
+        org.antlr.v4.runtime.tree.ParseTree parseTree = parser.file_input();
+        ParseTree ast = new ParseTree(parseTree);
         PyRootNode rootNode = ast.generateAST();
         return rootNode;
     }
 
+    /**
+     * Parse code into a parsetree, print it - used for debugging.
+     */
+    public static void printParseTree(String code) {
+        Python3Lexer lexer = new Python3Lexer(new ANTLRInputStream(code));
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        Python3Parser parser = new Python3Parser(tokens);
+
+        org.antlr.v4.runtime.tree.ParseTree parseTree = parser.file_input();
+        ParseTree ast = new ParseTree(parseTree);
+        System.out.println(ast);
+    }
+
+    /**
+     * Generate ParseTree from this parsetree.
+     *
+     * @return
+     */
     public PyRootNode generateAST() {
         PyRootNode rootPyNode = new PyRootNode();
         traverse(this, rootPyNode);
@@ -196,15 +216,15 @@ public class AST {
         return rootPyNode;
     }
 
-    private PyNode parseFuncDef(AST ast, PyNode currentPyNode) {
+    private PyNode parseFuncDef(ParseTree parseTree, PyNode currentPyNode) {
         // Get function name
-        String functionName = ((Token) ast.children.get(1).payload).getText();
+        String functionName = ((Token) parseTree.children.get(1).payload).getText();
 
         // Get parameters
         List<String> args = new ArrayList<>();
-        AST typedArgsList = ast.children.get(2).children.get(1); // get node typedargslist
+        ParseTree typedArgsList = parseTree.children.get(2).children.get(1); // get node typedargslist
 
-        for (AST arg : typedArgsList.children) {
+        for (ParseTree arg : typedArgsList.children) {
             if (arg.payload instanceof Token) {
                 // when there is a single parameter, it will be directly under typedargslist
                 Token argToken = (Token) arg.payload;
@@ -232,18 +252,18 @@ public class AST {
         return funcNode;
     }
 
-    public PyNode parseStatement(AST ast, int toIndex, PyNode currentPyNode) {
+    public PyNode parseStatement(ParseTree parseTree, int toIndex, PyNode currentPyNode) {
         if (toIndex < 0) return null;
         if (toIndex == 0) {
-            return parseTermNode(ast.children.get(0));
+            return parseTermNode(parseTree.children.get(0));
         }
 
-        if (ast.isChildToken(toIndex)) {
-            Token firstToken = ast.astChildAsToken(toIndex);
+        if (parseTree.isChildToken(toIndex)) {
+            Token firstToken = parseTree.astChildAsToken(toIndex);
 
             // Defining a function
             if (firstToken.getType() == Python3Lexer.DEF) {
-                PyNode defPyNode = parseFuncDef(ast, currentPyNode);
+                PyNode defPyNode = parseFuncDef(parseTree, currentPyNode);
                 currentPyNode.addChild(defPyNode);
                 return defPyNode;
             }
@@ -251,10 +271,10 @@ public class AST {
 
         // +
         if (toIndex >= 2) { // At least three children
-            if (ast.isChildToken(toIndex - 1)) {
+            if (parseTree.isChildToken(toIndex - 1)) {
 
                 PyNode aritNode = null;
-                switch (ast.astChildAsToken(toIndex - 1).getType()) {
+                switch (parseTree.astChildAsToken(toIndex - 1).getType()) {
                     case Python3Lexer.ADD:
                         aritNode = new PyAddNode();
                         break;
@@ -265,8 +285,8 @@ public class AST {
                         throw new NotImplementedException();
                 }
 
-                PyNode right = parseTermNode(ast.children.get(toIndex));
-                PyNode left = parseStatement(ast, toIndex - 2, aritNode);
+                PyNode right = parseTermNode(parseTree.children.get(toIndex));
+                PyNode left = parseStatement(parseTree, toIndex - 2, aritNode);
 
                 aritNode.addChild(left);
                 aritNode.addChild(right);
@@ -276,28 +296,6 @@ public class AST {
         }
         throw new NotImplementedException();
     }
-
-//    /**
-//     * Parse ast whose children are something + something [some more children]
-//     *
-//     * @param ast
-//     * @param currentPyNode
-//     * @return
-//     */
-//    public PyNode parseAddNode(AST ast, PyNode currentPyNode) {
-//        assert ast.children.get(0).getNontokenType() == NODE_TYPE_TERM;
-//        assert ast.children.get(2).getNontokenType() == NODE_TYPE_TERM;
-//
-////        PyNode addPyNode = new PyNode("+", Python3Lexer.ADD, currentPyNode);
-//        PyNode addPyNode = new PyAddNode();
-//
-//        PyNode leftChild = parseTermNode(ast.children.get(0));
-//        // middle "child" is the add token
-//        PyNode rightChild = parseTermNode(ast.children.get(2));
-//        addPyNode.addChild(leftChild);
-//        addPyNode.addChild(rightChild);
-//        return addPyNode;
-//    }
 
     final static int NODE_TYPE_TERM = 1;
 
@@ -310,17 +308,17 @@ public class AST {
         }
     }
 
-    public PyNode parseTermNode(AST ast) {
-        if (ast.children.size() == 1 &&
-                ast.isChildToken(0) &&
-                ast.astChildAsToken(0).getType() == Python3Lexer.DECIMAL_INTEGER) {
-            return new PyNumberNode(Long.parseLong(ast.astChildAsToken(0).getText()));
+    public PyNode parseTermNode(ParseTree parseTree) {
+        if (parseTree.children.size() == 1 &&
+                parseTree.isChildToken(0) &&
+                parseTree.astChildAsToken(0).getType() == Python3Lexer.DECIMAL_INTEGER) {
+            return new PyNumberNode(Long.parseLong(parseTree.astChildAsToken(0).getText()));
         }
         throw new NotImplementedException();
     }
 
     /**
-     * Check if current AST node is an instance of Token.
+     * Check if current ParseTree node is an instance of Token.
      */
     private boolean isToken() {
         return this.payload instanceof Token;
@@ -343,26 +341,26 @@ public class AST {
         return (Token) this.children.get(index).payload;
     }
 
-    public void traverse(AST ast, PyNode currentPyNode) {
+    public void traverse(ParseTree parseTree, PyNode currentPyNode) {
         // If there are only two children and the second one is newline, directly traverse the first child, discard newline
-        if (ast.children.size() == 2 &&
-                ast.isChildToken(1) &&
-                ast.astChildAsToken(1).getType() == Python3Lexer.NEWLINE) {
-            traverse(ast.children.get(0), currentPyNode);
+        if (parseTree.children.size() == 2 &&
+                parseTree.isChildToken(1) &&
+                parseTree.astChildAsToken(1).getType() == Python3Lexer.NEWLINE) {
+            traverse(parseTree.children.get(0), currentPyNode);
             return;
         }
 
-        if (!(ast.payload instanceof Token)) {
-            switch (String.valueOf(ast.payload)) {
+        if (!(parseTree.payload instanceof Token)) {
+            switch (String.valueOf(parseTree.payload)) {
                 case "file_input":
-                    for (AST child : ast.children) {
+                    for (ParseTree child : parseTree.children) {
                         traverse(child, currentPyNode);
                     }
                     break;
 
                 case "small_stmt":
                 case "stmt":
-                    PyNode node = parseStatement(ast, ast.children.size()-1, currentPyNode);
+                    PyNode node = parseStatement(parseTree, parseTree.children.size() - 1, currentPyNode);
                     currentPyNode.addChild(node);
                     break;
 
@@ -372,7 +370,7 @@ public class AST {
 
         } else {
             System.out.println("here");
-            Token token = (Token) ast.payload;
+            Token token = (Token) parseTree.payload;
             int tokenCode = token.getType();
 
             String tokenEscaped = token.getText().replace("\n", "\\n").replace("\r", "\\r");
@@ -397,31 +395,31 @@ public class AST {
 
         StringBuilder builder = new StringBuilder();
 
-        AST ast = this;
-        List<AST> firstStack = new ArrayList<>();
-        firstStack.add(ast);
+        ParseTree parseTree = this;
+        List<ParseTree> firstStack = new ArrayList<>();
+        firstStack.add(parseTree);
 
-        List<List<AST>> childListStack = new ArrayList<>();
+        List<List<ParseTree>> childListStack = new ArrayList<>();
         childListStack.add(firstStack);
 
         while (!childListStack.isEmpty()) {
 
-            List<AST> childStack = childListStack.get(childListStack.size() - 1);
+            List<ParseTree> childStack = childListStack.get(childListStack.size() - 1);
 
             if (childStack.isEmpty()) {
                 childListStack.remove(childListStack.size() - 1);
             } else {
-                ast = childStack.remove(0);
+                parseTree = childStack.remove(0);
                 String caption;
 
-                if (ast.payload instanceof Token) {
-                    Token token = (Token) ast.payload;
+                if (parseTree.payload instanceof Token) {
+                    Token token = (Token) parseTree.payload;
                     String tokenEscaped = token.getText().replace("\n", "\\n").replace("\r", "\\r");
                     caption = String.format("TOKEN[type: %s, text: %s]",
                                             token.getType(), tokenEscaped);
 //                    System.out.println("got token: " + tokenEscaped + " (" + token.getType() + ")");
                 } else {
-                    caption = String.valueOf(ast.payload);
+                    caption = String.valueOf(parseTree.payload);
 //                    System.out.println("got non-token: " + caption);
                 }
 
@@ -436,10 +434,10 @@ public class AST {
                         .append(caption)
                         .append("\n");
 
-                if (ast.children.size() > 0) {
-                    List<AST> children = new ArrayList<>();
-                    for (int i = 0; i < ast.children.size(); i++) {
-                        children.add(ast.children.get(i));
+                if (parseTree.children.size() > 0) {
+                    List<ParseTree> children = new ArrayList<>();
+                    for (int i = 0; i < parseTree.children.size(); i++) {
+                        children.add(parseTree.children.get(i));
                     }
                     childListStack.add(children);
                 }
@@ -457,7 +455,7 @@ public class AST {
 //        Python3Parser parser = new Python3Parser(new CommonTokenStream(lexer));
 
 //        ParseTree tree = parser.file_input();
-//        AST ast = new AST(tree);
+//        ParseTree ast = new ParseTree(tree);
 //
 //        System.out.println(ast);
 
