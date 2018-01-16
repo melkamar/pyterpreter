@@ -23,9 +23,9 @@ public class PyMain {
 
         File testFile = null;
         try {
-            URI uri = PyMain.class.getResource("/tiny.py").toURI();
+            URI uri = PyMain.class.getResource("/tinier.py").toURI();
             testFile = new File(uri);
-//            astPrinter.print(parserFacade.parse(testFile));
+            astPrinter.print(parserFacade.parse(testFile));
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
@@ -35,7 +35,7 @@ public class PyMain {
         ParserFacade parserFacade = new ParserFacade();
         File testFile = null;
         try {
-            URI uri = PyMain.class.getResource("/tiny.py").toURI();
+            URI uri = PyMain.class.getResource("/tinier.py").toURI();
             testFile = new File(uri);
 
             ParseTree parseTree = parserFacade.parse(testFile);

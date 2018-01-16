@@ -72,6 +72,7 @@ import java.util.*;
  * <p>
  * In other word: all inner nodes that have a single child are removed from the AST.
  */
+@SuppressWarnings("Duplicates")
 public class AST {
 
     /**
@@ -206,7 +207,8 @@ public class AST {
             }
         }
 
-        PyNode funcNode = new PyFunctionNode(functionName, Arrays.copyOf(args.toArray(), args.toArray().length, String[].class));
+        PyNode funcNode = new PyFunctionNode(functionName,
+                                             Arrays.copyOf(args.toArray(), args.toArray().length, String[].class));
         // TODO code
 
         System.out.println("Defining function '" + functionName + "' with args " + Arrays.toString(
@@ -215,6 +217,48 @@ public class AST {
         return funcNode;
     }
 
+    public PyNode parseStatement(AST ast, int fromIndex, PyNode currentPyNode) {
+        if (fromIndex == ast.children.size()) return null;
+        if (fromIndex == ast.children.size()-1){
+            return parseTermNode(ast.children.get(fromIndex));
+        }
+
+        if (ast.isChildToken(fromIndex)) {
+            Token firstToken = ast.astChildAsToken(fromIndex);
+
+            // Defining a function
+            if (firstToken.getType() == Python3Lexer.DEF) {
+                PyNode defPyNode = parseFuncDef(ast, currentPyNode);
+                currentPyNode.addChild(defPyNode);
+                return defPyNode;
+            }
+        }
+
+        // +
+        if (ast.children.size() - fromIndex >= 3) { // At least three children
+            if (ast.isChildToken(fromIndex + 1) &&
+                    ast.astChildAsToken(fromIndex + 1).getType() == Python3Lexer.ADD) {
+
+//                        PyNode addPyNode = parseAddNode(ast, currentPyNode);
+                PyNode addNode = new PyAddNode();
+                PyNode left = parseTermNode(ast.children.get(fromIndex));
+                PyNode right = parseStatement(ast, fromIndex + 2, addNode);
+
+                addNode.addChild(left);
+                addNode.addChild(right);
+                return addNode;
+            }
+        }
+        throw new NotImplementedException();
+    }
+
+    /**
+     * Parse ast whose children are something + something [some more children]
+     *
+     * @param ast
+     * @param currentPyNode
+     * @return
+     */
     public PyNode parseAddNode(AST ast, PyNode currentPyNode) {
         assert ast.children.get(0).getNontokenType() == NODE_TYPE_TERM;
         assert ast.children.get(2).getNontokenType() == NODE_TYPE_TERM;
@@ -222,9 +266,9 @@ public class AST {
 //        PyNode addPyNode = new PyNode("+", Python3Lexer.ADD, currentPyNode);
         PyNode addPyNode = new PyAddNode();
 
-        PyNode leftChild = parseTermNode(ast.children.get(0), addPyNode);
+        PyNode leftChild = parseTermNode(ast.children.get(0));
         // middle "child" is the add token
-        PyNode rightChild = parseTermNode(ast.children.get(2), addPyNode);
+        PyNode rightChild = parseTermNode(ast.children.get(2));
         addPyNode.addChild(leftChild);
         addPyNode.addChild(rightChild);
         return addPyNode;
@@ -241,7 +285,7 @@ public class AST {
         }
     }
 
-    public PyNode parseTermNode(AST ast, PyNode currentPyNode) {
+    public PyNode parseTermNode(AST ast) {
         if (ast.children.size() == 1 &&
                 ast.isChildToken(0) &&
                 ast.astChildAsToken(0).getType() == Python3Lexer.DECIMAL_INTEGER) {
@@ -285,38 +329,28 @@ public class AST {
 
         if (!(ast.payload instanceof Token)) {
             switch (String.valueOf(ast.payload)) {
+                case "file_input":
+                    for (AST child : ast.children) {
+                        traverse(child, currentPyNode);
+                    }
+                    break;
+
                 case "small_stmt":
                 case "stmt":
-                    if (ast.isChildToken(0)) {
-                        Token firstToken = ast.astChildAsToken(0);
+                    PyNode node = parseStatement(ast, 0, currentPyNode);
+                    currentPyNode.addChild(node);
+                    break;
 
-                        // Defining a function
-                        if (firstToken.getType() == Python3Lexer.DEF) {
-                            PyNode defPyNode = parseFuncDef(ast, currentPyNode);
-                            currentPyNode.addChild(defPyNode);
-                            return;
-                        }
-                    }
-
-                    // +
-                    if (ast.children.size() == 3) {
-                        if (ast.isChildToken(1) && ast.astChildAsToken(1).getType() == Python3Lexer.ADD) {
-                            PyNode addPyNode = parseAddNode(ast, currentPyNode);
-                            currentPyNode.addChild(addPyNode);
-                            return;
-                        }
-                    }
-
-
+                default:
+                    throw new NotImplementedException();
             }
 
         } else {
+            System.out.println("here");
             Token token = (Token) ast.payload;
             int tokenCode = token.getType();
 
             String tokenEscaped = token.getText().replace("\n", "\\n").replace("\r", "\\r");
-//            System.out.println("    --  got token: " + tokenEscaped + " (" + token.getType() + ")");
-
             switch (tokenCode) {
                 case Python3Lexer.ADD:
                     PyNode newPyNode = new PyAddNode();
@@ -330,10 +364,6 @@ public class AST {
             }
 
 
-        }
-
-        for (AST child : ast.children) {
-            traverse(child, currentPyNode);
         }
     }
 
@@ -364,10 +394,10 @@ public class AST {
                     String tokenEscaped = token.getText().replace("\n", "\\n").replace("\r", "\\r");
                     caption = String.format("TOKEN[type: %s, text: %s]",
                                             token.getType(), tokenEscaped);
-                    System.out.println("got token: " + tokenEscaped + " (" + token.getType() + ")");
+//                    System.out.println("got token: " + tokenEscaped + " (" + token.getType() + ")");
                 } else {
                     caption = String.valueOf(ast.payload);
-                    System.out.println("got non-token: " + caption);
+//                    System.out.println("got non-token: " + caption);
                 }
 
                 String indent = "";

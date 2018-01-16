@@ -14,8 +14,8 @@ public class AstPrinter {
         this.ignoringWrappers = ignoringWrappers;
     }
 
-    public void print(RuleContext ctx) {
-        explore(ctx, 0);
+    public void print(ParseTree ctx) {
+        explore((RuleContext)ctx, 0);
     }
 
     private void explore(RuleContext ctx, int indentation) {
