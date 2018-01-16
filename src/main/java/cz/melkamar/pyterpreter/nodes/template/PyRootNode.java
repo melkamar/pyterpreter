@@ -10,4 +10,17 @@ public class PyRootNode extends PyNode {
     public Object execute(Environment env) {
         return null;
     }
+
+    @Override
+    public void print(int indent) {
+        printIndented("ROOT", indent);
+
+        for (PyNode child : children) {
+            child.print(indent+1);
+        }
+    }
+
+    public void print(){
+        print(0);
+    }
 }

@@ -5,5 +5,7 @@ def f(a, x, y):
 def g(b):
     pass
 
+def h():
+    pass
 
-f() + g()
+1 + 2

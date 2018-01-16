@@ -24,11 +24,13 @@
  */
 package cz.melkamar.pyterpreter.external;
 
-import com.sun.javafx.scene.control.skin.VirtualFlow;
-import com.sun.xml.internal.ws.policy.spi.AssertionCreationException;
-import jdk.internal.org.objectweb.asm.tree.MultiANewArrayInsnNode;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
+import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
+import cz.melkamar.pyterpreter.nodes.PyAddNode;
+import cz.melkamar.pyterpreter.nodes.PyFunctionNode;
+import cz.melkamar.pyterpreter.nodes.PyListNode;
+import cz.melkamar.pyterpreter.nodes.PyNumberNode;
+import cz.melkamar.pyterpreter.nodes.template.PyNode;
+import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -153,31 +155,32 @@ public class AST {
         }
     }
 
-    class Node {
-        String text;
-        int type;
-        Node parent;
-        List<Node> children;
-
-        public Node(String text, int type, Node parent) {
-            this.text = text;
-            this.type = type;
-            this.parent = parent;
-            children = new ArrayList<>();
-        }
-
-        public void addChild(Node child) {
-            children.add(child);
-        }
-    }
+//    class PyNode {
+//        String text;
+//        int type;
+//        PyNode parent;
+//        List<PyNode> children;
+//
+//        public PyNode(String text, int type, PyNode parent) {
+//            this.text = text;
+//            this.type = type;
+//            this.parent = parent;
+//            children = new ArrayList<>();
+//        }
+//
+//        public void addChild(PyNode child) {
+//            children.add(child);
+//        }
+//    }
 
     public void doTraversal() {
-        Node rootNode = new Node("ROOT", -1, null);
-        traverse(this, rootNode);
-        System.out.println(rootNode);
+        PyRootNode rootPyNode = new PyRootNode();
+        traverse(this, rootPyNode);
+        System.out.println(rootPyNode);
+        rootPyNode.print();
     }
 
-    private Node parseFuncDef(AST ast, Node currentNode){
+    private PyNode parseFuncDef(AST ast, PyNode currentPyNode) {
         // Get function name
         String functionName = ((Token) ast.children.get(1).payload).getText();
 
@@ -192,7 +195,7 @@ public class AST {
                 if (argToken.getType() == Python3Lexer.NAME) args.add(argToken.getText());
             } else if (Objects.equals(String.valueOf(arg.payload), "tfpdef")) {
                 // when there are two or more parameters, they will be under typedargslist/tfpdef
-                assert arg.children.size()==1;
+                assert arg.children.size() == 1;
                 Object childPayload = arg.children.get(0).payload;
                 assert childPayload instanceof Token;
                 Token argToken = (Token) arg.children.get(0).payload;
@@ -203,35 +206,107 @@ public class AST {
             }
         }
 
-        // Get code
-        // TODO
-
-        Node defNode = new Node("DEF", Python3Lexer.DEF, currentNode);
-        Node nameNode = new Node(functionName, Python3Lexer.NAME, defNode);
-        Node argListNode = new Node("paramlist "+Arrays.toString(args.toArray()), -1, defNode);
-        defNode.addChild(nameNode);
-        defNode.addChild(argListNode);
+        PyNode funcNode = new PyFunctionNode(functionName, Arrays.copyOf(args.toArray(), args.toArray().length, String[].class));
+        // TODO code
 
         System.out.println("Defining function '" + functionName + "' with args " + Arrays.toString(
                 args.toArray()));
 
-        return defNode;
+        return funcNode;
     }
 
-    public void traverse(AST ast, Node currentNode) {
+    public PyNode parseAddNode(AST ast, PyNode currentPyNode) {
+        assert ast.children.get(0).getNontokenType() == NODE_TYPE_TERM;
+        assert ast.children.get(2).getNontokenType() == NODE_TYPE_TERM;
+
+//        PyNode addPyNode = new PyNode("+", Python3Lexer.ADD, currentPyNode);
+        PyNode addPyNode = new PyAddNode();
+
+        PyNode leftChild = parseTermNode(ast.children.get(0), addPyNode);
+        // middle "child" is the add token
+        PyNode rightChild = parseTermNode(ast.children.get(2), addPyNode);
+        addPyNode.addChild(leftChild);
+        addPyNode.addChild(rightChild);
+        return addPyNode;
+    }
+
+    final static int NODE_TYPE_TERM = 1;
+
+    public int getNontokenType() {
+        switch (String.valueOf(this.payload)) {
+            case "term":
+                return NODE_TYPE_TERM;
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
+    public PyNode parseTermNode(AST ast, PyNode currentPyNode) {
+        if (ast.children.size() == 1 &&
+                ast.isChildToken(0) &&
+                ast.astChildAsToken(0).getType() == Python3Lexer.DECIMAL_INTEGER) {
+            return new PyNumberNode(Long.parseLong(ast.astChildAsToken(0).getText()));
+        }
+        throw new NotImplementedException();
+    }
+
+    /**
+     * Check if current AST node is an instance of Token.
+     */
+    private boolean isToken() {
+        return this.payload instanceof Token;
+    }
+
+    /**
+     * Check if a child at a given position is an instance of Token.
+     *
+     * @param index Index of the child in ast.
+     * @throws IndexOutOfBoundsException When child with such index does not exist.
+     */
+    private boolean isChildToken(int index) {
+        return this.children.get(index).payload instanceof Token;
+    }
+
+    /**
+     * Get a node's child and cast as Token.
+     */
+    private Token astChildAsToken(int index) {
+        return (Token) this.children.get(index).payload;
+    }
+
+    public void traverse(AST ast, PyNode currentPyNode) {
+        // If there are only two children and the second one is newline, directly traverse the first child, discard newline
+        if (ast.children.size() == 2 &&
+                ast.isChildToken(1) &&
+                ast.astChildAsToken(1).getType() == Python3Lexer.NEWLINE) {
+            traverse(ast.children.get(0), currentPyNode);
+            return;
+        }
+
         if (!(ast.payload instanceof Token)) {
             switch (String.valueOf(ast.payload)) {
                 case "small_stmt":
                 case "stmt":
-                    if (ast.children.get(0).payload instanceof Token) {
-                        Token firstToken = (Token) ast.children.get(0).payload;
+                    if (ast.isChildToken(0)) {
+                        Token firstToken = ast.astChildAsToken(0);
 
                         // Defining a function
                         if (firstToken.getType() == Python3Lexer.DEF) {
-                            Node defNode = parseFuncDef(ast, currentNode);
-                            currentNode.addChild(defNode);
+                            PyNode defPyNode = parseFuncDef(ast, currentPyNode);
+                            currentPyNode.addChild(defPyNode);
+                            return;
                         }
                     }
+
+                    // +
+                    if (ast.children.size() == 3) {
+                        if (ast.isChildToken(1) && ast.astChildAsToken(1).getType() == Python3Lexer.ADD) {
+                            PyNode addPyNode = parseAddNode(ast, currentPyNode);
+                            currentPyNode.addChild(addPyNode);
+                            return;
+                        }
+                    }
+
 
             }
 
@@ -244,13 +319,13 @@ public class AST {
 
             switch (tokenCode) {
                 case Python3Lexer.ADD:
-                    Node newNode = new Node("+", tokenCode, currentNode);
-                    currentNode.addChild(newNode);
-                    currentNode = newNode;
+                    PyNode newPyNode = new PyAddNode();
+                    currentPyNode.addChild(newPyNode);
+                    currentPyNode = newPyNode;
                     break;
 
                 case Python3Lexer.DECIMAL_INTEGER:
-                    currentNode.addChild(new Node(tokenEscaped, Python3Lexer.DECIMAL_INTEGER, currentNode));
+                    currentPyNode.addChild(new PyNumberNode(token.getText()));
                     break;
             }
 
@@ -258,7 +333,7 @@ public class AST {
         }
 
         for (AST child : ast.children) {
-            traverse(child, currentNode);
+            traverse(child, currentPyNode);
         }
     }
 
