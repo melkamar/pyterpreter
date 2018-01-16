@@ -51,7 +51,7 @@ public class PyMain {
 
 
     public static void runTests() {
-        String code = "x=5";
+        String code = "x=5+1";
         ParseTree.printParseTree(code);
         PyRootNode rootNode = ParseTree.astFromCode(code);
         System.out.println(rootNode.execute(Environment.getDefaultEnvironment()));

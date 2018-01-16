@@ -7,7 +7,7 @@ import cz.melkamar.pyterpreter.nodes.template.PyNode;
  * Created by Martin Melka (martin.melka@gmail.com) on 05.11.2017 22:15.
  */
 public class PyNumberNode extends PyNode {
-    private final Long number;
+    public final long number;
 
     public PyNumberNode(Long number) {
         this.number = number;

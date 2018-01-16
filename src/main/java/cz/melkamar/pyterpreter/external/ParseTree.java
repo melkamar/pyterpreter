@@ -26,6 +26,8 @@ package cz.melkamar.pyterpreter.external;
 
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
+import cz.melkamar.pyterpreter.nodes.AssignNode;
+import cz.melkamar.pyterpreter.nodes.PySymbolNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.PyFunctionNode;
 import cz.melkamar.pyterpreter.nodes.PyNumberNode;
@@ -76,6 +78,10 @@ import java.util.*;
  */
 @SuppressWarnings("Duplicates")
 public class ParseTree {
+
+    final static int NODE_TYPE_TERM = 1;
+    final static String NODE_STR_TERM = "term";
+    final static String NODE_STR_EXPR_STAR = "testlist_star_expr";
 
     /**
      * The payload will either be the name of the parser rule, or the token
@@ -234,16 +240,16 @@ public class ParseTree {
         return funcNode;
     }
 
-    public PyNode parseStatement(ParseTree parseTree, int toIndex, PyNode currentPyNode) {
-        if (toIndex < 0) return null;
-        if (toIndex == 0) {
-            return parseTermNode(parseTree.children.get(0));
+    public PyNode parseStatement(ParseTree parseTree, PyNode currentPyNode) {
+        if (parseTree.children.size() == 0) {
+//            return parseTermNode(parseTree.children.get(0));
+            throw new NotImplementedException();
         }
 
-        if (parseTree.isChildToken(toIndex)) {
-            Token firstToken = parseTree.astChildAsToken(toIndex);
+        if (parseTree.isChildToken(0)) {
+            Token firstToken = parseTree.pstrChildAsToken(0);
 
-            // Defining a function
+            // Defining a function?
             if (firstToken.getType() == Python3Lexer.DEF) {
                 PyNode defPyNode = parseFuncDef(parseTree, currentPyNode);
                 currentPyNode.addChild(defPyNode);
@@ -251,12 +257,66 @@ public class ParseTree {
             }
         }
 
-        // +
-        if (toIndex >= 2) { // At least three children
+        if (parseTree.children.size() >= 3) {
+            if (parseTree.isChildToken(1)) {
+                Token secondToken = parseTree.pstrChildAsToken(1);
+
+                // Is this assignment? e.g.   x = 5 + 4
+                if (secondToken.getType() == Python3Lexer.ASSIGN) {
+//                    String variableName = parseTree.pstrChildAsToken(0).getText();
+                    PyNode varNameNode = parseExpression(parseTree, 0, 0);
+
+                    AssignNode assignNode = new AssignNode();
+                    PyNode assignExpression = parseTree.parseExpression(parseTree,
+                                                                        2,
+                                                                        parseTree.children.size() - 1);
+                    assignNode.addChild(varNameNode);
+                    assignNode.addChild(assignExpression);
+                    return assignNode;
+                }
+            }
+        }
+
+        return parseExpression(parseTree, 0, parseTree.children.size() - 1);
+    }
+
+    public PyNode parseToken(ParseTree parseTree) {
+        if (parseTree.isToken()) {
+            if (parseTree.asToken().getType() == Python3Lexer.DECIMAL_INTEGER) {
+                return new PyNumberNode(Long.parseLong(parseTree.asToken().getText()));
+            }
+
+            if (parseTree.asToken().getType() == Python3Lexer.NAME) {
+                return new PySymbolNode(parseTree.asToken().getText());
+            }
+        }
+
+        throw new NotImplementedException();
+    }
+
+    public PyNode parseExpression(ParseTree parseTree, int fromIndex, int toIndex) {
+        if (toIndex < fromIndex) return null;
+        if (toIndex == fromIndex) {
+            ParseTree child = parseTree.children.get(toIndex);
+            if (child.isToken()){
+                return parseToken(child);
+            }
+            switch (String.valueOf(child.payload)) {
+                case NODE_STR_TERM:
+                    return parseTermNode(child);
+                case NODE_STR_EXPR_STAR:
+                    return parseExpression(child, 0, child.children.size() - 1);
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
+        // Binary operation?
+        if (toIndex - fromIndex >= 2) { // At least three children
             if (parseTree.isChildToken(toIndex - 1)) {
 
                 PyNode aritNode = null;
-                switch (parseTree.astChildAsToken(toIndex - 1).getType()) {
+                switch (parseTree.pstrChildAsToken(toIndex - 1).getType()) {
                     case Python3Lexer.ADD:
                         aritNode = new PyAddNode();
                         break;
@@ -268,7 +328,7 @@ public class ParseTree {
                 }
 
                 PyNode right = parseTermNode(parseTree.children.get(toIndex));
-                PyNode left = parseStatement(parseTree, toIndex - 2, aritNode);
+                PyNode left = parseExpression(parseTree, fromIndex, toIndex - 2);
 
                 aritNode.addChild(left);
                 aritNode.addChild(right);
@@ -278,8 +338,6 @@ public class ParseTree {
         }
         throw new NotImplementedException();
     }
-
-    final static int NODE_TYPE_TERM = 1;
 
     public int getNontokenType() {
         switch (String.valueOf(this.payload)) {
@@ -291,10 +349,14 @@ public class ParseTree {
     }
 
     public PyNode parseTermNode(ParseTree parseTree) {
-        if (parseTree.children.size() == 1 &&
-                parseTree.isChildToken(0) &&
-                parseTree.astChildAsToken(0).getType() == Python3Lexer.DECIMAL_INTEGER) {
-            return new PyNumberNode(Long.parseLong(parseTree.astChildAsToken(0).getText()));
+        if (parseTree.children.size() == 1 && parseTree.isChildToken(0)) {
+            if (parseTree.pstrChildAsToken(0).getType() == Python3Lexer.DECIMAL_INTEGER) {
+                return new PyNumberNode(Long.parseLong(parseTree.pstrChildAsToken(0).getText()));
+            }
+
+            if (parseTree.pstrChildAsToken(0).getType() == Python3Lexer.NAME) {
+                return new PySymbolNode(parseTree.pstrChildAsToken(0).getText());
+            }
         }
         throw new NotImplementedException();
     }
@@ -319,15 +381,23 @@ public class ParseTree {
     /**
      * Get a node's child and cast as Token.
      */
-    private Token astChildAsToken(int index) {
+    private Token pstrChildAsToken(int index) {
         return (Token) this.children.get(index).payload;
+    }
+
+    /**
+     * Cast this to Token.
+     * @return
+     */
+    private Token asToken(){
+        return (Token) this.payload;
     }
 
     public void traverse(ParseTree parseTree, PyNode currentPyNode) {
         // If there are only two children and the second one is newline, directly traverse the first child, discard newline
         if (parseTree.children.size() == 2 &&
                 parseTree.isChildToken(1) &&
-                parseTree.astChildAsToken(1).getType() == Python3Lexer.NEWLINE) {
+                parseTree.pstrChildAsToken(1).getType() == Python3Lexer.NEWLINE) {
             traverse(parseTree.children.get(0), currentPyNode);
             return;
         }
@@ -342,7 +412,7 @@ public class ParseTree {
 
                 case "small_stmt":
                 case "stmt":
-                    PyNode node = parseStatement(parseTree, parseTree.children.size() - 1, currentPyNode);
+                    PyNode node = parseStatement(parseTree, currentPyNode);
                     currentPyNode.addChild(node);
                     break;
 

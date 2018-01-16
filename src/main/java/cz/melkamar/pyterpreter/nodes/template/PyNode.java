@@ -16,6 +16,8 @@ public abstract class PyNode extends Node {
         children.add(node);
     }
 
+    public PyNode getChild(int index){return children.get(index);}
+
     public abstract Object execute(Environment env);
 
     public abstract void print(int indent);

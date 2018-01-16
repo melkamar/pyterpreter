@@ -8,7 +8,7 @@ import cz.melkamar.pyterpreter.nodes.template.PyNode;
  * Created by Martin Melka (martin.melka@gmail.com) on 15.01.2018 21:01.
  */
 public class PySymbolNode extends PyNode{
-    private String name;
+    public String name;
 
     public PySymbolNode(String name) {
         this.name = name;
@@ -21,6 +21,6 @@ public class PySymbolNode extends PyNode{
 
     @Override
     public void print(int indent) {
-        throw new NotImplementedException();
+        printIndented("{" + this.name+"}", indent);
     }
 }
