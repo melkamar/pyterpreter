@@ -19,18 +19,27 @@ public class Environment {
         this.parent = parent;
     }
 
-    public Object getValue(String name){
+    public Object getValue(String name) {
         if (env.containsKey(name)) return env.get(name);
 
-        if (parent!=null) return parent.getValue(name);
+        if (parent != null) return parent.getValue(name);
         throw new UndefinedVariableException(name);
     }
 
-    public void putValue(String name, Object value){
+    public void putValue(String name, Object value) {
         env.put(name, value);
     }
 
-    public static Environment getDefaultEnvironment(){
+    public boolean contains(String name) {
+        try {
+            getValue(name);
+        } catch (UndefinedVariableException ex) {
+            return false;
+        }
+        return true;
+    }
+
+    public static Environment getDefaultEnvironment() {
         return new Environment();
     }
 }
