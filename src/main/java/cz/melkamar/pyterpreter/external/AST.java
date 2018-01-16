@@ -24,6 +24,8 @@
  */
 package cz.melkamar.pyterpreter.external;
 
+import com.sun.org.apache.bcel.internal.generic.ReturnInstruction;
+import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.nodes.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.PyFunctionNode;
@@ -31,6 +33,8 @@ import cz.melkamar.pyterpreter.nodes.PyListNode;
 import cz.melkamar.pyterpreter.nodes.PyNumberNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -174,11 +178,23 @@ public class AST {
 //        }
 //    }
 
-    public void doTraversal() {
+    public static PyRootNode astFromCode(String code){
+        Python3Lexer lexer = new Python3Lexer(new ANTLRInputStream(code));
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        Python3Parser parser = new Python3Parser(tokens);
+
+        ParseTree parseTree = parser.file_input();
+        AST ast = new AST(parseTree);
+        PyRootNode rootNode = ast.generateAST();
+        return rootNode;
+    }
+
+    public PyRootNode generateAST() {
         PyRootNode rootPyNode = new PyRootNode();
         traverse(this, rootPyNode);
         System.out.println(rootPyNode);
         rootPyNode.print();
+        return rootPyNode;
     }
 
     private PyNode parseFuncDef(AST ast, PyNode currentPyNode) {
