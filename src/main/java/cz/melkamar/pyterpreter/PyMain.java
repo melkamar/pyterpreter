@@ -1,9 +1,13 @@
 package cz.melkamar.pyterpreter;
 
 import cz.melkamar.pyterpreter.antlr.Python3Lexer;
+import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.external.AST;
+import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import cz.melkamar.pyterpreter.parser.AstPrinter;
 import cz.melkamar.pyterpreter.parser.ParserFacade;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.File;
@@ -41,11 +45,18 @@ public class PyMain {
             ParseTree parseTree = parserFacade.parse(testFile);
             AST ast = new AST(parseTree);
             System.out.println(ast);
-            ast.doTraversal();
+            ast.generateAST();
 
         } catch (URISyntaxException | IOException e) {
             e.printStackTrace();
         }
 
+    }
+
+
+
+    public static void runTests(){
+        PyRootNode rootNode = AST.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
+        assert rootNode.children.size() == 1;
     }
 }

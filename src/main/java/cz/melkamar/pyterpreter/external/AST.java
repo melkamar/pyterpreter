@@ -24,13 +24,12 @@
  */
 package cz.melkamar.pyterpreter.external;
 
-import com.sun.org.apache.bcel.internal.generic.ReturnInstruction;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
-import cz.melkamar.pyterpreter.nodes.PyAddNode;
+import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.PyFunctionNode;
-import cz.melkamar.pyterpreter.nodes.PyListNode;
 import cz.melkamar.pyterpreter.nodes.PyNumberNode;
+import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -178,7 +177,7 @@ public class AST {
 //        }
 //    }
 
-    public static PyRootNode astFromCode(String code){
+    public static PyRootNode astFromCode(String code) {
         Python3Lexer lexer = new Python3Lexer(new ANTLRInputStream(code));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         Python3Parser parser = new Python3Parser(tokens);
@@ -235,7 +234,7 @@ public class AST {
 
     public PyNode parseStatement(AST ast, int fromIndex, PyNode currentPyNode) {
         if (fromIndex == ast.children.size()) return null;
-        if (fromIndex == ast.children.size()-1){
+        if (fromIndex == ast.children.size() - 1) {
             return parseTermNode(ast.children.get(fromIndex));
         }
 
@@ -252,17 +251,27 @@ public class AST {
 
         // +
         if (ast.children.size() - fromIndex >= 3) { // At least three children
-            if (ast.isChildToken(fromIndex + 1) &&
-                    ast.astChildAsToken(fromIndex + 1).getType() == Python3Lexer.ADD) {
+            if (ast.isChildToken(fromIndex + 1)) {
 
-//                        PyNode addPyNode = parseAddNode(ast, currentPyNode);
-                PyNode addNode = new PyAddNode();
+                PyNode aritNode = null;
+                switch (ast.astChildAsToken(fromIndex + 1).getType()) {
+                    case Python3Lexer.ADD:
+                        aritNode = new PyAddNode();
+                        break;
+                    case Python3Lexer.MINUS:
+                        aritNode = new PySubtractNode();
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+
                 PyNode left = parseTermNode(ast.children.get(fromIndex));
-                PyNode right = parseStatement(ast, fromIndex + 2, addNode);
+                PyNode right = parseStatement(ast, fromIndex + 2, aritNode);
 
-                addNode.addChild(left);
-                addNode.addChild(right);
-                return addNode;
+                aritNode.addChild(left);
+                aritNode.addChild(right);
+                return aritNode;
+
             }
         }
         throw new NotImplementedException();
