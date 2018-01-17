@@ -24,23 +24,23 @@
  */
 package cz.melkamar.pyterpreter.parser;
 
+import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
-import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.PyNumberNode;
+import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 
-import cz.melkamar.pyterpreter.antlr.Python3Lexer;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A small class that flattens an ANTLR4 {@code SimpleParseTree}. Given the
@@ -116,6 +116,10 @@ public class SimpleParseTree {
 
     public Object getPayload() {
         return payload;
+    }
+
+    public String getPayloadAsString(){
+        return String.valueOf(payload);
     }
 
     public List<SimpleParseTree> getChildren() {
@@ -277,15 +281,15 @@ public class SimpleParseTree {
 
         if (!(simpleParseTree.payload instanceof Token)) {
             switch (String.valueOf(simpleParseTree.payload)) {
-                case "file_input":
+                case AtomParserHelper.NODE_STR_FILE_INPUT:
                     for (SimpleParseTree child : simpleParseTree.children) {
                         traverse(child, currentPyNode);
                     }
                     break;
 
-                case "small_stmt":
-                case "stmt":
-                    PyNode node = AtomParserHelper.parseStatement(simpleParseTree, currentPyNode);
+                case AtomParserHelper.NODE_STR_SMALL_STMT:
+                case AtomParserHelper.NODE_STR_STMT:
+                    PyNode node = AtomParserHelper.parseStatement(simpleParseTree);
                     currentPyNode.addChild(node);
                     break;
 

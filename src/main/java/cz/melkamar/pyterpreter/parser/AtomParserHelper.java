@@ -19,8 +19,11 @@ import java.util.Objects;
 public class AtomParserHelper {
     final static String NODE_STR_TERM = "term";
     final static String NODE_STR_EXPR_STAR = "testlist_star_expr";
+    final static String NODE_STR_STMT = "stmt";
+    final static String NODE_STR_SMALL_STMT = "small_stmt";
+    final static String NODE_STR_FILE_INPUT = "file_input";
 
-    public static PyNode parseFuncDef(SimpleParseTree simpleParseTree, PyNode currentPyNode) {
+    public static PyNode parseFuncDef(SimpleParseTree simpleParseTree) {
         // Get function name
         String functionName = ((Token) simpleParseTree.getChildPayload(1)).getText();
 
@@ -56,7 +59,14 @@ public class AtomParserHelper {
         return funcNode;
     }
 
-    public static PyNode parseStatement(SimpleParseTree simpleParseTree, PyNode currentPyNode) {
+    /**
+     * Convert a statement node (stmt) and its children into a AST subtree.
+     * @param simpleParseTree ParseTree node to convert.
+     * @return Newly created root of an AST subtree.
+     */
+    public static PyNode parseStatement(SimpleParseTree simpleParseTree) {
+        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_STMT);
+
         if (simpleParseTree.getChildCount() == 0) {
 //            return parseTermNode(simpleParseTree.children.get(0));
             throw new NotImplementedException();
@@ -67,8 +77,10 @@ public class AtomParserHelper {
 
             // Defining a function?
             if (firstToken.getType() == Python3Lexer.DEF) {
-                PyNode defPyNode = parseFuncDef(simpleParseTree, currentPyNode);
-                currentPyNode.addChild(defPyNode);
+                PyNode defPyNode = parseFuncDef(simpleParseTree);
+
+                // TODO is this necessary? adding the child here?
+//                currentPyNode.addChild(defPyNode);
                 return defPyNode;
             }
         }
@@ -97,6 +109,8 @@ public class AtomParserHelper {
     }
 
     public static PyNode parseToken(SimpleParseTree simpleParseTree) {
+        assert simpleParseTree.isToken();
+
         if (simpleParseTree.isToken()) {
             if (simpleParseTree.asToken().getType() == Python3Lexer.DECIMAL_INTEGER) {
                 return new PyNumberNode(Long.parseLong(simpleParseTree.asToken().getText()));
@@ -110,7 +124,33 @@ public class AtomParserHelper {
         throw new NotImplementedException();
     }
 
+    /**
+     * Convert an expression into AST subtree.
+     * Only work with a subset of nodes, specified by fromIndex and toIndex (both inclusive).
+     *
+     * E.g. Expression in the form of 1+2+3+4+5 will take several runs to be converted to binary AST:
+     *
+     *      (+)
+     *    1     parse(2+3+4+5)
+     *
+     *       v
+     *       v
+     *
+     *      (+)
+     *    1     (+)
+     *         2   parse(3+4+5)
+     *
+     * In each step the expression is the same - only indices differ.
+     *
+     * @param simpleParseTree Expression node of the parsetree.
+     * @param fromIndex Index of child from which to start (inclusive).
+     * @param toIndex Index of child at which to end (inclusive)
+     * @return Root of the new AST subtree.
+     */
     public static PyNode parseExpression(SimpleParseTree simpleParseTree, int fromIndex, int toIndex) {
+        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_STMT) ||
+        simpleParseTree.getPayloadAsString().equals(NODE_STR_EXPR_STAR) ;
+
         if (toIndex < fromIndex) return null;
         if (toIndex == fromIndex) {
             SimpleParseTree child = simpleParseTree.getChild(toIndex);
@@ -156,6 +196,7 @@ public class AtomParserHelper {
     }
 
     public static PyNode parseTermNode(SimpleParseTree simpleParseTree) {
+        assert simpleParseTree.getPayloadAsString().equals("term");
         if (simpleParseTree.getChildCount() == 1 && simpleParseTree.isChildToken(0)) {
             if (simpleParseTree.pstrChildAsToken(0).getType() == Python3Lexer.DECIMAL_INTEGER) {
                 return new PyNumberNode(Long.parseLong(simpleParseTree.pstrChildAsToken(0).getText()));

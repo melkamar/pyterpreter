@@ -3,9 +3,7 @@ package cz.melkamar.pyterpreter.nodes.arithmetic;
 import cz.melkamar.pyterpreter.Environment;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.nodes.BinaryNode;
-import cz.melkamar.pyterpreter.nodes.PyNumberNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
-import sun.applet.Main;
 
 /**
  * Created by Martin Melka (martin.melka@gmail.com) on 16.01.2018 16:43.
