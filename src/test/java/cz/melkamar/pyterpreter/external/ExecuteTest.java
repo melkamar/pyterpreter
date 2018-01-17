@@ -31,6 +31,12 @@ public class ExecuteTest {
     }
 
     @Test
+    public void division() {
+        PyRootNode rootNode = SimpleParseTree.astFromCode("1+4/2-2");
+        assertEquals(1 + 4 / 2 - 2, ((Long) rootNode.execute()).longValue());
+    }
+
+    @Test
     public void assignment() {
         PyRootNode rootNode = SimpleParseTree.astFromCode("x = 5 + 1");
         Environment env = Environment.getDefaultEnvironment();

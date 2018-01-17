@@ -7,6 +7,7 @@ import cz.melkamar.pyterpreter.nodes.PyFunctionNode;
 import cz.melkamar.pyterpreter.nodes.PyNumberNode;
 import cz.melkamar.pyterpreter.nodes.PySymbolNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
+import cz.melkamar.pyterpreter.nodes.arithmetic.PyDivideNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
@@ -180,6 +181,9 @@ public class AtomParserHelper {
                         break;
                     case Python3Lexer.STAR:
                         aritNode = new PyMultiplyNode();
+                        break;
+                    case Python3Lexer.DIV:
+                        aritNode = new PyDivideNode();
                         break;
                     default:
                         throw new NotImplementedException();
