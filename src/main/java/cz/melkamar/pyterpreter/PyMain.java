@@ -33,12 +33,10 @@ public class PyMain {
 
 
     public static void runTests() {
-        String code = "x=5+1\ny=x";
+        String code = "1+2*3";
         SimpleParseTree.printParseTree(code);
         PyRootNode rootNode = SimpleParseTree.astFromCode(code);
-        Environment parent = Environment.getDefaultEnvironment();
-        Environment middle = new Environment(parent);
-        Environment env = new Environment(middle);
+        Environment env = Environment.getDefaultEnvironment();
         System.out.println(rootNode.execute(env));
 
         System.out.println("DONE. Environment:");

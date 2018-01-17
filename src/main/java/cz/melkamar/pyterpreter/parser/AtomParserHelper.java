@@ -18,6 +18,7 @@ import java.util.Objects;
 
 public class AtomParserHelper {
     final static String NODE_STR_TERM = "term";
+    final static String NODE_STR_FACTOR = "factor";
     final static String NODE_STR_EXPR_STAR = "testlist_star_expr";
     final static String NODE_STR_STMT = "stmt";
     final static String NODE_STR_SMALL_STMT = "small_stmt";
@@ -199,14 +200,23 @@ public class AtomParserHelper {
     }
 
     public static PyNode parseTermNode(SimpleParseTree simpleParseTree) {
-        assert simpleParseTree.getPayloadAsString().equals("term");
-        if (simpleParseTree.getChildCount() == 1 && simpleParseTree.isChildToken(0)) {
-            if (simpleParseTree.pstrChildAsToken(0).getType() == Python3Lexer.DECIMAL_INTEGER) {
-                return new PyNumberNode(Long.parseLong(simpleParseTree.pstrChildAsToken(0).getText()));
+        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_TERM) ||
+                simpleParseTree.getPayloadAsString().equals(NODE_STR_FACTOR);
+
+        // todo term může mít pod sebou další mrdky .. zkusit na to pustit parseexpression?
+        if (simpleParseTree.getChildCount() == 1) {
+            if (simpleParseTree.getChildPayload(0).equals(NODE_STR_FACTOR)) {
+                return parseTermNode(simpleParseTree.getChild(0));
             }
 
-            if (simpleParseTree.pstrChildAsToken(0).getType() == Python3Lexer.NAME) {
-                return new PySymbolNode(simpleParseTree.pstrChildAsToken(0).getText());
+            if (simpleParseTree.isChildToken(0)) {
+                if (simpleParseTree.pstrChildAsToken(0).getType() == Python3Lexer.DECIMAL_INTEGER) {
+                    return new PyNumberNode(Long.parseLong(simpleParseTree.pstrChildAsToken(0).getText()));
+                }
+
+                if (simpleParseTree.pstrChildAsToken(0).getType() == Python3Lexer.NAME) {
+                    return new PySymbolNode(simpleParseTree.pstrChildAsToken(0).getText());
+                }
             }
         }
         throw new NotImplementedException();
