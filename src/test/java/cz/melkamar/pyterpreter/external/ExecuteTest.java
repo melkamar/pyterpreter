@@ -37,6 +37,13 @@ public class ExecuteTest {
     }
 
     @Test
+    public void parensPreference() {
+        PyRootNode rootNode = SimpleParseTree.astFromCode("(((2+4/2)-2)*4)/2");
+        assertEquals((((2 + 4 / 2) - 2) * 4) / 2, ((Long) rootNode.execute()).longValue());
+    }
+
+
+    @Test
     public void assignment() {
         PyRootNode rootNode = SimpleParseTree.astFromCode("x = 5 + 1");
         Environment env = Environment.getDefaultEnvironment();

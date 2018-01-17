@@ -257,7 +257,7 @@ public class SimpleParseTree {
     /**
      * Get a node's child and cast as Token.
      */
-    Token pstrChildAsToken(int index) {
+    Token childAsToken(int index) {
         return (Token) this.children.get(index).payload;
     }
 
@@ -274,7 +274,7 @@ public class SimpleParseTree {
         // If there are only two children and the second one is newline, directly traverse the first child, discard newline
         if (simpleParseTree.children.size() == 2 &&
                 simpleParseTree.isChildToken(1) &&
-                simpleParseTree.pstrChildAsToken(1).getType() == Python3Lexer.NEWLINE) {
+                simpleParseTree.childAsToken(1).getType() == Python3Lexer.NEWLINE) {
             traverse(simpleParseTree.children.get(0), currentPyNode);
             return;
         }

@@ -78,7 +78,7 @@ public class AtomParserHelper {
         }
 
         if (simpleParseTree.isChildToken(0)) {
-            Token firstToken = simpleParseTree.pstrChildAsToken(0);
+            Token firstToken = simpleParseTree.childAsToken(0);
 
             // Defining a function?
             if (firstToken.getType() == Python3Lexer.DEF) {
@@ -92,11 +92,11 @@ public class AtomParserHelper {
 
         if (simpleParseTree.getChildCount() >= 3) {
             if (simpleParseTree.isChildToken(1)) {
-                Token secondToken = simpleParseTree.pstrChildAsToken(1);
+                Token secondToken = simpleParseTree.childAsToken(1);
 
                 // Is this assignment? e.g.   x = 5 + 4
                 if (secondToken.getType() == Python3Lexer.ASSIGN) {
-//                    String variableName = simpleParseTree.pstrChildAsToken(0).getText();
+//                    String variableName = simpleParseTree.childAsToken(0).getText();
                     PyNode varNameNode = parseExpression(simpleParseTree, 0, 0);
 
                     AssignNode assignNode = new AssignNode();
@@ -169,10 +169,18 @@ public class AtomParserHelper {
 
         // Binary operation?
         if (toIndex - fromIndex >= 2) { // At least three children
+            // Check if first and last token is parenthesis - if so, skip them
+            if (simpleParseTree.isChildToken(0) &&
+                    simpleParseTree.childAsToken(0).getType() == Python3Lexer.OPEN_PAREN &&
+                    simpleParseTree.isChildToken(simpleParseTree.getChildCount()-1) &&
+                    simpleParseTree.childAsToken(simpleParseTree.getChildCount()-1).getType() == Python3Lexer.CLOSE_PAREN){
+                return parseExpression(simpleParseTree, 1, simpleParseTree.getChildCount()-2);
+            }
+
             if (simpleParseTree.isChildToken(toIndex - 1)) {
 
                 PyNode aritNode = null;
-                switch (simpleParseTree.pstrChildAsToken(toIndex - 1).getType()) {
+                switch (simpleParseTree.childAsToken(toIndex - 1).getType()) {
                     case Python3Lexer.ADD:
                         aritNode = new PyAddNode();
                         break;
@@ -198,6 +206,6 @@ public class AtomParserHelper {
 
             }
         }
-        throw new NotImplementedException();
+        throw new NotImplementedException("Got '"+simpleParseTree.getPayloadAsString()+"' from "+fromIndex+" to "+toIndex);
     }
 }

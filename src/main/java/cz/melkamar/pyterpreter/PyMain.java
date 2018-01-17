@@ -33,7 +33,7 @@ public class PyMain {
 
 
     public static void runTests() {
-        String code = "1-4*3+2";
+        String code = "(((2+4/2)-2)*4)/2";
         SimpleParseTree.printParseTree(code);
         PyRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
