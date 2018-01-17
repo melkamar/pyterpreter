@@ -7,6 +7,7 @@ import cz.melkamar.pyterpreter.nodes.PyFunctionNode;
 import cz.melkamar.pyterpreter.nodes.PyNumberNode;
 import cz.melkamar.pyterpreter.nodes.PySymbolNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
+import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 import org.antlr.v4.runtime.Token;
@@ -132,17 +133,16 @@ public class AtomParserHelper {
      * Only work with a subset of nodes, specified by fromIndex and toIndex (both inclusive).
      * <p>
      * E.g. Expression in the form of 1+2+3+4+5 will take several runs to be converted to binary AST:
-     * <p>
-     * (+)
-     * 1     parse(2+3+4+5)
-     * <p>
-     * v
-     * v
-     * <p>
-     * (+)
-     * 1     (+)
-     * 2   parse(3+4+5)
-     * <p>
+     *
+     * ...(+)
+     * .1.....parse(2+3+4+5)
+     *
+     * ....v
+     * ....v
+     *
+     * ......(+)
+     * ....1.....(+)
+     * .........2...parse(3+4+5)
      * In each step the expression is the same - only indices differ.
      *
      * @param simpleParseTree Expression node of the parsetree.
@@ -151,24 +151,19 @@ public class AtomParserHelper {
      * @return Root of the new AST subtree.
      */
     public static PyNode parseExpression(SimpleParseTree simpleParseTree, int fromIndex, int toIndex) {
-        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_STMT) ||
-                simpleParseTree.getPayloadAsString().equals(NODE_STR_EXPR_STAR) ||
-                simpleParseTree.getPayloadAsString().equals(NODE_STR_SMALL_STMT);
+        if (toIndex < fromIndex) {
+            // This node does not have children - either a token or WTF
+            if (simpleParseTree.isToken()) {
+                return parseToken(simpleParseTree);
+            }
+            throw new NotImplementedException("No children for node, but node not Token.");
+        }
 
-        if (toIndex < fromIndex) return null;
         if (toIndex == fromIndex) {
-            SimpleParseTree child = simpleParseTree.getChild(toIndex);
-            if (child.isToken()) {
-                return parseToken(child);
-            }
-            switch (String.valueOf(child.getPayload())) {
-                case NODE_STR_TERM:
-                    return parseTermNode(child);
-                case NODE_STR_EXPR_STAR:
-                    return parseExpression(child, 0, child.getChildCount() - 1);
-                default:
-                    throw new NotImplementedException();
-            }
+            // This node has a single child - parse it as expression
+            return parseExpression(simpleParseTree.getChild(toIndex),
+                    0,
+                    simpleParseTree.getChild(toIndex).getChildCount() - 1);
         }
 
         // Binary operation?
@@ -183,40 +178,20 @@ public class AtomParserHelper {
                     case Python3Lexer.MINUS:
                         aritNode = new PySubtractNode();
                         break;
+                    case Python3Lexer.STAR:
+                        aritNode = new PyMultiplyNode();
+                        break;
                     default:
                         throw new NotImplementedException();
                 }
 
-                PyNode right = parseTermNode(simpleParseTree.getChild(toIndex));
+                PyNode right = parseExpression(simpleParseTree, toIndex, toIndex);
                 PyNode left = parseExpression(simpleParseTree, fromIndex, toIndex - 2);
 
                 aritNode.addChild(left);
                 aritNode.addChild(right);
                 return aritNode;
 
-            }
-        }
-        throw new NotImplementedException();
-    }
-
-    public static PyNode parseTermNode(SimpleParseTree simpleParseTree) {
-        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_TERM) ||
-                simpleParseTree.getPayloadAsString().equals(NODE_STR_FACTOR);
-
-        // todo term může mít pod sebou další mrdky .. zkusit na to pustit parseexpression?
-        if (simpleParseTree.getChildCount() == 1) {
-            if (simpleParseTree.getChildPayload(0).equals(NODE_STR_FACTOR)) {
-                return parseTermNode(simpleParseTree.getChild(0));
-            }
-
-            if (simpleParseTree.isChildToken(0)) {
-                if (simpleParseTree.pstrChildAsToken(0).getType() == Python3Lexer.DECIMAL_INTEGER) {
-                    return new PyNumberNode(Long.parseLong(simpleParseTree.pstrChildAsToken(0).getText()));
-                }
-
-                if (simpleParseTree.pstrChildAsToken(0).getType() == Python3Lexer.NAME) {
-                    return new PySymbolNode(simpleParseTree.pstrChildAsToken(0).getText());
-                }
             }
         }
         throw new NotImplementedException();

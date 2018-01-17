@@ -6,6 +6,10 @@ import cz.melkamar.pyterpreter.Environment;
  * Created by Martin Melka (martin.melka@gmail.com) on 03.11.2017 10:03.
  */
 public class PyRootNode extends PyNode {
+    public Object execute(){
+        return this.execute(Environment.getDefaultEnvironment());
+    }
+
     @Override
     public Object execute(Environment env) {
         Object lastReturned = null;

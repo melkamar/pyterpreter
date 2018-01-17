@@ -1,16 +1,18 @@
 package cz.melkamar.pyterpreter.external;
 
 import cz.melkamar.pyterpreter.nodes.AssignNode;
+import cz.melkamar.pyterpreter.nodes.PyNumberNode;
 import cz.melkamar.pyterpreter.nodes.PySymbolNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
-import cz.melkamar.pyterpreter.nodes.PyNumberNode;
+import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 @SuppressWarnings("Duplicates")
@@ -48,6 +50,29 @@ public class SimpleParseTreeTest {
 
         assertEquals(1, ((PyNumberNode) firstChild.children.get(0).children.get(0)).number);
         assertEquals(4, ((PyNumberNode) firstChild.children.get(0).children.get(1)).number);
+    }
+
+    @Test
+    public void multiplicationAstStructure() {
+        PyRootNode rootNode = SimpleParseTree.astFromCode("1 - 4 * 3 + 2");
+        assertEquals(rootNode.children.size(), 1);
+
+        PyNode firstChild = rootNode.getChild(0);
+        assertTrue(firstChild instanceof PyAddNode);
+        assertTrue(firstChild.children.size() == 2);
+
+        assertTrue(firstChild.getChild(0) instanceof PySubtractNode);
+        assertTrue(firstChild.getChild(1) instanceof PyNumberNode);
+        assertEquals(2, ((PyNumberNode) firstChild.getChild(1)).number);
+
+        assertTrue(firstChild.getChild(0).getChild(0) instanceof PyNumberNode);
+        assertEquals(1, ((PyNumberNode) firstChild.getChild(0).getChild(0)).number);
+        assertTrue(firstChild.getChild(0).getChild(1) instanceof PyMultiplyNode);
+
+        assertTrue(firstChild.getChild(0).getChild(1).getChild(0) instanceof PyNumberNode);
+        assertTrue(firstChild.getChild(0).getChild(1).getChild(1) instanceof PyNumberNode);
+        assertEquals(4, ((PyNumberNode) firstChild.getChild(0).getChild(1).getChild(0)).number);
+        assertEquals(3, ((PyNumberNode) firstChild.getChild(0).getChild(1).getChild(1)).number);
     }
 
     @Test

@@ -15,13 +15,19 @@ public class ExecuteTest {
     @Test
     public void addition() {
         PyRootNode rootNode = SimpleParseTree.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
-        assertEquals(1L + 2 + 3 + 4 + 5 + 6, ((Long) rootNode.execute(null)).longValue());
+        assertEquals(1L + 2 + 3 + 4 + 5 + 6, ((Long) rootNode.execute()).longValue());
     }
 
     @Test
     public void subtraction() {
         PyRootNode rootNode = SimpleParseTree.astFromCode("6-5-2-3");
-        assertEquals(6L - 5 - 2 - 3, ((Long) rootNode.execute(null)).longValue());
+        assertEquals(6L - 5 - 2 - 3, ((Long) rootNode.execute()).longValue());
+    }
+
+    @Test
+    public void multiplication() {
+        PyRootNode rootNode = SimpleParseTree.astFromCode("1+2*3*4-2+3");
+        assertEquals(1 + 2 * 3 * 4 - 2 + 3, ((Long) rootNode.execute()).longValue());
     }
 
     @Test
