@@ -7,17 +7,17 @@ import cz.melkamar.pyterpreter.nodes.PyNumberNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
-import cz.melkamar.pyterpreter.types.PySymbol;
+import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 
 @SuppressWarnings("Duplicates")
-public class ParseTreeTest {
+public class SimpleParseTreeTest {
     @Test
     public void additionAstStructure() {
-        PyRootNode rootNode = ParseTree.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
+        PyRootNode rootNode = SimpleParseTree.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
         assertEquals(rootNode.children.size(), 1);
 
         PyNode firstChild = rootNode.children.get(0);
@@ -35,7 +35,7 @@ public class ParseTreeTest {
 
     @Test
     public void subtractionAstStructure() {
-        PyRootNode rootNode = ParseTree.astFromCode("1 - 4 - 3");
+        PyRootNode rootNode = SimpleParseTree.astFromCode("1 - 4 - 3");
         assertEquals(rootNode.children.size(), 1);
 
         PyNode firstChild = rootNode.children.get(0);
@@ -52,7 +52,7 @@ public class ParseTreeTest {
 
     @Test
     public void assignSimple() {
-        PyRootNode rootNode = ParseTree.astFromCode("x = 5");
+        PyRootNode rootNode = SimpleParseTree.astFromCode("x = 5");
         PyNode firstChild = rootNode.getChild(0);
 
         assertTrue(firstChild instanceof AssignNode);
@@ -65,7 +65,7 @@ public class ParseTreeTest {
 
     @Test
     public void assignHarder() {
-        PyRootNode rootNode = ParseTree.astFromCode("x = 5 + 1");
+        PyRootNode rootNode = SimpleParseTree.astFromCode("x = 5 + 1");
         PyNode firstChild = rootNode.getChild(0);
 
         assertTrue(firstChild instanceof AssignNode);
