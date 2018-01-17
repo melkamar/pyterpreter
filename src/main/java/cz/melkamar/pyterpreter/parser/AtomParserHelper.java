@@ -45,12 +45,12 @@ public class AtomParserHelper {
                 args.add(argToken.getText());
             } else {
                 throw new AssertionError("multiple-argument func " +
-                                                 "unexpected node: " + String.valueOf(arg.getPayload()));
+                        "unexpected node: " + String.valueOf(arg.getPayload()));
             }
         }
 
         PyNode funcNode = new PyFunctionNode(functionName,
-                                             Arrays.copyOf(args.toArray(), args.toArray().length, String[].class));
+                Arrays.copyOf(args.toArray(), args.toArray().length, String[].class));
         // TODO code
 
         System.out.println("Defining function '" + functionName + "' with args " + Arrays.toString(
@@ -61,11 +61,13 @@ public class AtomParserHelper {
 
     /**
      * Convert a statement node (stmt) and its children into a AST subtree.
+     *
      * @param simpleParseTree ParseTree node to convert.
      * @return Newly created root of an AST subtree.
      */
     public static PyNode parseStatement(SimpleParseTree simpleParseTree) {
-        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_STMT);
+        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_STMT) ||
+                simpleParseTree.getPayloadAsString().equals(NODE_STR_SMALL_STMT);
 
         if (simpleParseTree.getChildCount() == 0) {
 //            return parseTermNode(simpleParseTree.children.get(0));
@@ -96,8 +98,8 @@ public class AtomParserHelper {
 
                     AssignNode assignNode = new AssignNode();
                     PyNode assignExpression = parseExpression(simpleParseTree,
-                                                                        2,
-                                                                        simpleParseTree.getChildCount() - 1);
+                            2,
+                            simpleParseTree.getChildCount() - 1);
                     assignNode.addChild(varNameNode);
                     assignNode.addChild(assignExpression);
                     return assignNode;
@@ -127,34 +129,35 @@ public class AtomParserHelper {
     /**
      * Convert an expression into AST subtree.
      * Only work with a subset of nodes, specified by fromIndex and toIndex (both inclusive).
-     *
+     * <p>
      * E.g. Expression in the form of 1+2+3+4+5 will take several runs to be converted to binary AST:
-     *
-     *      (+)
-     *    1     parse(2+3+4+5)
-     *
-     *       v
-     *       v
-     *
-     *      (+)
-     *    1     (+)
-     *         2   parse(3+4+5)
-     *
+     * <p>
+     * (+)
+     * 1     parse(2+3+4+5)
+     * <p>
+     * v
+     * v
+     * <p>
+     * (+)
+     * 1     (+)
+     * 2   parse(3+4+5)
+     * <p>
      * In each step the expression is the same - only indices differ.
      *
      * @param simpleParseTree Expression node of the parsetree.
-     * @param fromIndex Index of child from which to start (inclusive).
-     * @param toIndex Index of child at which to end (inclusive)
+     * @param fromIndex       Index of child from which to start (inclusive).
+     * @param toIndex         Index of child at which to end (inclusive)
      * @return Root of the new AST subtree.
      */
     public static PyNode parseExpression(SimpleParseTree simpleParseTree, int fromIndex, int toIndex) {
         assert simpleParseTree.getPayloadAsString().equals(NODE_STR_STMT) ||
-        simpleParseTree.getPayloadAsString().equals(NODE_STR_EXPR_STAR) ;
+                simpleParseTree.getPayloadAsString().equals(NODE_STR_EXPR_STAR) ||
+                simpleParseTree.getPayloadAsString().equals(NODE_STR_SMALL_STMT);
 
         if (toIndex < fromIndex) return null;
         if (toIndex == fromIndex) {
             SimpleParseTree child = simpleParseTree.getChild(toIndex);
-            if (child.isToken()){
+            if (child.isToken()) {
                 return parseToken(child);
             }
             switch (String.valueOf(child.getPayload())) {

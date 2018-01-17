@@ -39,6 +39,31 @@ public class Environment {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return nestToString(1);
+    }
+
+    private String spacesFromLevel(int level){
+        StringBuilder builder = new StringBuilder();
+        for (int i=0; i<level; i++) builder.append("  ");
+        return builder.toString();
+    }
+    /**
+     * Print this env's map and recursively call parent's print, if parent exists.
+     *
+     * Example output:
+     * ENV (1): {x=6, y=6}   (current)
+     *   ENV (2): {}         (parent)
+     *     ENV (3): {}       (parent's parent)
+     *
+     * @param level
+     * @return
+     */
+    public String nestToString(int level) {
+        return "ENV (" + level + "): " + this.env.toString() + (parent != null ? "\n" +spacesFromLevel(level)+ parent.nestToString(level + 1) : "");
+    }
+
     public static Environment getDefaultEnvironment() {
         return new Environment();
     }
