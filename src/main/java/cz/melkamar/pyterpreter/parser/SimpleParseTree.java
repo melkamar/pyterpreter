@@ -27,6 +27,7 @@ package cz.melkamar.pyterpreter.parser;
 import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
+import cz.melkamar.pyterpreter.exceptions.ParseException;
 import cz.melkamar.pyterpreter.nodes.PyNumberNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
@@ -118,7 +119,7 @@ public class SimpleParseTree {
         return payload;
     }
 
-    public String getPayloadAsString(){
+    public String getPayloadAsString() {
         return String.valueOf(payload);
     }
 
@@ -178,41 +179,45 @@ public class SimpleParseTree {
         }
     }
 
-    /**
-     * Parse given code into AST. Return root node.
-     */
-    public static PyRootNode astFromCode(String code) {
+    public static SimpleParseTree genParseTree(String code) {
+        // parser throws errors if there is no newline at the end of file - add it there
+        if (!code.endsWith(System.lineSeparator())) {
+            code += System.lineSeparator();
+        }
+
         Python3Lexer lexer = new Python3Lexer(new ANTLRInputStream(code));
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         Python3Parser parser = new Python3Parser(tokens);
 
         org.antlr.v4.runtime.tree.ParseTree parseTree = parser.file_input();
-        SimpleParseTree ast = new SimpleParseTree(parseTree);
-        PyRootNode rootNode = ast.generateAST();
-        return rootNode;
+        int errors = parser.getNumberOfSyntaxErrors();
+        if (errors > 0) {
+            throw new ParseException(errors + " errors while parsing.");
+        }
+
+        return new SimpleParseTree(parseTree);
+    }
+
+    /**
+     * Parse given code into AST. Return root node.
+     */
+    public static PyRootNode astFromCode(String code) {
+        SimpleParseTree ast = genParseTree(code);
+        return ast.generateAST();
     }
 
     public static SimpleParseTree fromFile(File file) throws IOException {
         byte[] encoded = Files.readAllBytes(file.toPath());
         String code = new String(encoded, Charset.forName("UTF-8"));
-        Python3Lexer lexer = new Python3Lexer(new ANTLRInputStream(code));
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        Python3Parser parser = new Python3Parser(tokens);
 
-
-        return new SimpleParseTree(parser.file_input());
+        return genParseTree(code);
     }
 
     /**
      * Parse code into a SimpleParseTree, print it - used for debugging.
      */
     public static void printParseTree(String code) {
-        Python3Lexer lexer = new Python3Lexer(new ANTLRInputStream(code));
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        Python3Parser parser = new Python3Parser(tokens);
-
-        org.antlr.v4.runtime.tree.ParseTree parseTree = parser.file_input();
-        SimpleParseTree ast = new SimpleParseTree(parseTree);
+        SimpleParseTree ast = genParseTree(code);
         System.out.println(ast);
     }
 

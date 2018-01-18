@@ -1,6 +1,5 @@
 package cz.melkamar.pyterpreter;
 
-import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 
 import java.io.File;
@@ -33,13 +32,17 @@ public class PyMain {
 
 
     public static void runTests() {
-        String code = "(((2+4/2)-2)*4)/2";
+        String code = "" +
+                "def f(a,b):\n" +
+                "x=5\n" +
+                "\n" +
+                "f(1,a)\n";
         SimpleParseTree.printParseTree(code);
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
-        Environment env = Environment.getDefaultEnvironment();
-        System.out.println(rootNode.execute(env));
-
-        System.out.println("DONE. Environment:");
-        System.out.println(env);
+//        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+//        Environment env = Environment.getDefaultEnvironment();
+//        System.out.println(rootNode.execute(env));
+//
+//        System.out.println("DONE. Environment:");
+//        System.out.println(env);
     }
 }
