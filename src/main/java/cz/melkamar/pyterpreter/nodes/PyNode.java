@@ -1,4 +1,4 @@
-package cz.melkamar.pyterpreter.nodes.template;
+package cz.melkamar.pyterpreter.nodes;
 
 import cz.melkamar.pyterpreter.Environment;
 

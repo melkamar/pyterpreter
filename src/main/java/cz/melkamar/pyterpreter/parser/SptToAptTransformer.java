@@ -3,18 +3,18 @@ package cz.melkamar.pyterpreter.parser;
 import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
+import cz.melkamar.pyterpreter.functions.FuncCodeNode;
+import cz.melkamar.pyterpreter.functions.FunctionCallNode;
+import cz.melkamar.pyterpreter.functions.PyDefFuncNode;
+import cz.melkamar.pyterpreter.functions.ReturnNode;
 import cz.melkamar.pyterpreter.nodes.AssignNode;
+import cz.melkamar.pyterpreter.nodes.PyNode;
 import cz.melkamar.pyterpreter.nodes.PyNumberNode;
 import cz.melkamar.pyterpreter.nodes.PySymbolNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyDivideNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
-import cz.melkamar.pyterpreter.nodes.functions.FuncCodeNode;
-import cz.melkamar.pyterpreter.nodes.functions.FunctionCallNode;
-import cz.melkamar.pyterpreter.nodes.functions.PyDefFuncNode;
-import cz.melkamar.pyterpreter.nodes.functions.ReturnNode;
-import cz.melkamar.pyterpreter.nodes.template.PyNode;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class AtomParserHelper {
+public class SptToAptTransformer {
     final static String NODE_STR_TERM = "term";
     final static String NODE_STR_FACTOR = "factor";
     final static String NODE_STR_EXPR_STAR = "testlist_star_expr";

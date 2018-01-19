@@ -1,7 +1,7 @@
 package cz.melkamar.pyterpreter;
 
 import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
-import cz.melkamar.pyterpreter.nodes.functions.builtin.BuiltinFunctions;
+import cz.melkamar.pyterpreter.functions.builtin.BuiltinFunctions;
 
 import java.util.HashMap;
 

@@ -1,7 +1,6 @@
 package cz.melkamar.pyterpreter.nodes;
 
 import cz.melkamar.pyterpreter.Environment;
-import cz.melkamar.pyterpreter.nodes.template.PyNode;
 
 /**
  * Created by Martin Melka (martin.melka@gmail.com) on 16.01.2018 20:58.

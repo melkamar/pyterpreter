@@ -2,7 +2,6 @@ package cz.melkamar.pyterpreter.nodes;
 
 import cz.melkamar.pyterpreter.Environment;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
-import cz.melkamar.pyterpreter.nodes.template.PyNode;
 
 import java.util.ArrayList;
 import java.util.Arrays;

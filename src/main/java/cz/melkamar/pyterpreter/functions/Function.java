@@ -1,7 +1,7 @@
-package cz.melkamar.pyterpreter.nodes.functions;
+package cz.melkamar.pyterpreter.functions;
 
 import cz.melkamar.pyterpreter.Environment;
-import cz.melkamar.pyterpreter.nodes.template.PyNode;
+import cz.melkamar.pyterpreter.nodes.PyNode;
 
 import java.util.ArrayList;
 import java.util.List;

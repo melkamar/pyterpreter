@@ -28,10 +28,10 @@ import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.exceptions.ParseException;
+import cz.melkamar.pyterpreter.nodes.PyNode;
 import cz.melkamar.pyterpreter.nodes.PyNumberNode;
+import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
-import cz.melkamar.pyterpreter.nodes.template.PyNode;
-import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
@@ -286,15 +286,15 @@ public class SimpleParseTree {
 
         if (!(simpleParseTree.payload instanceof Token)) {
             switch (String.valueOf(simpleParseTree.payload)) {
-                case AtomParserHelper.NODE_STR_FILE_INPUT:
+                case SptToAptTransformer.NODE_STR_FILE_INPUT:
                     for (SimpleParseTree child : simpleParseTree.children) {
                         traverse(child, currentPyNode);
                     }
                     break;
 
-                case AtomParserHelper.NODE_STR_SMALL_STMT:
-                case AtomParserHelper.NODE_STR_STMT:
-                    PyNode node = AtomParserHelper.parseStatement(simpleParseTree);
+                case SptToAptTransformer.NODE_STR_SMALL_STMT:
+                case SptToAptTransformer.NODE_STR_STMT:
+                    PyNode node = SptToAptTransformer.parseStatement(simpleParseTree);
                     currentPyNode.addChild(node);
                     break;
 

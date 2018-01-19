@@ -1,7 +1,7 @@
-package cz.melkamar.pyterpreter.nodes.functions.builtin;
+package cz.melkamar.pyterpreter.functions.builtin;
 
 import cz.melkamar.pyterpreter.Environment;
-import cz.melkamar.pyterpreter.nodes.functions.Function;
+import cz.melkamar.pyterpreter.functions.Function;
 
 public class PrintFunction extends Function {
     public PrintFunction() {

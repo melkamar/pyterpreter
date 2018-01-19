@@ -1,4 +1,4 @@
-package cz.melkamar.pyterpreter.nodes.functions.builtin;
+package cz.melkamar.pyterpreter.functions.builtin;
 
 import cz.melkamar.pyterpreter.Environment;
 

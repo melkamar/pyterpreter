@@ -1,14 +1,10 @@
 package cz.melkamar.pyterpreter.external;
 
-import cz.melkamar.pyterpreter.nodes.AssignNode;
-import cz.melkamar.pyterpreter.nodes.PyNumberNode;
-import cz.melkamar.pyterpreter.nodes.PySymbolNode;
+import cz.melkamar.pyterpreter.functions.PyDefFuncNode;
+import cz.melkamar.pyterpreter.nodes.*;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
-import cz.melkamar.pyterpreter.nodes.functions.PyDefFuncNode;
-import cz.melkamar.pyterpreter.nodes.template.PyNode;
-import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
 

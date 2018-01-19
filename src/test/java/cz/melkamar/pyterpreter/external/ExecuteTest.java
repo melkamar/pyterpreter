@@ -1,8 +1,8 @@
 package cz.melkamar.pyterpreter.external;
 
 import cz.melkamar.pyterpreter.Environment;
-import cz.melkamar.pyterpreter.nodes.functions.UserFunction;
-import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
+import cz.melkamar.pyterpreter.functions.UserFunction;
+import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
 

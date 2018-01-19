@@ -1,7 +1,7 @@
-package cz.melkamar.pyterpreter.nodes.functions;
+package cz.melkamar.pyterpreter.functions;
 
 import cz.melkamar.pyterpreter.Environment;
-import cz.melkamar.pyterpreter.nodes.template.PyNode;
+import cz.melkamar.pyterpreter.nodes.PyNode;
 
 /**
  * Node for handling return statements. When executed, it will set environment "return" flag.
