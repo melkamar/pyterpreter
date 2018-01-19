@@ -1,15 +1,14 @@
 package cz.melkamar.pyterpreter.nodes.template;
 
-import com.oracle.truffle.api.TruffleLanguage;
-import com.oracle.truffle.api.nodes.Node;
 import cz.melkamar.pyterpreter.Environment;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Martin Melka (martin.melka@gmail.com) on 03.11.2017 10:09.
  */
-public abstract class PyNode extends Node {
+public abstract class PyNode {
     public ArrayList<PyNode> children = new ArrayList<>();
 
     public void addChild(PyNode node) {
@@ -17,6 +16,8 @@ public abstract class PyNode extends Node {
     }
 
     public PyNode getChild(int index){return children.get(index);}
+
+    public List<PyNode> getChildren(){return children;}
 
     public abstract Object execute(Environment env);
 

@@ -6,6 +6,7 @@ import cz.melkamar.pyterpreter.nodes.PySymbolNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
+import cz.melkamar.pyterpreter.nodes.functions.PyDefFuncNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
@@ -100,5 +101,50 @@ public class SimpleParseTreeTest {
         assertTrue(firstChild.getChild(1) instanceof PyAddNode);
         assertTrue(((PyNumberNode) firstChild.getChild(1).getChild(0)).number == 5);
         assertTrue(((PyNumberNode) firstChild.getChild(1).getChild(1)).number == 1);
+    }
+
+    @Test
+    public void defFunction() {
+        String code = "" +
+                "def f(a,b):\n" +
+                "    6\n" +
+                "    x=5\n" +
+                "    druha=2*x+1" +
+                "\n";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyNode firstChild = rootNode.getChild(0);
+
+        assertTrue(firstChild instanceof PyDefFuncNode);
+
+        assertTrue(firstChild.getChild(0) instanceof PyNumberNode); // 6
+        assertEquals(6, ((PyNumberNode) firstChild.getChild(0)).number);
+
+        //:=
+        //  {x}
+        //  5
+        assertTrue(firstChild.getChild(1) instanceof AssignNode);
+        assertEquals("x", ((PySymbolNode)firstChild.getChild(1).getChild(0)).name);
+        assertEquals(5, ((PyNumberNode)firstChild.getChild(1).getChild(1)).number);
+
+        //:=
+        //  {druha}
+        //  +
+        //    *
+        //      2
+        //      {x}
+        //    1
+        assertTrue(firstChild.getChild(2) instanceof AssignNode);
+        assertEquals("druha", ((PySymbolNode)firstChild.getChild(2).getChild(0)).name);
+
+        assertTrue(firstChild.getChild(2).getChild(1) instanceof PyAddNode);
+        assertTrue(firstChild.getChild(2).getChild(1).getChild(0) instanceof PyMultiplyNode);
+        assertTrue(firstChild.getChild(2).getChild(1).getChild(1) instanceof PyNumberNode);
+        assertEquals(1, ((PyNumberNode)firstChild.getChild(2).getChild(1).getChild(1)).number);
+
+        assertTrue(firstChild.getChild(2).getChild(1).getChild(0).getChild(0) instanceof PyNumberNode);
+        assertEquals(2, ((PyNumberNode)firstChild.getChild(2).getChild(1).getChild(0).getChild(0)).number);
+        assertTrue(firstChild.getChild(2).getChild(1).getChild(0).getChild(1) instanceof PySymbolNode);
+        assertEquals("x", ((PySymbolNode)firstChild.getChild(2).getChild(1).getChild(0).getChild(1)).name);
     }
 }

@@ -1,12 +1,12 @@
 package cz.melkamar.pyterpreter.external;
 
 import cz.melkamar.pyterpreter.Environment;
+import cz.melkamar.pyterpreter.nodes.functions.FunctionNode;
 import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by Martin Melka (martin.melka@gmail.com) on 16.01.2018 19:20.
@@ -64,5 +64,25 @@ public class ExecuteTest {
         assertEquals(6, (long) env.getValue("x"));
         assertEquals(7, (long) env.getValue("y"));
 
+    }
+
+    @Test
+    public void funcDef() {
+        String code = "" +
+                "def f(a,b):\n" +
+                "    6\n" +
+                "    x=5\n" +
+                "    druha=2*x+1" +
+                "\n";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Environment env = Environment.getDefaultEnvironment();
+        rootNode.execute(env);
+
+        assertTrue(env.contains("f"));
+        assertFalse(env.contains("x"));
+        assertFalse(env.contains("druha"));
+
+        assertTrue(env.getValue("f") instanceof FunctionNode);
     }
 }

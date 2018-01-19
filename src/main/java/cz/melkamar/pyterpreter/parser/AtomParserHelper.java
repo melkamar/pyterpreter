@@ -1,15 +1,17 @@
 package cz.melkamar.pyterpreter.parser;
 
 import cz.melkamar.pyterpreter.antlr.Python3Lexer;
+import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.nodes.AssignNode;
-import cz.melkamar.pyterpreter.nodes.PyFunctionNode;
 import cz.melkamar.pyterpreter.nodes.PyNumberNode;
 import cz.melkamar.pyterpreter.nodes.PySymbolNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyDivideNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
+import cz.melkamar.pyterpreter.nodes.functions.FuncCodeNode;
+import cz.melkamar.pyterpreter.nodes.functions.PyDefFuncNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 import org.antlr.v4.runtime.Token;
 
@@ -52,14 +54,36 @@ public class AtomParserHelper {
             }
         }
 
-        PyNode funcNode = new PyFunctionNode(functionName,
+        SimpleParseTree suiteNode = simpleParseTree.getChild(4);
+        FuncCodeNode funcCode = parseFuncCode(suiteNode);
+
+        PyDefFuncNode funcNode = new PyDefFuncNode(functionName,
                 Arrays.copyOf(args.toArray(), args.toArray().length, String[].class));
-        // TODO code
+
+        for (PyNode funcNodeChild: funcCode.getChildren())
+            funcNode.addChild(funcNodeChild);
 
         System.out.println("Defining function '" + functionName + "' with args " + Arrays.toString(
                 args.toArray()));
 
         return funcNode;
+    }
+
+    /**
+     * Clean case when there are two child nodes, but the second one is just a newline.
+     * This method either returns the SPT passed as parameter if there is no trailing newline, or returns the
+     * non-newline node if it has a newline sibling.
+     * @param simpleParseTree
+     * @return
+     */
+    private static SimpleParseTree removeTrailingNewline(SimpleParseTree simpleParseTree){
+        if (simpleParseTree.getChildCount() == 2 &&
+                simpleParseTree.isChildToken(1) &&
+                simpleParseTree.childAsToken(1).getType() == Python3Lexer.NEWLINE) {
+            return simpleParseTree.getChild(0);
+        }
+
+        return simpleParseTree;
     }
 
     /**
@@ -69,6 +93,7 @@ public class AtomParserHelper {
      * @return Newly created root of an AST subtree.
      */
     public static PyNode parseStatement(SimpleParseTree simpleParseTree) {
+        simpleParseTree = removeTrailingNewline(simpleParseTree);
         assert simpleParseTree.getPayloadAsString().equals(NODE_STR_STMT) ||
                 simpleParseTree.getPayloadAsString().equals(NODE_STR_SMALL_STMT);
 
@@ -82,11 +107,7 @@ public class AtomParserHelper {
 
             // Defining a function?
             if (firstToken.getType() == Python3Lexer.DEF) {
-                PyNode defPyNode = parseFuncDef(simpleParseTree);
-
-                // TODO is this necessary? adding the child here?
-//                currentPyNode.addChild(defPyNode);
-                return defPyNode;
+                return parseFuncDef(simpleParseTree);
             }
         }
 
@@ -96,7 +117,6 @@ public class AtomParserHelper {
 
                 // Is this assignment? e.g.   x = 5 + 4
                 if (secondToken.getType() == Python3Lexer.ASSIGN) {
-//                    String variableName = simpleParseTree.childAsToken(0).getText();
                     PyNode varNameNode = parseExpression(simpleParseTree, 0, 0);
 
                     AssignNode assignNode = new AssignNode();
@@ -172,9 +192,9 @@ public class AtomParserHelper {
             // Check if first and last token is parenthesis - if so, skip them
             if (simpleParseTree.isChildToken(0) &&
                     simpleParseTree.childAsToken(0).getType() == Python3Lexer.OPEN_PAREN &&
-                    simpleParseTree.isChildToken(simpleParseTree.getChildCount()-1) &&
-                    simpleParseTree.childAsToken(simpleParseTree.getChildCount()-1).getType() == Python3Lexer.CLOSE_PAREN){
-                return parseExpression(simpleParseTree, 1, simpleParseTree.getChildCount()-2);
+                    simpleParseTree.isChildToken(simpleParseTree.getChildCount() - 1) &&
+                    simpleParseTree.childAsToken(simpleParseTree.getChildCount() - 1).getType() == Python3Lexer.CLOSE_PAREN) {
+                return parseExpression(simpleParseTree, 1, simpleParseTree.getChildCount() - 2);
             }
 
             if (simpleParseTree.isChildToken(toIndex - 1)) {
@@ -206,6 +226,26 @@ public class AtomParserHelper {
 
             }
         }
-        throw new NotImplementedException("Got '"+simpleParseTree.getPayloadAsString()+"' from "+fromIndex+" to "+toIndex);
+        throw new NotImplementedException("Got '" + simpleParseTree.getPayloadAsString() + "' from " + fromIndex + " to " + toIndex);
     }
+
+    public static FuncCodeNode parseFuncCode(SimpleParseTree suiteNode) {
+        assert suiteNode.getPayloadAsString().equals("suite");
+        FuncCodeNode codeNode = new FuncCodeNode();
+        for (SimpleParseTree child : suiteNode.getChildren()) {
+            if (child.isToken()) {
+                int tokenType = child.asToken().getType();
+                if (tokenType == Python3Lexer.NEWLINE ||
+                        tokenType == Python3Parser.INDENT ||
+                        tokenType == Python3Parser.DEDENT)
+                    continue;
+            }
+
+            PyNode node = parseStatement(child);
+            codeNode.addChild(node);
+        }
+
+        return codeNode;
+    }
+
 }

@@ -1,30 +1,26 @@
-package cz.melkamar.pyterpreter.nodes;
+package cz.melkamar.pyterpreter.nodes.functions;
 
 import cz.melkamar.pyterpreter.Environment;
+import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 
 import java.util.Arrays;
 
-/**
- * Created by Martin Melka (martin.melka@gmail.com) on 05.11.2017 22:17.
- */
-public class PyFunctionNode extends PyNode {
-    private String name;
+public class FunctionNode extends PyNode {
     private String[] args;
 
-    public PyFunctionNode(String name, String[]args) {
-        this.name = name;
+    public FunctionNode(String[] args) {
         this.args = args;
     }
 
     @Override
     public Object execute(Environment env) {
-        return this;
+        throw new NotImplementedException();
     }
 
     @Override
     public void print(int indent) {
-        printIndented("def " + name+ " "+Arrays.toString(args), indent);
+        printIndented("func " + " "+ Arrays.toString(args), indent);
         for (PyNode child : children) {
             child.print(indent+1);
         }
