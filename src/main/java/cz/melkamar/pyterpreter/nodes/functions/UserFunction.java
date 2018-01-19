@@ -5,15 +5,9 @@ import cz.melkamar.pyterpreter.nodes.template.PyNode;
 
 import java.util.Arrays;
 
-public class FunctionNode extends PyNode {
-    private String[] args;
-
-    public FunctionNode(String[] args) {
-        this.args = args;
-    }
-
-    public String[] getArgNames() {
-        return args;
+public class UserFunction extends Function {
+    public UserFunction(String[] args) {
+        super(args);
     }
 
     @Override
@@ -27,7 +21,7 @@ public class FunctionNode extends PyNode {
 
     @Override
     public void print(int indent) {
-        printIndented("func " + " " + Arrays.toString(args), indent);
+        printIndented("userfunc " + " " + Arrays.toString(args), indent);
         for (PyNode child : children) {
             child.print(indent + 1);
         }

@@ -1,7 +1,7 @@
 package cz.melkamar.pyterpreter.external;
 
 import cz.melkamar.pyterpreter.Environment;
-import cz.melkamar.pyterpreter.nodes.functions.FunctionNode;
+import cz.melkamar.pyterpreter.nodes.functions.UserFunction;
 import cz.melkamar.pyterpreter.nodes.template.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
@@ -83,7 +83,7 @@ public class ExecuteTest {
         assertFalse(env.contains("x"));
         assertFalse(env.contains("druha"));
 
-        assertTrue(env.getValue("f") instanceof FunctionNode);
+        assertTrue(env.getValue("f") instanceof UserFunction);
     }
 
     @Test
@@ -107,7 +107,26 @@ public class ExecuteTest {
         assertTrue(env.contains("res"));
         assertFalse(env.contains("x"));
 
-        assertTrue(env.getValue("f") instanceof FunctionNode);
+        assertTrue(env.getValue("f") instanceof UserFunction);
         assertEquals((1L+2)+2+(2*5), env.getValue("res"));
+    }
+
+    /**
+     * Just check if print function finishes without crashes - no easy was to intercept stdout.
+     */
+    @Test
+    public void printFunction(){
+        String code = "" +
+                "print(1)\n" +
+                "print(1*2+3)\n" +
+                "x=4\n" +
+                "print(x)\n" +
+                "print(x+2)";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Environment env = Environment.getDefaultEnvironment();
+        rootNode.execute(env);
+
+        assertTrue(env.contains("x"));
     }
 }

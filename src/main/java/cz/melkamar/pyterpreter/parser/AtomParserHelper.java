@@ -32,6 +32,7 @@ public class AtomParserHelper {
     final static String NODE_STR_ATOM = "atom";
     final static String NODE_STR_TRAILER = "trailer";
     final static String NODE_STR_ARGLIST = "arglist";
+    final static String NODE_STR_ARGUMENT = "argument";
 
     /**
      * Parse function call argument list, e.g.
@@ -47,13 +48,32 @@ public class AtomParserHelper {
      * |     '- term
      * |        '- TOKEN[type: 38, text: 3]
      *
-     * @param simpleParseTree
-     * @return
+     * Check if the first child of arglist is "argument" - if the first node is not "argument",
+     * then there is only one argument and the node was deleted (because all nodes with a single
+     * child were squished). It is like this:
+     *
+     * |- arglist
+     * |  |- term
+     * |  |  '- TOKEN[type: 38, text: 1234]
+     * |  |- TOKEN[type: 61, text: +]
+     * |  '- term
+     * |     '- TOKEN[type: 38, text: 1]
+     * '- TOKEN[type: 48, text: )]
+     *
+     * In this case parse arglist as if it was an "argument" node.
      */
     public static List<PyNode> parseArgList(SimpleParseTree simpleParseTree) {
         assert simpleParseTree.getPayloadAsString().equals(NODE_STR_ARGLIST);
-
         List<PyNode> result = new ArrayList<>();
+
+        // For explanation of this special case see javadoc.
+        if (!simpleParseTree.getChildPayload(0).equals(NODE_STR_ARGUMENT)){
+            PyNode argNode = parseExpression(simpleParseTree);
+            result.add(argNode);
+            return result;
+        }
+
+
         for (SimpleParseTree child : simpleParseTree.getChildren()) {
             if (child.isToken()) { // If a child is directly a token, it should be a comma separating arguments in list
                 if (child.asToken().getType() == Python3Parser.COMMA) continue; // Skip commas in arglist

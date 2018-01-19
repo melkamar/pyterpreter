@@ -19,9 +19,9 @@ public class PyDefFuncNode extends PyNode {
 
     @Override
     public Object execute(Environment env) {
-        FunctionNode functionNode = new FunctionNode(args);
-        functionNode.children.addAll(this.children);
-        env.putValue(name, functionNode);
+        UserFunction userFunctionNode = new UserFunction(args);
+        userFunctionNode.children.addAll(this.children);
+        env.putValue(name, userFunctionNode);
 
         return null; // result of def cannot be assigned anywhere anyway
     }

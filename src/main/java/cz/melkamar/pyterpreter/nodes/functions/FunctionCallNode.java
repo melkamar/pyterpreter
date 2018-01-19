@@ -12,7 +12,7 @@ public class FunctionCallNode extends PyNode {
 
     @Override
     public Object execute(Environment env) {
-        FunctionNode func = (FunctionNode) env.getValue(funcName);
+;        Function func = (Function) env.getValue(funcName);
         Environment newEnv = new Environment(env);
 
         assert children.size() == func.getArgNames().length;

@@ -8,15 +8,17 @@ import java.io.IOException;
 public class PyMain {
 
     public static void main(String[] args) throws IOException {
-        String code = "" +
-                "def f(a,b):\n" +
-                "    x=a+b+2\n" +
-                "    return x\n" +
-                "\n" +
-                "def g():\n" +
-                "    return 5\n" +
-                "\n"+
-                "res = f(1+2,2*g())";
+//        String code = "" +
+//                "def f(a,b):\n" +
+//                "    x=a+b+2\n" +
+//                "    return x\n" +
+//                "\n" +
+//                "def g():\n" +
+//                "    return 5\n" +
+//                "\n"+
+//                "res = f(1+2,2*g())";
+
+        String code = "print(1)";
 
         SimpleParseTree.printParseTree(code);
         PyRootNode rootNode = SimpleParseTree.astFromCode(code);

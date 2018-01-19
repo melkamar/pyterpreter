@@ -1,6 +1,7 @@
 package cz.melkamar.pyterpreter;
 
 import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
+import cz.melkamar.pyterpreter.nodes.functions.builtin.BuiltinFunctions;
 
 import java.util.HashMap;
 
@@ -40,11 +41,11 @@ public class Environment {
         return true;
     }
 
-    public void setReturnFlag(){
+    public void setReturnFlag() {
         returnFlag = true;
     }
 
-    public boolean isReturnFlag(){
+    public boolean isReturnFlag() {
         return returnFlag;
     }
 
@@ -53,27 +54,30 @@ public class Environment {
         return nestToString(1);
     }
 
-    private String spacesFromLevel(int level){
+    private String spacesFromLevel(int level) {
         StringBuilder builder = new StringBuilder();
-        for (int i=0; i<level; i++) builder.append("  ");
+        for (int i = 0; i < level; i++) builder.append("  ");
         return builder.toString();
     }
+
     /**
      * Print this env's map and recursively call parent's print, if parent exists.
      *
      * Example output:
      * ENV (1): {x=6, y=6}   (current)
-     *   ENV (2): {}         (parent)
-     *     ENV (3): {}       (parent's parent)
+     * ENV (2): {}         (parent)
+     * ENV (3): {}       (parent's parent)
      *
      * @param level
      * @return
      */
     public String nestToString(int level) {
-        return "ENV (" + level + "): " + this.env.toString() + (parent != null ? "\n" +spacesFromLevel(level)+ parent.nestToString(level + 1) : "");
+        return "ENV (" + level + "): " + this.env.toString() + (parent != null ? "\n" + spacesFromLevel(level) + parent.nestToString(level + 1) : "");
     }
 
     public static Environment getDefaultEnvironment() {
-        return new Environment();
+        Environment env = new Environment();
+        BuiltinFunctions.fillEnv(env);
+        return env;
     }
 }
