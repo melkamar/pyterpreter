@@ -13,6 +13,7 @@ import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
 import cz.melkamar.pyterpreter.nodes.functions.FuncCodeNode;
 import cz.melkamar.pyterpreter.nodes.functions.FunctionCallNode;
 import cz.melkamar.pyterpreter.nodes.functions.PyDefFuncNode;
+import cz.melkamar.pyterpreter.nodes.functions.ReturnNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 import org.antlr.v4.runtime.Token;
 
@@ -150,6 +151,17 @@ public class AtomParserHelper {
             }
         }
 
+        // return xxx statement?
+        if (simpleParseTree.getChildCount() == 2) {
+            if (simpleParseTree.isChildToken(0) &&
+                    simpleParseTree.childAsToken(0).getType() == Python3Parser.RETURN) {
+                ReturnNode returnNode = new ReturnNode();
+                PyNode returnBody = parseExpression(simpleParseTree.getChild(1));
+                returnNode.addChild(returnBody);
+                return returnNode;
+            }
+        }
+
         if (simpleParseTree.getChildCount() >= 3) {
             if (simpleParseTree.isChildToken(1)) {
                 Token secondToken = simpleParseTree.childAsToken(1);
@@ -191,8 +203,8 @@ public class AtomParserHelper {
     /**
      * Convenience method for parseExpression(SPT, from, to).
      */
-    public static PyNode parseExpression(SimpleParseTree simpleParseTree){
-        return parseExpression(simpleParseTree, 0, simpleParseTree.getChildCount()-1);
+    public static PyNode parseExpression(SimpleParseTree simpleParseTree) {
+        return parseExpression(simpleParseTree, 0, simpleParseTree.getChildCount() - 1);
     }
 
     /**
@@ -243,12 +255,12 @@ public class AtomParserHelper {
 
                 assert simpleParseTree.getChild(1).getPayloadAsString().equals(NODE_STR_TRAILER);
 
-                SimpleParseTree arglistNode =simpleParseTree.getChild(1).getChild(1);
-                assert arglistNode.getPayloadAsString().equals(NODE_STR_ARGLIST);
-                List<PyNode> argList = parseArgList(arglistNode);
+                SimpleParseTree arglistNode = simpleParseTree.getChild(1).getChild(1);
 
                 FunctionCallNode callNode = new FunctionCallNode(funcName);
-                callNode.addChildren(argList);
+                if (arglistNode.getPayloadAsString().equals(NODE_STR_ARGLIST)){
+                    callNode.addChildren(parseArgList(arglistNode));
+                }
                 return callNode;
             }
         }

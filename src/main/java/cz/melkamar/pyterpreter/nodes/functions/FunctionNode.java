@@ -19,9 +19,10 @@ public class FunctionNode extends PyNode {
     @Override
     public Object execute(Environment env) {
         for (PyNode child : children) {
-            child.execute(env);
+            Object lastRes = child.execute(env);
+            if (env.isReturnFlag()) return lastRes;
         }
-        return null; // todo co tu vracet? podle returnu v metodě
+        return null;
     }
 
     @Override

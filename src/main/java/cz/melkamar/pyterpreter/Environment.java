@@ -10,6 +10,7 @@ import java.util.HashMap;
 public class Environment {
     private final HashMap<String, Object> env = new HashMap<>();
     private final Environment parent;
+    private boolean returnFlag = false;
 
     public Environment() {
         this.parent = null;
@@ -37,6 +38,14 @@ public class Environment {
             return false;
         }
         return true;
+    }
+
+    public void setReturnFlag(){
+        returnFlag = true;
+    }
+
+    public boolean isReturnFlag(){
+        return returnFlag;
     }
 
     @Override

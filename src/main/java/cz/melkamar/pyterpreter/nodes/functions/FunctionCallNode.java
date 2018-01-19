@@ -17,7 +17,7 @@ public class FunctionCallNode extends PyNode {
 
         assert children.size() == func.getArgNames().length;
         for (int i = 0; i < func.getArgNames().length; i++) {
-            newEnv.putValue(func.getArgNames()[i], children.get(i));
+            newEnv.putValue(func.getArgNames()[i], children.get(i).execute(env));
         }
         return func.execute(newEnv);
     }

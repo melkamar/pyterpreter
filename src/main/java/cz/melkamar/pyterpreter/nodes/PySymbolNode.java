@@ -15,7 +15,7 @@ public class PySymbolNode extends PyNode{
 
     @Override
     public Object execute(Environment env) {
-        return ((PyNode)env.getValue(this.name)).execute(env);
+        return env.getValue(this.name);
     }
 
     @Override

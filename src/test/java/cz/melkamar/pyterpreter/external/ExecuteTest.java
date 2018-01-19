@@ -85,4 +85,29 @@ public class ExecuteTest {
 
         assertTrue(env.getValue("f") instanceof FunctionNode);
     }
+
+    @Test
+    public void funcCall() {
+        String code = "" +
+                "def f(a,b):\n" +
+                "    x=a+b+2\n" +
+                "    return x\n" +
+                "\n" +
+                "def g():\n" +
+                "    return 5\n" +
+                "\n"+
+                "res = f(1+2,2*g())";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Environment env = Environment.getDefaultEnvironment();
+        rootNode.execute(env);
+
+        assertTrue(env.contains("f"));
+        assertTrue(env.contains("g"));
+        assertTrue(env.contains("res"));
+        assertFalse(env.contains("x"));
+
+        assertTrue(env.getValue("f") instanceof FunctionNode);
+        assertEquals((1L+2)+2+(2*5), env.getValue("res"));
+    }
 }
