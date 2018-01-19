@@ -20,7 +20,7 @@ public class PyDefFuncNode extends PyNode {
     @Override
     public Object execute(Environment env) {
         UserFunction userFunctionNode = new UserFunction(args);
-        userFunctionNode.children.addAll(this.children);
+        userFunctionNode.body.addAll(this.children);
         env.putValue(name, userFunctionNode);
 
         return null; // result of def cannot be assigned anywhere anyway

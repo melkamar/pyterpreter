@@ -13,9 +13,4 @@ public class PrintFunction extends Function {
         System.out.println("OUT: "+String.valueOf(env.getValue("text")));
         return null;
     }
-
-    @Override
-    public void print(int indent) {
-
-    }
 }

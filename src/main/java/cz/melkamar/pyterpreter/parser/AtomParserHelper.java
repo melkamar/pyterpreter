@@ -147,7 +147,7 @@ public class AtomParserHelper {
     }
 
     /**
-     * Convert a statement node (stmt) and its children into a AST subtree.
+     * Convert a statement node (stmt) and its body into a AST subtree.
      *
      * @param simpleParseTree ParseTree node to convert.
      * @return Newly created root of an AST subtree.
@@ -158,7 +158,7 @@ public class AtomParserHelper {
                 simpleParseTree.getPayloadAsString().equals(NODE_STR_SMALL_STMT);
 
         if (simpleParseTree.getChildCount() == 0) {
-//            return parseTermNode(simpleParseTree.children.get(0));
+//            return parseTermNode(simpleParseTree.body.get(0));
             throw new NotImplementedException();
         }
 
@@ -251,11 +251,11 @@ public class AtomParserHelper {
      */
     public static PyNode parseExpression(SimpleParseTree simpleParseTree, int fromIndex, int toIndex) {
         if (toIndex < fromIndex) {
-            // This node does not have children - either a token or WTF
+            // This node does not have body - either a token or WTF
             if (simpleParseTree.isToken()) {
                 return parseToken(simpleParseTree);
             }
-            throw new NotImplementedException("No children for node, but node not Token.");
+            throw new NotImplementedException("No body for node, but node not Token.");
         }
 
         if (toIndex == fromIndex) {
@@ -265,7 +265,7 @@ public class AtomParserHelper {
                     simpleParseTree.getChild(toIndex).getChildCount() - 1);
         }
 
-        // Two children - function call?
+        // Two body - function call?
         if (toIndex - fromIndex == 1) {
             // Check if first child is atom and its child a token
             if (simpleParseTree.getChild(0).getPayloadAsString().equals(NODE_STR_ATOM) &&
@@ -286,7 +286,7 @@ public class AtomParserHelper {
         }
 
         // Binary operation?
-        if (toIndex - fromIndex >= 2) { // At least three children
+        if (toIndex - fromIndex >= 2) { // At least three body
             // Check if first and last token is parenthesis - if so, skip them
             if (simpleParseTree.isChildToken(0) &&
                     simpleParseTree.childAsToken(0).getType() == Python3Lexer.OPEN_PAREN &&

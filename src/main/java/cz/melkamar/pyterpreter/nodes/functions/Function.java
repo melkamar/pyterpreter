@@ -1,15 +1,23 @@
 package cz.melkamar.pyterpreter.nodes.functions;
 
+import cz.melkamar.pyterpreter.Environment;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 
-public abstract class Function extends PyNode {
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class Function {
     protected String[] args;
+    protected List<PyNode> body;
 
     public Function(String[] args) {
         this.args = args;
+        body = new ArrayList<>();
     }
 
     public String[] getArgNames() {
         return args;
     }
+
+    public abstract Object execute(Environment env);
 }

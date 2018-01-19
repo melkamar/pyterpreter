@@ -276,7 +276,7 @@ public class SimpleParseTree {
     }
 
     public void traverse(SimpleParseTree simpleParseTree, PyNode currentPyNode) {
-        // If there are only two children and the second one is newline, directly traverse the first child, discard newline
+        // If there are only two body and the second one is newline, directly traverse the first child, discard newline
         if (simpleParseTree.children.size() == 2 &&
                 simpleParseTree.isChildToken(1) &&
                 simpleParseTree.childAsToken(1).getType() == Python3Lexer.NEWLINE) {
