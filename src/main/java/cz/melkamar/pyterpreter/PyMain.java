@@ -10,12 +10,9 @@ public class PyMain {
     public static void main(String[] args) throws IOException {
         String code = "" +
                 "def f(a,b):\n" +
-                "    6\n"+
-                "    x=5\n" +
-                "    druha=2*x+1" +
+                "    x=a+b\n" +
                 "\n" +
-                "fff = f\n" +
-                "xyz = 1+1*2" ;
+                "res = f(1,2+3)" ;
         SimpleParseTree.printParseTree(code);
         PyRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();

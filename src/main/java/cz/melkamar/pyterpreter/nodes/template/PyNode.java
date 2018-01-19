@@ -3,6 +3,7 @@ package cz.melkamar.pyterpreter.nodes.template;
 import cz.melkamar.pyterpreter.Environment;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -15,17 +16,25 @@ public abstract class PyNode {
         children.add(node);
     }
 
-    public PyNode getChild(int index){return children.get(index);}
+    public void addChildren(Collection<? extends PyNode> collection) {
+        children.addAll(collection);
+    }
 
-    public List<PyNode> getChildren(){return children;}
+    public PyNode getChild(int index) {
+        return children.get(index);
+    }
+
+    public List<PyNode> getChildren() {
+        return children;
+    }
 
     public abstract Object execute(Environment env);
 
     public abstract void print(int indent);
 
-    protected void printIndented(String text, int indent){
+    protected void printIndented(String text, int indent) {
         StringBuilder builder = new StringBuilder();
-        for (int i=0; i<indent; i++){
+        for (int i = 0; i < indent; i++) {
             builder.append("  ");
         }
         builder.append(text);

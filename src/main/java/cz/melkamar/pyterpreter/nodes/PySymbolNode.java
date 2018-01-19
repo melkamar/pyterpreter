@@ -1,7 +1,6 @@
 package cz.melkamar.pyterpreter.nodes;
 
 import cz.melkamar.pyterpreter.Environment;
-import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 
 /**
@@ -16,7 +15,7 @@ public class PySymbolNode extends PyNode{
 
     @Override
     public Object execute(Environment env) {
-        return env.getValue(this.name);
+        return ((PyNode)env.getValue(this.name)).execute(env);
     }
 
     @Override

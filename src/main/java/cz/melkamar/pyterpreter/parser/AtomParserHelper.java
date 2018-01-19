@@ -11,6 +11,7 @@ import cz.melkamar.pyterpreter.nodes.arithmetic.PyDivideNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
 import cz.melkamar.pyterpreter.nodes.functions.FuncCodeNode;
+import cz.melkamar.pyterpreter.nodes.functions.FunctionCallNode;
 import cz.melkamar.pyterpreter.nodes.functions.PyDefFuncNode;
 import cz.melkamar.pyterpreter.nodes.template.PyNode;
 import org.antlr.v4.runtime.Token;
@@ -27,6 +28,43 @@ public class AtomParserHelper {
     final static String NODE_STR_STMT = "stmt";
     final static String NODE_STR_SMALL_STMT = "small_stmt";
     final static String NODE_STR_FILE_INPUT = "file_input";
+    final static String NODE_STR_ATOM = "atom";
+    final static String NODE_STR_TRAILER = "trailer";
+    final static String NODE_STR_ARGLIST = "arglist";
+
+    /**
+     * Parse function call argument list, e.g.
+     *
+     * |- arglist
+     * |  |- argument
+     * |  |  '- TOKEN[type: 38, text: 1]
+     * |  |- TOKEN[type: 49, text: ,]
+     * |  '- argument
+     * |     |- term
+     * |     |  '- TOKEN[type: 38, text: 2]
+     * |     |- TOKEN[type: 61, text: +]
+     * |     '- term
+     * |        '- TOKEN[type: 38, text: 3]
+     *
+     * @param simpleParseTree
+     * @return
+     */
+    public static List<PyNode> parseArgList(SimpleParseTree simpleParseTree) {
+        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_ARGLIST);
+
+        List<PyNode> result = new ArrayList<>();
+        for (SimpleParseTree child : simpleParseTree.getChildren()) {
+            if (child.isToken()) { // If a child is directly a token, it should be a comma separating arguments in list
+                if (child.asToken().getType() == Python3Parser.COMMA) continue; // Skip commas in arglist
+                throw new NotImplementedException("Parsing arglist, got token type " + child.asToken().getType());
+            }
+
+            PyNode argNode = parseExpression(child);
+            result.add(argNode);
+        }
+
+        return result;
+    }
 
     public static PyNode parseFuncDef(SimpleParseTree simpleParseTree) {
         // Get function name
@@ -60,7 +98,7 @@ public class AtomParserHelper {
         PyDefFuncNode funcNode = new PyDefFuncNode(functionName,
                 Arrays.copyOf(args.toArray(), args.toArray().length, String[].class));
 
-        for (PyNode funcNodeChild: funcCode.getChildren())
+        for (PyNode funcNodeChild : funcCode.getChildren())
             funcNode.addChild(funcNodeChild);
 
         System.out.println("Defining function '" + functionName + "' with args " + Arrays.toString(
@@ -73,10 +111,11 @@ public class AtomParserHelper {
      * Clean case when there are two child nodes, but the second one is just a newline.
      * This method either returns the SPT passed as parameter if there is no trailing newline, or returns the
      * non-newline node if it has a newline sibling.
+     *
      * @param simpleParseTree
      * @return
      */
-    private static SimpleParseTree removeTrailingNewline(SimpleParseTree simpleParseTree){
+    private static SimpleParseTree removeTrailingNewline(SimpleParseTree simpleParseTree) {
         if (simpleParseTree.getChildCount() == 2 &&
                 simpleParseTree.isChildToken(1) &&
                 simpleParseTree.childAsToken(1).getType() == Python3Lexer.NEWLINE) {
@@ -150,6 +189,13 @@ public class AtomParserHelper {
     }
 
     /**
+     * Convenience method for parseExpression(SPT, from, to).
+     */
+    public static PyNode parseExpression(SimpleParseTree simpleParseTree){
+        return parseExpression(simpleParseTree, 0, simpleParseTree.getChildCount()-1);
+    }
+
+    /**
      * Convert an expression into AST subtree.
      * Only work with a subset of nodes, specified by fromIndex and toIndex (both inclusive).
      * <p>
@@ -185,6 +231,26 @@ public class AtomParserHelper {
             return parseExpression(simpleParseTree.getChild(toIndex),
                     0,
                     simpleParseTree.getChild(toIndex).getChildCount() - 1);
+        }
+
+        // Two children - function call?
+        if (toIndex - fromIndex == 1) {
+            // Check if first child is atom and its child a token
+            if (simpleParseTree.getChild(0).getPayloadAsString().equals(NODE_STR_ATOM) &&
+                    simpleParseTree.getChild(0).getChildCount() == 1 &&
+                    simpleParseTree.getChild(0).isChildToken(0)) {
+                String funcName = simpleParseTree.getChild(0).childAsToken(0).getText();
+
+                assert simpleParseTree.getChild(1).getPayloadAsString().equals(NODE_STR_TRAILER);
+
+                SimpleParseTree arglistNode =simpleParseTree.getChild(1).getChild(1);
+                assert arglistNode.getPayloadAsString().equals(NODE_STR_ARGLIST);
+                List<PyNode> argList = parseArgList(arglistNode);
+
+                FunctionCallNode callNode = new FunctionCallNode(funcName);
+                callNode.addChildren(argList);
+                return callNode;
+            }
         }
 
         // Binary operation?
