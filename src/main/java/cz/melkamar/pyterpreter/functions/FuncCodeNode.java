@@ -1,13 +1,16 @@
 package cz.melkamar.pyterpreter.functions;
 
 import cz.melkamar.pyterpreter.Environment;
-import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.nodes.PyNode;
 
 public class FuncCodeNode extends PyNode {
     @Override
     public Object execute(Environment env) {
-        throw new NotImplementedException();
+        for (PyNode child : children) {
+            Object lastRes = child.execute(env);
+            if (env.isReturnFlag()) return lastRes;
+        }
+        return null;
     }
 
     @Override

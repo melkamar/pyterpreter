@@ -95,7 +95,7 @@ public class ExecuteTest {
                 "\n" +
                 "def g():\n" +
                 "    return 5\n" +
-                "\n"+
+                "\n" +
                 "res = f(1+2,2*g())";
 
         PyRootNode rootNode = SimpleParseTree.astFromCode(code);
@@ -108,14 +108,14 @@ public class ExecuteTest {
         assertFalse(env.contains("x"));
 
         assertTrue(env.getValue("f") instanceof UserFunction);
-        assertEquals((1L+2)+2+(2*5), env.getValue("res"));
+        assertEquals((1L + 2) + 2 + (2 * 5), env.getValue("res"));
     }
 
     /**
      * Just check if print function finishes without crashes - no easy was to intercept stdout.
      */
     @Test
-    public void printFunction(){
+    public void printFunction() {
         String code = "" +
                 "print(1)\n" +
                 "print(1*2+3)\n" +
@@ -128,5 +128,56 @@ public class ExecuteTest {
         rootNode.execute(env);
 
         assertTrue(env.contains("x"));
+    }
+
+    @Test
+    public void ifThen() {
+        String code = "" +
+                "x = 0\n" +
+                "if x==0:\n" +
+                "    y=1\n" +
+                "else:\n" +
+                "    y=2";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Environment env = Environment.getDefaultEnvironment();
+        rootNode.execute(env);
+
+        assertEquals(1L, env.getValue("y"));
+    }
+
+    @Test
+    public void ifThenElse() {
+        String code = "" +
+                "x = 1\n" +
+                "if x==0:\n" +
+                "    y=1\n" +
+                "else:\n" +
+                "    y=2";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Environment env = Environment.getDefaultEnvironment();
+        rootNode.execute(env);
+
+        assertEquals(2L, env.getValue("y"));
+    }
+
+    @Test
+    public void recursionFactorial() {
+        String code = "" +
+                "def fact(x):\n" +
+                "    print(x)\n" +
+                "    if x==0:\n" +
+                "        return 1\n" +
+                "    else:\n" +
+                "        return fact(x-1) * x\n" +
+                "\n" +
+                "result = fact(6)";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Environment env = Environment.getDefaultEnvironment();
+        rootNode.execute(env);
+
+        assertEquals(720L, env.getValue("result"));
     }
 }

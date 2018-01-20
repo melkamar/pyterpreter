@@ -25,7 +25,7 @@ public class REPL {
                 System.out.print(">>> ");
             } else {
                 System.out.print("    ");
-                for (int i = 0; i < indentLevel-1; i++){
+                for (int i = 0; i < indentLevel - 1; i++) {
                     System.out.print("....");
                     inputBuffer.append("    ");
                 }
@@ -57,7 +57,10 @@ public class REPL {
             try {
                 PyRootNode rootNode = SimpleParseTree.astFromCode(code);
                 Object result = rootNode.execute(env);
-                System.out.println(result);
+                if (result != null) {
+                    // TODO how to handle case when I actually do want to return null? E.g. x=None; x?
+                    System.out.println(result);
+                }
             } catch (Exception e) {
                 e.printStackTrace(System.out);
             }

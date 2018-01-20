@@ -15,6 +15,8 @@ import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyDivideNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
+import cz.melkamar.pyterpreter.nodes.comparison.EqualsNode;
+import cz.melkamar.pyterpreter.nodes.flow.IfNode;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
@@ -33,6 +35,8 @@ public class SptToAptTransformer {
     final static String NODE_STR_TRAILER = "trailer";
     final static String NODE_STR_ARGLIST = "arglist";
     final static String NODE_STR_ARGUMENT = "argument";
+    final static String NODE_STR_TEST = "test";
+    final static String NODE_STR_COMP_OP = "comp_op";
 
     /**
      * Parse function call argument list, e.g.
@@ -67,7 +71,7 @@ public class SptToAptTransformer {
         List<PyNode> result = new ArrayList<>();
 
         // For explanation of this special case see javadoc.
-        if (!simpleParseTree.getChildPayload(0).equals(NODE_STR_ARGUMENT)){
+        if (!simpleParseTree.getChildPayload(0).equals(NODE_STR_ARGUMENT)) {
             PyNode argNode = parseExpression(simpleParseTree);
             result.add(argNode);
             return result;
@@ -85,6 +89,81 @@ public class SptToAptTransformer {
         }
 
         return result;
+    }
+
+    /**
+     * Parse if-elif-else statement, e.g.
+     *
+     * stmt
+     * |- TOKEN[type: 10, text: if]
+     * |- test
+     * |  |- star_expr
+     * |  |  '- TOKEN[type: 38, text: 1]
+     * |  |- comp_op
+     * |  |  '- TOKEN[type: 71, text: ==]
+     * |  '- star_expr
+     * |     '- TOKEN[type: 38, text: 2]
+     * |- TOKEN[type: 50, text: :]
+     * |- suite
+     * |  |- TOKEN[type: 34, text:  ]
+     * |  |- TOKEN[type: 93, text:     ]
+     * |  |- stmt
+     * |  |  |- small_stmt
+     * |  |  |  |- atom
+     * |  |  |  |  '- TOKEN[type: 35, text: print]
+     * |  |  |  '- trailer
+     * |  |  |     |- TOKEN[type: 47, text: (]
+     * |  |  |     |- arglist
+     * |  |  |     |  '- TOKEN[type: 38, text: 1]
+     * |  |  |     '- TOKEN[type: 48, text: )]
+     * |  |  '- TOKEN[type: 34, text: \n]
+     * |  '- TOKEN[type: 94, text: \n]
+     *
+     * @param simpleParseTree
+     * @return
+     */
+    public static PyNode parseIfStmt(SimpleParseTree simpleParseTree) {
+        assert simpleParseTree.isChildToken(0) &&
+                simpleParseTree.childAsToken(0).getType() == Python3Parser.IF;
+
+        PyNode testNode = parseTestExpr(simpleParseTree.getChild(1));
+        PyNode doIfTrueNode = parseFuncCode(simpleParseTree.getChild(3));
+        PyNode doIfFalseNode = null;
+
+        if (simpleParseTree.childAsToken(4).getType() == Python3Parser.ELSE) {
+            doIfFalseNode = parseFuncCode(simpleParseTree.getChild(6));
+        } else {
+            throw new NotImplementedException("elif not implemented");
+        }
+
+        IfNode ifNode = new IfNode();
+        ifNode.addChild(testNode);
+        ifNode.addChild(doIfTrueNode);
+        ifNode.addChild(doIfFalseNode);
+        return ifNode;
+    }
+
+    /**
+     * Two possible cases, either
+     *
+     * if x==0:
+     * do_stuff()
+     *
+     * if x:
+     * do_stuff()
+     * stmt
+     * |- TOKEN[type: 10, text: if]
+     * |- test
+     * |  '- TOKEN[type: 35, text: x]
+     * |- TOKEN[type: 50, text: :]
+     * '- suite
+     *
+     * @param simpleParseTree
+     * @return
+     */
+    public static PyNode parseTestExpr(SimpleParseTree simpleParseTree) {
+        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_TEST);
+        return parseExpression(simpleParseTree);
     }
 
     public static PyNode parseFuncDef(SimpleParseTree simpleParseTree) {
@@ -165,6 +244,10 @@ public class SptToAptTransformer {
             // Defining a function?
             if (firstToken.getType() == Python3Lexer.DEF) {
                 return parseFuncDef(simpleParseTree);
+            }
+
+            if (firstToken.getType() == Python3Parser.IF) {
+                return parseIfStmt(simpleParseTree);
             }
         }
 
@@ -275,7 +358,7 @@ public class SptToAptTransformer {
                 SimpleParseTree arglistNode = simpleParseTree.getChild(1).getChild(1);
 
                 FunctionCallNode callNode = new FunctionCallNode(funcName);
-                if (arglistNode.getPayloadAsString().equals(NODE_STR_ARGLIST)){
+                if (arglistNode.getPayloadAsString().equals(NODE_STR_ARGLIST)) {
                     callNode.addChildren(parseArgList(arglistNode));
                 }
                 return callNode;
@@ -294,19 +377,22 @@ public class SptToAptTransformer {
 
             if (simpleParseTree.isChildToken(toIndex - 1)) {
 
-                PyNode aritNode = null;
+                PyNode binaryNode = null;
                 switch (simpleParseTree.childAsToken(toIndex - 1).getType()) {
                     case Python3Lexer.ADD:
-                        aritNode = new PyAddNode();
+                        binaryNode = new PyAddNode();
                         break;
                     case Python3Lexer.MINUS:
-                        aritNode = new PySubtractNode();
+                        binaryNode = new PySubtractNode();
                         break;
                     case Python3Lexer.STAR:
-                        aritNode = new PyMultiplyNode();
+                        binaryNode = new PyMultiplyNode();
                         break;
                     case Python3Lexer.DIV:
-                        aritNode = new PyDivideNode();
+                        binaryNode = new PyDivideNode();
+                        break;
+                    case Python3Lexer.EQUALS:
+                        binaryNode = new EqualsNode();
                         break;
                     default:
                         throw new NotImplementedException();
@@ -315,10 +401,38 @@ public class SptToAptTransformer {
                 PyNode right = parseExpression(simpleParseTree, toIndex, toIndex);
                 PyNode left = parseExpression(simpleParseTree, fromIndex, toIndex - 2);
 
-                aritNode.addChild(left);
-                aritNode.addChild(right);
-                return aritNode;
+                binaryNode.addChild(left);
+                binaryNode.addChild(right);
+                return binaryNode;
 
+            }
+
+            /*
+             * Test expression?
+             * |- test
+             * |  |- star_expr
+             * |  |  '- TOKEN[type: 35, text: x]
+             * |  |- comp_op
+             * |  |  '- TOKEN[type: 71, text: ==]
+             * |  '- star_expr
+             * |     '- TOKEN[type: 38, text: 0]
+             */
+            if (simpleParseTree.getChildPayload(toIndex - 1).equals(NODE_STR_COMP_OP)) {
+                PyNode compNode;
+                switch (simpleParseTree.getChild(toIndex - 1).childAsToken(0).getType()) {
+                    case Python3Parser.EQUALS:
+                        compNode = new EqualsNode();
+                        break;
+                    default:
+                        throw new NotImplementedException("comp_op not implemented: " + simpleParseTree.getChild(toIndex - 1).childAsToken(0).getType());
+                }
+
+                PyNode right = parseExpression(simpleParseTree, toIndex, toIndex);
+                PyNode left = parseExpression(simpleParseTree, fromIndex, toIndex - 2);
+
+                compNode.addChild(left);
+                compNode.addChild(right);
+                return compNode;
             }
         }
         throw new NotImplementedException("Got '" + simpleParseTree.getPayloadAsString() + "' from " + fromIndex + " to " + toIndex);
