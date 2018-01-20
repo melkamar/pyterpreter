@@ -7,6 +7,10 @@ import java.util.Scanner;
 
 public class REPL {
 
+    public static void main(String[] args) {
+        startRepl();
+    }
+
     /**
      * Start a REPL loop.
      *
@@ -24,13 +28,11 @@ public class REPL {
             if (indentLevel == 0) {
                 System.out.print(">>> ");
             } else {
-                System.out.print("    ");
-                for (int i = 0; i < indentLevel - 1; i++) {
-                    System.out.print("....");
+                System.out.print("... ");
+                for (int i = 0; i < indentLevel; i++) {
+                    System.out.print("    ");
                     inputBuffer.append("    ");
                 }
-                System.out.print("... ");
-                inputBuffer.append("    ");
             }
 
             String input = sc.nextLine();
@@ -38,16 +40,17 @@ public class REPL {
             if (input.isEmpty() && indentLevel > 0) {
                 indentLevel--;
                 inputBuffer.append("\n");
-                continue;
+//                continue;
+            } else {
+                inputBuffer.append(input);
+                inputBuffer.append("\n");
+
+                if (input.trim().endsWith(":")) {
+                    indentLevel++;
+                    continue;
+                }
             }
 
-            inputBuffer.append(input);
-            inputBuffer.append("\n");
-
-            if (input.trim().endsWith(":")) {
-                indentLevel++;
-                continue;
-            }
 
             if (indentLevel > 0) continue;
 
