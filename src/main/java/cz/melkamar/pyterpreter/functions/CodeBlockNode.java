@@ -3,7 +3,7 @@ package cz.melkamar.pyterpreter.functions;
 import cz.melkamar.pyterpreter.Environment;
 import cz.melkamar.pyterpreter.nodes.PyNode;
 
-public class FuncCodeNode extends PyNode {
+public class CodeBlockNode extends PyNode {
     @Override
     public Object execute(Environment env) {
         for (PyNode child : children) {

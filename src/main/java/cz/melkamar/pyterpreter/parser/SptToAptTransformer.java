@@ -3,7 +3,7 @@ package cz.melkamar.pyterpreter.parser;
 import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
-import cz.melkamar.pyterpreter.functions.FuncCodeNode;
+import cz.melkamar.pyterpreter.functions.CodeBlockNode;
 import cz.melkamar.pyterpreter.functions.FunctionCallNode;
 import cz.melkamar.pyterpreter.functions.PyDefFuncNode;
 import cz.melkamar.pyterpreter.functions.ReturnNode;
@@ -127,12 +127,12 @@ public class SptToAptTransformer {
                 simpleParseTree.childAsToken(0).getType() == Python3Parser.IF;
 
         PyNode testNode = parseTestExpr(simpleParseTree.getChild(1));
-        PyNode doIfTrueNode = parseFuncCode(simpleParseTree.getChild(3));
+        PyNode doIfTrueNode = parseCodeBlock(simpleParseTree.getChild(3));
         PyNode doIfFalseNode = null;
 
         if (simpleParseTree.getChildCount() > 4) {
             if (simpleParseTree.childAsToken(4).getType() == Python3Parser.ELSE) {
-                doIfFalseNode = parseFuncCode(simpleParseTree.getChild(6));
+                doIfFalseNode = parseCodeBlock(simpleParseTree.getChild(6));
             } else {
                 throw new NotImplementedException("elif not implemented");
             }
@@ -195,7 +195,7 @@ public class SptToAptTransformer {
         }
 
         SimpleParseTree suiteNode = simpleParseTree.getChild(4);
-        FuncCodeNode funcCode = parseFuncCode(suiteNode);
+        CodeBlockNode funcCode = parseCodeBlock(suiteNode);
 
         PyDefFuncNode funcNode = new PyDefFuncNode(functionName,
                 Arrays.copyOf(args.toArray(), args.toArray().length, String[].class));
@@ -440,9 +440,9 @@ public class SptToAptTransformer {
         throw new NotImplementedException("Got '" + simpleParseTree.getPayloadAsString() + "' from " + fromIndex + " to " + toIndex);
     }
 
-    public static FuncCodeNode parseFuncCode(SimpleParseTree suiteNode) {
+    public static CodeBlockNode parseCodeBlock(SimpleParseTree suiteNode) {
         assert suiteNode.getPayloadAsString().equals("suite");
-        FuncCodeNode codeNode = new FuncCodeNode();
+        CodeBlockNode codeNode = new CodeBlockNode();
         for (SimpleParseTree child : suiteNode.getChildren()) {
             if (child.isToken()) {
                 int tokenType = child.asToken().getType();
