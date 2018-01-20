@@ -31,11 +31,20 @@ buildscript {
     }
 }
 
-idea.module{
+idea.module {
     generatedSourceDirs += file('someextrafile')
 }
 
 jar.dependsOn << shadowJar
+
+jar {
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'cz.melkamar.pyterpreter.Pyterpreter'
+        )
+    }
+}
 
 task(runMain, dependsOn: 'classes', type: JavaExec) {
     main = 'cz.melkamar.pyterpreter.PyMain'
