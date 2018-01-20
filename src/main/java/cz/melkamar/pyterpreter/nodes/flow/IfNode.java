@@ -1,6 +1,7 @@
 package cz.melkamar.pyterpreter.nodes.flow;
 
 import cz.melkamar.pyterpreter.Environment;
+import cz.melkamar.pyterpreter.TypeCast;
 import cz.melkamar.pyterpreter.nodes.PyNode;
 
 public class IfNode extends PyNode {
@@ -11,7 +12,7 @@ public class IfNode extends PyNode {
         PyNode ifFalseNode = null;
         if (children.size() > 2) ifFalseNode = children.get(2);
 
-        Boolean testResult = (Boolean) testNode.execute(env);
+        Boolean testResult = TypeCast.castToBoolean(testNode.execute(env));
         Object statementResult = null;
         if (testResult) {
             statementResult = ifTrueNode.execute(env);

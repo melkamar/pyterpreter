@@ -126,7 +126,7 @@ public class SptToAptTransformer {
         assert simpleParseTree.isChildToken(0) &&
                 simpleParseTree.childAsToken(0).getType() == Python3Parser.IF;
 
-        PyNode testNode = parseTestExpr(simpleParseTree.getChild(1));
+        PyNode testNode = parseExpression(simpleParseTree.getChild(1));
         PyNode doIfTrueNode = parseCodeBlock(simpleParseTree.getChild(3));
         PyNode doIfFalseNode = null;
 
@@ -143,29 +143,6 @@ public class SptToAptTransformer {
         ifNode.addChild(doIfTrueNode);
         if (doIfFalseNode != null) ifNode.addChild(doIfFalseNode);
         return ifNode;
-    }
-
-    /**
-     * Two possible cases, either
-     *
-     * if x==0:
-     * do_stuff()
-     *
-     * if x:
-     * do_stuff()
-     * stmt
-     * |- TOKEN[type: 10, text: if]
-     * |- test
-     * |  '- TOKEN[type: 35, text: x]
-     * |- TOKEN[type: 50, text: :]
-     * '- suite
-     *
-     * @param simpleParseTree
-     * @return
-     */
-    public static PyNode parseTestExpr(SimpleParseTree simpleParseTree) {
-        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_TEST);
-        return parseExpression(simpleParseTree);
     }
 
     public static PyNode parseFuncDef(SimpleParseTree simpleParseTree) {

@@ -37,16 +37,16 @@ public class PyMain {
 //                "else:\n" +
 //                "    print(3)";
 //
-        code = "" +
-                "x = 0\n" +
-                "if x==0:\n" +
-                "    y=1\n" +
-                "else:\n" +
-                "    y=2";
-
 //        code = "" +
-//                "if x():\n" +
-//                "    print(1)\n";
+//                "x = 0\n" +
+//                "if x==0:\n" +
+//                "    y=1\n" +
+//                "else:\n" +
+//                "    y=2";
+
+        code = "" +
+                "if 0:\n" +
+                "    print(1)\n";
 
 
 

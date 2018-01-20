@@ -145,6 +145,44 @@ public class ExecuteTest {
     }
 
     @Test
+    public void ifThenImplicitBool() {
+        String code = "" +
+                "x = 1\n" +
+                "if x:\n" +
+                "    y=1\n" +
+                "\n" +
+                "if 0:\n" +
+                "    z=1";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Environment env = Environment.getDefaultEnvironment();
+        rootNode.execute(env);
+
+        assertEquals(1L, env.getValue("y"));
+        assertFalse(env.contains("z"));
+    }
+
+    @Test
+    public void ifThenImplicitBoolFuncCall() {
+        String code = "" +
+                "def f():\n" +
+                "    return 1\n" +
+                "\n" +
+                "if f():\n" +
+                "    y=1\n" +
+                "\n" +
+                "if 0:\n" +
+                "    z=1";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Environment env = Environment.getDefaultEnvironment();
+        rootNode.execute(env);
+
+        assertEquals(1L, env.getValue("y"));
+        assertFalse(env.contains("z"));
+    }
+
+    @Test
     public void ifThenElse() {
         String code = "" +
                 "x = 1\n" +
