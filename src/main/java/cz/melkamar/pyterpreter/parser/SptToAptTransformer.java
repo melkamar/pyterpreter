@@ -130,16 +130,18 @@ public class SptToAptTransformer {
         PyNode doIfTrueNode = parseFuncCode(simpleParseTree.getChild(3));
         PyNode doIfFalseNode = null;
 
-        if (simpleParseTree.childAsToken(4).getType() == Python3Parser.ELSE) {
-            doIfFalseNode = parseFuncCode(simpleParseTree.getChild(6));
-        } else {
-            throw new NotImplementedException("elif not implemented");
+        if (simpleParseTree.getChildCount() > 4) {
+            if (simpleParseTree.childAsToken(4).getType() == Python3Parser.ELSE) {
+                doIfFalseNode = parseFuncCode(simpleParseTree.getChild(6));
+            } else {
+                throw new NotImplementedException("elif not implemented");
+            }
         }
 
         IfNode ifNode = new IfNode();
         ifNode.addChild(testNode);
         ifNode.addChild(doIfTrueNode);
-        ifNode.addChild(doIfFalseNode);
+        if (doIfFalseNode != null) ifNode.addChild(doIfFalseNode);
         return ifNode;
     }
 

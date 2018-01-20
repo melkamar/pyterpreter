@@ -135,9 +135,7 @@ public class ExecuteTest {
         String code = "" +
                 "x = 0\n" +
                 "if x==0:\n" +
-                "    y=1\n" +
-                "else:\n" +
-                "    y=2";
+                "    y=1\n";
 
         PyRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
