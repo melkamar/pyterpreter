@@ -227,8 +227,6 @@ public class SimpleParseTree {
     public PyRootNode generateAST() {
         PyRootNode rootPyNode = new PyRootNode();
         traverse(this, rootPyNode);
-        System.out.println(rootPyNode);
-        rootPyNode.print();
         return rootPyNode;
     }
 
@@ -303,7 +301,6 @@ public class SimpleParseTree {
             }
 
         } else {
-            System.out.println("here");
             Token token = (Token) simpleParseTree.payload;
             int tokenCode = token.getType();
 

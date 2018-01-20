@@ -17,7 +17,7 @@ public class PyMain {
 //                "    return 5\n" +
 //                "\n"+
 //                "res = f(1+2,2*g())";
-
+        REPL.startRepl();
         String code = "print(1)";
 
         SimpleParseTree.printParseTree(code);

@@ -122,9 +122,6 @@ public class SptToAptTransformer {
         for (PyNode funcNodeChild : funcCode.getChildren())
             funcNode.addChild(funcNodeChild);
 
-        System.out.println("Defining function '" + functionName + "' with args " + Arrays.toString(
-                args.toArray()));
-
         return funcNode;
     }
 

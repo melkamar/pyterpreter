@@ -10,6 +10,11 @@ public abstract class Function {
     protected String[] args;
     protected List<PyNode> body;
 
+    public Function() {
+        this.args = new String[0];
+        body = new ArrayList<>();
+    }
+
     public Function(String[] args) {
         this.args = args;
         body = new ArrayList<>();
