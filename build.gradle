@@ -2,7 +2,6 @@ group 'cz.melkamar.mirun'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
-//apply plugin: 'antlr'
 apply plugin: 'idea'
 apply plugin: "com.github.johnrengelman.shadow"
 
@@ -44,9 +43,4 @@ jar {
                 'Main-Class': 'cz.melkamar.pyterpreter.Pyterpreter'
         )
     }
-}
-
-task(runMain, dependsOn: 'classes', type: JavaExec) {
-    main = 'cz.melkamar.pyterpreter.PyMain'
-    classpath = sourceSets.main.runtimeClasspath
 }
