@@ -7,10 +7,6 @@ import java.util.Scanner;
 
 public class REPL {
 
-    public static void main(String[] args) {
-        startRepl();
-    }
-
     /**
      * Start a REPL loop.
      *
