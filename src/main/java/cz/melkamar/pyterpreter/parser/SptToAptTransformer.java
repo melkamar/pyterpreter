@@ -16,6 +16,7 @@ import cz.melkamar.pyterpreter.nodes.arithmetic.PyDivideNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
 import cz.melkamar.pyterpreter.nodes.comparison.EqualsNode;
+import cz.melkamar.pyterpreter.nodes.comparison.NotEqualsNode;
 import cz.melkamar.pyterpreter.nodes.flow.IfNode;
 import org.antlr.v4.runtime.Token;
 
@@ -402,6 +403,11 @@ public class SptToAptTransformer {
                     case Python3Parser.EQUALS:
                         compNode = new EqualsNode();
                         break;
+                    case Python3Parser.NOT_EQ_1:
+                    case Python3Parser.NOT_EQ_2:
+                        compNode = new NotEqualsNode();
+                        break;
+
                     default:
                         throw new NotImplementedException("comp_op not implemented: " + simpleParseTree.getChild(toIndex - 1).childAsToken(0).getType());
                 }
