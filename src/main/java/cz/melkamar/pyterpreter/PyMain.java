@@ -45,7 +45,7 @@ public class PyMain {
 //                "    y=2";
 
         code = "" +
-                "print(\"hello world\")";
+                "print('hello world')";
 
 
 

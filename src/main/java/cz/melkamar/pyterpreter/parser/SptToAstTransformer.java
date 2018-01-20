@@ -18,6 +18,7 @@ import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
 import cz.melkamar.pyterpreter.nodes.comparison.EqualsNode;
 import cz.melkamar.pyterpreter.nodes.comparison.NotEqualsNode;
 import cz.melkamar.pyterpreter.nodes.flow.IfNode;
+import cz.melkamar.pyterpreter.nodes.typed.StringNode;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
@@ -274,6 +275,10 @@ public class SptToAstTransformer {
 
             if (simpleParseTree.asToken().getType() == Python3Lexer.NAME) {
                 return new PySymbolNode(simpleParseTree.asToken().getText());
+            }
+
+            if (simpleParseTree.asToken().getType() == Python3Parser.STRING_LITERAL){
+                return new StringNode(simpleParseTree.asToken().getText());
             }
         }
 
