@@ -284,15 +284,15 @@ public class SimpleParseTree {
 
         if (!(simpleParseTree.payload instanceof Token)) {
             switch (String.valueOf(simpleParseTree.payload)) {
-                case SptToAptTransformer.NODE_STR_FILE_INPUT:
+                case SptToAstTransformer.NODE_STR_FILE_INPUT:
                     for (SimpleParseTree child : simpleParseTree.children) {
                         traverse(child, currentPyNode);
                     }
                     break;
 
-                case SptToAptTransformer.NODE_STR_SMALL_STMT:
-                case SptToAptTransformer.NODE_STR_STMT:
-                    PyNode node = SptToAptTransformer.parseStatement(simpleParseTree);
+                case SptToAstTransformer.NODE_STR_SMALL_STMT:
+                case SptToAstTransformer.NODE_STR_STMT:
+                    PyNode node = SptToAstTransformer.parseStatement(simpleParseTree);
                     currentPyNode.addChild(node);
                     break;
 

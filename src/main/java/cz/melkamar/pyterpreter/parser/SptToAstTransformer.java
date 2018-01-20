@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class SptToAptTransformer {
+public class SptToAstTransformer {
     final static String NODE_STR_TERM = "term";
     final static String NODE_STR_FACTOR = "factor";
     final static String NODE_STR_EXPR_STAR = "testlist_star_expr";
