@@ -1,10 +1,14 @@
 package cz.melkamar.pyterpreter;
 
 import cz.melkamar.pyterpreter.functions.PyDefFuncNode;
-import cz.melkamar.pyterpreter.nodes.*;
+import cz.melkamar.pyterpreter.nodes.AssignNode;
+import cz.melkamar.pyterpreter.nodes.PyNode;
+import cz.melkamar.pyterpreter.nodes.PyRootNode;
+import cz.melkamar.pyterpreter.nodes.PySymbolNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
+import cz.melkamar.pyterpreter.nodes.typed.NumberNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
 
@@ -24,12 +28,12 @@ public class SimpleParseTreeTest {
         assertTrue(firstChild.children.size() == 2);
 
         assertTrue(firstChild.children.get(0) instanceof PyAddNode);
-        assertEquals(6, ((PyNumberNode) firstChild.getChild(1)).number);
-        assertTrue(firstChild.children.get(1) instanceof PyNumberNode);
+        assertEquals(6, ((NumberNode) firstChild.getChild(1)).number);
+        assertTrue(firstChild.children.get(1) instanceof NumberNode);
 
         // Check bottom two leaves are numbers
-        assertTrue(firstChild.children.get(0).children.get(0).children.get(0).children.get(0).children.get(0) instanceof PyNumberNode);
-        assertTrue(firstChild.children.get(0).children.get(0).children.get(0).children.get(0).children.get(1) instanceof PyNumberNode);
+        assertTrue(firstChild.children.get(0).children.get(0).children.get(0).children.get(0).children.get(0) instanceof NumberNode);
+        assertTrue(firstChild.children.get(0).children.get(0).children.get(0).children.get(0).children.get(1) instanceof NumberNode);
     }
 
     @Test
@@ -41,12 +45,12 @@ public class SimpleParseTreeTest {
         assertTrue(firstChild instanceof PySubtractNode);
         assertTrue(firstChild.children.size() == 2);
 
-        assertTrue(firstChild.children.get(1) instanceof PyNumberNode);
-        assertEquals(3, ((PyNumberNode) firstChild.getChild(1)).number);
+        assertTrue(firstChild.children.get(1) instanceof NumberNode);
+        assertEquals(3, ((NumberNode) firstChild.getChild(1)).number);
         assertTrue(firstChild.children.get(0) instanceof PySubtractNode);
 
-        assertEquals(1, ((PyNumberNode) firstChild.children.get(0).children.get(0)).number);
-        assertEquals(4, ((PyNumberNode) firstChild.children.get(0).children.get(1)).number);
+        assertEquals(1, ((NumberNode) firstChild.children.get(0).children.get(0)).number);
+        assertEquals(4, ((NumberNode) firstChild.children.get(0).children.get(1)).number);
     }
 
     @Test
@@ -59,17 +63,17 @@ public class SimpleParseTreeTest {
         assertTrue(firstChild.children.size() == 2);
 
         assertTrue(firstChild.getChild(0) instanceof PySubtractNode);
-        assertTrue(firstChild.getChild(1) instanceof PyNumberNode);
-        assertEquals(2, ((PyNumberNode) firstChild.getChild(1)).number);
+        assertTrue(firstChild.getChild(1) instanceof NumberNode);
+        assertEquals(2, ((NumberNode) firstChild.getChild(1)).number);
 
-        assertTrue(firstChild.getChild(0).getChild(0) instanceof PyNumberNode);
-        assertEquals(1, ((PyNumberNode) firstChild.getChild(0).getChild(0)).number);
+        assertTrue(firstChild.getChild(0).getChild(0) instanceof NumberNode);
+        assertEquals(1, ((NumberNode) firstChild.getChild(0).getChild(0)).number);
         assertTrue(firstChild.getChild(0).getChild(1) instanceof PyMultiplyNode);
 
-        assertTrue(firstChild.getChild(0).getChild(1).getChild(0) instanceof PyNumberNode);
-        assertTrue(firstChild.getChild(0).getChild(1).getChild(1) instanceof PyNumberNode);
-        assertEquals(4, ((PyNumberNode) firstChild.getChild(0).getChild(1).getChild(0)).number);
-        assertEquals(3, ((PyNumberNode) firstChild.getChild(0).getChild(1).getChild(1)).number);
+        assertTrue(firstChild.getChild(0).getChild(1).getChild(0) instanceof NumberNode);
+        assertTrue(firstChild.getChild(0).getChild(1).getChild(1) instanceof NumberNode);
+        assertEquals(4, ((NumberNode) firstChild.getChild(0).getChild(1).getChild(0)).number);
+        assertEquals(3, ((NumberNode) firstChild.getChild(0).getChild(1).getChild(1)).number);
     }
 
     @Test
@@ -81,8 +85,8 @@ public class SimpleParseTreeTest {
         assertTrue(firstChild.getChild(0) instanceof PySymbolNode);
         assertTrue(((PySymbolNode) firstChild.getChild(0)).name.equals("x"));
 
-        assertTrue(firstChild.getChild(1) instanceof PyNumberNode);
-        assertTrue(((PyNumberNode) firstChild.getChild(1)).number == 5);
+        assertTrue(firstChild.getChild(1) instanceof NumberNode);
+        assertTrue(((NumberNode) firstChild.getChild(1)).number == 5);
     }
 
     @Test
@@ -95,8 +99,8 @@ public class SimpleParseTreeTest {
         assertTrue(((PySymbolNode) firstChild.getChild(0)).name.equals("x"));
 
         assertTrue(firstChild.getChild(1) instanceof PyAddNode);
-        assertTrue(((PyNumberNode) firstChild.getChild(1).getChild(0)).number == 5);
-        assertTrue(((PyNumberNode) firstChild.getChild(1).getChild(1)).number == 1);
+        assertTrue(((NumberNode) firstChild.getChild(1).getChild(0)).number == 5);
+        assertTrue(((NumberNode) firstChild.getChild(1).getChild(1)).number == 1);
     }
 
     @Test
@@ -113,15 +117,15 @@ public class SimpleParseTreeTest {
 
         assertTrue(firstChild instanceof PyDefFuncNode);
 
-        assertTrue(firstChild.getChild(0) instanceof PyNumberNode); // 6
-        assertEquals(6, ((PyNumberNode) firstChild.getChild(0)).number);
+        assertTrue(firstChild.getChild(0) instanceof NumberNode); // 6
+        assertEquals(6, ((NumberNode) firstChild.getChild(0)).number);
 
         //:=
         //  {x}
         //  5
         assertTrue(firstChild.getChild(1) instanceof AssignNode);
         assertEquals("x", ((PySymbolNode)firstChild.getChild(1).getChild(0)).name);
-        assertEquals(5, ((PyNumberNode)firstChild.getChild(1).getChild(1)).number);
+        assertEquals(5, ((NumberNode)firstChild.getChild(1).getChild(1)).number);
 
         //:=
         //  {druha}
@@ -135,11 +139,11 @@ public class SimpleParseTreeTest {
 
         assertTrue(firstChild.getChild(2).getChild(1) instanceof PyAddNode);
         assertTrue(firstChild.getChild(2).getChild(1).getChild(0) instanceof PyMultiplyNode);
-        assertTrue(firstChild.getChild(2).getChild(1).getChild(1) instanceof PyNumberNode);
-        assertEquals(1, ((PyNumberNode)firstChild.getChild(2).getChild(1).getChild(1)).number);
+        assertTrue(firstChild.getChild(2).getChild(1).getChild(1) instanceof NumberNode);
+        assertEquals(1, ((NumberNode)firstChild.getChild(2).getChild(1).getChild(1)).number);
 
-        assertTrue(firstChild.getChild(2).getChild(1).getChild(0).getChild(0) instanceof PyNumberNode);
-        assertEquals(2, ((PyNumberNode)firstChild.getChild(2).getChild(1).getChild(0).getChild(0)).number);
+        assertTrue(firstChild.getChild(2).getChild(1).getChild(0).getChild(0) instanceof NumberNode);
+        assertEquals(2, ((NumberNode)firstChild.getChild(2).getChild(1).getChild(0).getChild(0)).number);
         assertTrue(firstChild.getChild(2).getChild(1).getChild(0).getChild(1) instanceof PySymbolNode);
         assertEquals("x", ((PySymbolNode)firstChild.getChild(2).getChild(1).getChild(0).getChild(1)).name);
     }

@@ -29,9 +29,9 @@ import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.exceptions.ParseException;
 import cz.melkamar.pyterpreter.nodes.PyNode;
-import cz.melkamar.pyterpreter.nodes.PyNumberNode;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
+import cz.melkamar.pyterpreter.nodes.typed.NumberNode;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
@@ -313,7 +313,7 @@ public class SimpleParseTree {
                     break;
 
                 case Python3Lexer.DECIMAL_INTEGER:
-                    currentPyNode.addChild(new PyNumberNode(token.getText()));
+                    currentPyNode.addChild(new NumberNode(token.getText()));
                     break;
             }
 

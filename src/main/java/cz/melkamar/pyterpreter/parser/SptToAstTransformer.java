@@ -9,7 +9,6 @@ import cz.melkamar.pyterpreter.functions.PyDefFuncNode;
 import cz.melkamar.pyterpreter.functions.ReturnNode;
 import cz.melkamar.pyterpreter.nodes.AssignNode;
 import cz.melkamar.pyterpreter.nodes.PyNode;
-import cz.melkamar.pyterpreter.nodes.PyNumberNode;
 import cz.melkamar.pyterpreter.nodes.PySymbolNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyDivideNode;
@@ -22,6 +21,7 @@ import cz.melkamar.pyterpreter.nodes.flow.IfNode;
 import cz.melkamar.pyterpreter.nodes.flow.NotNode;
 import cz.melkamar.pyterpreter.nodes.flow.OrNode;
 import cz.melkamar.pyterpreter.nodes.typed.FalseNode;
+import cz.melkamar.pyterpreter.nodes.typed.NumberNode;
 import cz.melkamar.pyterpreter.nodes.typed.StringNode;
 import cz.melkamar.pyterpreter.nodes.typed.TrueNode;
 import org.antlr.v4.runtime.Token;
@@ -324,7 +324,7 @@ public class SptToAstTransformer {
 
         if (simpleParseTree.isToken()) {
             if (simpleParseTree.asToken().getType() == Python3Lexer.DECIMAL_INTEGER) {
-                return new PyNumberNode(Long.parseLong(simpleParseTree.asToken().getText()));
+                return new NumberNode(Long.parseLong(simpleParseTree.asToken().getText()));
             }
 
             if (simpleParseTree.asToken().getType() == Python3Lexer.NAME) {
