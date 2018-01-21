@@ -8,8 +8,7 @@ public class StringNode extends PyNode {
 
     public StringNode(String text) {
         // Parser provides string including parentheses, so remove first and last char
-        String txt = text;
-        this.text = txt.substring(1, txt.length() - 1);
+        this.text = text.substring(1, text.length() - 1);
     }
 
     @Override

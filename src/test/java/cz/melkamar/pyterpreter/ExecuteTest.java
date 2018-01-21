@@ -1,6 +1,5 @@
-package cz.melkamar.pyterpreter.external;
+package cz.melkamar.pyterpreter;
 
-import cz.melkamar.pyterpreter.Environment;
 import cz.melkamar.pyterpreter.functions.UserFunction;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;

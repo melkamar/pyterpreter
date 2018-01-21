@@ -1,4 +1,4 @@
-package cz.melkamar.pyterpreter.external;
+package cz.melkamar.pyterpreter;
 
 import cz.melkamar.pyterpreter.functions.PyDefFuncNode;
 import cz.melkamar.pyterpreter.nodes.*;
