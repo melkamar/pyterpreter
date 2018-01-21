@@ -17,7 +17,10 @@ import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
 import cz.melkamar.pyterpreter.nodes.comparison.EqualsNode;
 import cz.melkamar.pyterpreter.nodes.comparison.NotEqualsNode;
+import cz.melkamar.pyterpreter.nodes.flow.AndNode;
 import cz.melkamar.pyterpreter.nodes.flow.IfNode;
+import cz.melkamar.pyterpreter.nodes.flow.NotNode;
+import cz.melkamar.pyterpreter.nodes.flow.OrNode;
 import cz.melkamar.pyterpreter.nodes.typed.StringNode;
 import org.antlr.v4.runtime.Token;
 
@@ -29,7 +32,8 @@ import java.util.Objects;
 public class SptToAstTransformer {
     final static String NODE_STR_TERM = "term";
     final static String NODE_STR_FACTOR = "factor";
-    final static String NODE_STR_EXPR_STAR = "testlist_star_expr";
+    final static String NODE_STR_TESTLIST_EXPR_STAR = "testlist_star_expr";
+    final static String NODE_STR_STAR_EXPR = "star_expr";
     final static String NODE_STR_STMT = "stmt";
     final static String NODE_STR_SMALL_STMT = "small_stmt";
     final static String NODE_STR_FILE_INPUT = "file_input";
@@ -128,7 +132,7 @@ public class SptToAstTransformer {
         assert simpleParseTree.isChildToken(0) &&
                 simpleParseTree.childAsToken(0).getType() == Python3Parser.IF;
 
-        PyNode testNode = parseExpression(simpleParseTree.getChild(1));
+        PyNode testNode = parseIfTestCondition(simpleParseTree.getChild(1));
         PyNode doIfTrueNode = parseCodeBlock(simpleParseTree.getChild(3));
         PyNode doIfFalseNode = null;
 
@@ -145,6 +149,54 @@ public class SptToAstTransformer {
         ifNode.addChild(doIfTrueNode);
         if (doIfFalseNode != null) ifNode.addChild(doIfFalseNode);
         return ifNode;
+    }
+
+    /**
+     * Parse test condition, e.g. x==1 and y==2 or not z==3
+     *
+     * @param simpleParseTree
+     * @return
+     */
+    public static PyNode parseIfTestCondition(SimpleParseTree simpleParseTree) {
+        // Case of three children and first and last are parentheses - just return parsed middle child
+        if (simpleParseTree.getChildCount() == 3 &&
+                simpleParseTree.isChildToken(0) &&
+                simpleParseTree.isChildToken(2) &&
+                simpleParseTree.childAsToken(0).getType() == Python3Parser.OPEN_PAREN &&
+                simpleParseTree.childAsToken(2).getType() == Python3Parser.CLOSE_PAREN
+                ) return parseIfTestCondition(simpleParseTree.getChild(1));
+
+        // Case of "not <expr>"
+        if (simpleParseTree.getChildCount() == 2 && simpleParseTree.isChildToken(0)) {
+            if (simpleParseTree.childAsToken(0).getType() == Python3Parser.NOT) {
+                NotNode notNode = new NotNode();
+                notNode.addChild(parseIfTestCondition(simpleParseTree.getChild(1)));
+                return notNode;
+            }
+            throw new NotImplementedException("Test node has two children, but first is not 'not'");
+        }
+
+        // Case of some combination of and/or
+        if (simpleParseTree.getChildCount() > 1 && simpleParseTree.isChildToken(1)) {
+            PyNode opNode;
+            switch (simpleParseTree.childAsToken(1).getType()) {
+                case Python3Parser.OR:
+                    opNode = new OrNode();
+                    break;
+                case Python3Parser.AND:
+                    opNode = new AndNode();
+                    break;
+                default:
+                    return parseExpression(simpleParseTree);
+            }
+            for (int i = 0; i < simpleParseTree.getChildCount(); i += 2) {
+                opNode.addChild(parseIfTestCondition(simpleParseTree.getChild(i)));
+            }
+            return opNode;
+        }
+
+        // If neither "not" nor "and/or", just parse the current node as an expression
+        return parseExpression(simpleParseTree);
     }
 
     public static PyNode parseFuncDef(SimpleParseTree simpleParseTree) {
@@ -277,7 +329,7 @@ public class SptToAstTransformer {
                 return new PySymbolNode(simpleParseTree.asToken().getText());
             }
 
-            if (simpleParseTree.asToken().getType() == Python3Parser.STRING_LITERAL){
+            if (simpleParseTree.asToken().getType() == Python3Parser.STRING_LITERAL) {
                 return new StringNode(simpleParseTree.asToken().getText());
             }
         }

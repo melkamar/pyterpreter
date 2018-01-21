@@ -30,7 +30,12 @@ public abstract class PyNode {
 
     public abstract Object execute(Environment env);
 
-    public abstract void print(int indent);
+    public void print(int indent){
+        printIndented(this.toString(), indent);
+        for (PyNode child : children) {
+            child.print(indent + 1);
+        }
+    }
 
     protected void printIndented(String text, int indent) {
         StringBuilder builder = new StringBuilder();
