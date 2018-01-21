@@ -196,23 +196,4 @@ public class ExecuteTest {
 
         assertEquals(2L, env.getValue("y"));
     }
-
-    @Test
-    public void recursionFactorial() {
-        String code = "" +
-                "def fact(x):\n" +
-                "    print(x)\n" +
-                "    if x==0:\n" +
-                "        return 1\n" +
-                "    else:\n" +
-                "        return fact(x-1) * x\n" +
-                "\n" +
-                "result = fact(6)";
-
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
-        Environment env = Environment.getDefaultEnvironment();
-        rootNode.execute(env);
-
-        assertEquals(720L, env.getValue("result"));
-    }
 }
