@@ -1,5 +1,6 @@
-package cz.melkamar.pyterpreter;
+package cz.melkamar.pyterpreter.nodes.typed;
 
+import cz.melkamar.pyterpreter.Environment;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;

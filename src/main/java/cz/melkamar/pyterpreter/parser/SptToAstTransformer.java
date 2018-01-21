@@ -21,7 +21,9 @@ import cz.melkamar.pyterpreter.nodes.flow.AndNode;
 import cz.melkamar.pyterpreter.nodes.flow.IfNode;
 import cz.melkamar.pyterpreter.nodes.flow.NotNode;
 import cz.melkamar.pyterpreter.nodes.flow.OrNode;
+import cz.melkamar.pyterpreter.nodes.typed.FalseNode;
 import cz.melkamar.pyterpreter.nodes.typed.StringNode;
+import cz.melkamar.pyterpreter.nodes.typed.TrueNode;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
@@ -331,6 +333,14 @@ public class SptToAstTransformer {
 
             if (simpleParseTree.asToken().getType() == Python3Parser.STRING_LITERAL) {
                 return new StringNode(simpleParseTree.asToken().getText());
+            }
+
+            if (simpleParseTree.asToken().getType() == Python3Parser.TRUE) {
+                return new TrueNode();
+            }
+
+            if (simpleParseTree.asToken().getType() == Python3Parser.FALSE) {
+                return new FalseNode();
             }
         }
 

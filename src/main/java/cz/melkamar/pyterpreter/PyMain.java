@@ -45,14 +45,11 @@ public class PyMain {
 //                "    y=2";
 
         code = "" +
-                "if (1==2 or 2==2) and 3==3:\n" +
-                "    a=1\n" +
-                "    \n" +
-                "if (1==2 or 1==2) and 3==3:\n" +
-                "    b=1\n" +
-                "    \n" +
-                "if (2==2 or 1==2) and 2==3:\n" +
-                "    c=1";
+                "if True:\n" +
+                "    print(1)\n" +
+                "\n" +
+                "if False:\n" +
+                "    print(2)";
 
 
 

@@ -2,7 +2,7 @@
   <configuration default="false" name="tiny.py" type="Application" factoryName="Application">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
       <pattern>
-        <option name="PATTERN" value="cz.melkamar.pyterpreter.*" />
+        <option name="PATTERN" value="cz.melkamar.pyterpreter.nodes.typed.*" />
         <option name="ENABLED" value="true" />
       </pattern>
     </extension>
