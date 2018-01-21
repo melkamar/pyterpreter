@@ -20,4 +20,16 @@ public class StringTest {
         assertTrue("hello".equals(env.getValue("x")));
         assertTrue("world".equals(env.getValue("y")));
     }
+
+    @Test
+    public void concat(){
+        String code = "" +
+                "x ='hello '+'world'";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Environment env = Environment.getDefaultEnvironment();
+        rootNode.execute(env);
+
+        assertTrue("hello world".equals(env.getValue("x")));
+    }
 }
