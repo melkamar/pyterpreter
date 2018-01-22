@@ -4,8 +4,7 @@ import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 public class FlowControlTest {
     @Test
@@ -155,4 +154,23 @@ public class FlowControlTest {
         assertFalse(env.contains("b"));
         assertFalse(env.contains("c"));
     }
+
+    /**
+     * Test that return from a function with no arguments works
+     */
+    @Test
+    public void returnBlank() {
+        String code = "" +
+                "def f():\n" +
+                "    return\n" +
+                "f()";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Environment env = Environment.getDefaultEnvironment();
+        rootNode.execute(env);
+
+        assertTrue(env.contains("f"));
+    }
+
+
 }

@@ -1,6 +1,7 @@
 package cz.melkamar.pyterpreter.functions;
 
 import cz.melkamar.pyterpreter.Environment;
+import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.nodes.PyNode;
 
 /**
@@ -11,9 +12,11 @@ import cz.melkamar.pyterpreter.nodes.PyNode;
 public class ReturnNode extends PyNode {
     @Override
     public Object execute(Environment env) {
-        assert children.size() == 1;
+        assert children.size() == 1 || children.size() == 0;
         env.setReturnFlag();
-        return children.get(0).execute(env);
+        if (children.size() == 1) return children.get(0).execute(env);
+        else if (children.size() == 0) return null;
+        throw new NotImplementedException();
     }
 
     @Override

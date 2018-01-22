@@ -286,6 +286,11 @@ public class SptToAstTransformer {
             }
         }
 
+        if (simpleParseTree.getChildCount() == 1 && simpleParseTree.isChildToken(0) &&
+                simpleParseTree.childAsToken(0).getType()== Python3Parser.RETURN){
+            return new ReturnNode();
+        }
+
         // return xxx statement?
         if (simpleParseTree.getChildCount() == 2) {
             if (simpleParseTree.isChildToken(0) &&

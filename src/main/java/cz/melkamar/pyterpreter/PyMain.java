@@ -45,11 +45,16 @@ public class PyMain {
 //                "    y=2";
 
         code = "" +
-                "if True:\n" +
-                "    print(1)\n" +
+                "def pwr(number, limit):   \n" +
+                "    if number == limit:   \n" +
+                "        return            \n" +
+                "                                         \n" +
+                "    res = number*number   \n" +
+                "    print(number+\": \"+res)\n" +
+                "    pwr(number+1, limit)\n" +
                 "\n" +
-                "if False:\n" +
-                "    print(2)";
+                "pwr(1, 20)\n" +
+                "";
 
 
 
