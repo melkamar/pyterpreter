@@ -20,10 +20,7 @@ import cz.melkamar.pyterpreter.nodes.flow.AndNode;
 import cz.melkamar.pyterpreter.nodes.flow.IfNode;
 import cz.melkamar.pyterpreter.nodes.flow.NotNode;
 import cz.melkamar.pyterpreter.nodes.flow.OrNode;
-import cz.melkamar.pyterpreter.nodes.typed.FalseNode;
-import cz.melkamar.pyterpreter.nodes.typed.NumberNode;
-import cz.melkamar.pyterpreter.nodes.typed.StringNode;
-import cz.melkamar.pyterpreter.nodes.typed.TrueNode;
+import cz.melkamar.pyterpreter.nodes.typed.*;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
@@ -346,6 +343,10 @@ public class SptToAstTransformer {
 
             if (simpleParseTree.asToken().getType() == Python3Parser.FALSE) {
                 return new FalseNode();
+            }
+
+            if (simpleParseTree.asToken().getType() == Python3Parser.FLOAT_NUMBER){
+                return new FloatingNumberNode(simpleParseTree.asToken().getText());
             }
         }
 

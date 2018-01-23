@@ -6,8 +6,6 @@ import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import java.io.IOException;
 
 public class PyMain {
-
-    // TODO read input file / start repl
     public static void main(String[] args) throws IOException {
 //        String code = "" +
 //                "def f(a,b):\n" +

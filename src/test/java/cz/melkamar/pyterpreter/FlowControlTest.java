@@ -75,7 +75,41 @@ public class FlowControlTest {
         assertEquals(2L, env.getValue("y"));
     }
 
-    //TODO test and-or-not
+    @Test
+    public void iNot() {
+        String code = "" +
+                "if (not 1==2) and 2==2:\n" +
+                "    a=1\n" +
+                "\n" +
+                "if 2==2 and 1==2:\n" +
+                "    b=1\n" +
+                "\n" +
+                "if 1==1 and 2==2:\n" +
+                "    c=1\n" +
+                "    \n" +
+                "if 1==1 and 2==2 and 3==3:\n" +
+                "    d=1\n" +
+                "\n" +
+                "if 1==1 and 2==2 and 3==4:\n" +
+                "    e=1\n" +
+                "if not 0:\n" +
+                "    f=1\n" +
+                "if not 1:\n" +
+                "    g=1";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Environment env = Environment.getDefaultEnvironment();
+        rootNode.execute(env);
+
+        assertEquals(1L, env.getValue("a"));
+        assertFalse(env.contains("b"));
+        assertEquals(1L, env.getValue("c"));
+        assertEquals(1L, env.getValue("d"));
+        assertFalse(env.contains("e"));
+        assertEquals(1L, env.getValue("f"));
+        assertFalse(env.contains("g"));
+    }
+
     @Test
     public void ifAnd() {
         String code = "" +

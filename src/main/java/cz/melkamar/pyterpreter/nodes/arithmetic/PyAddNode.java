@@ -24,6 +24,9 @@ public class PyAddNode extends BinaryNode {
             return String.valueOf(leftChildResult) + String.valueOf(rightChildResult);
         }
 
+        if (leftChildResult instanceof Double || rightChildResult instanceof Double)
+            return (Double) leftChildResult + (Double) rightChildResult;
+
         if (leftChildResult instanceof Long && rightChildResult instanceof Long)
             return (Long) leftChildResult + (Long) rightChildResult;
         

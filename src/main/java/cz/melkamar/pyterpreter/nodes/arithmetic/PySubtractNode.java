@@ -20,6 +20,9 @@ public class PySubtractNode extends BinaryNode {
         Object leftChildResult = children.get(0).execute(env);
         Object rightChildResult = children.get(1).execute(env);
 
+        if (leftChildResult instanceof Double || rightChildResult instanceof Double)
+            return (Double) leftChildResult - (Double) rightChildResult;
+
         if (leftChildResult instanceof Long && rightChildResult instanceof Long)
             return (Long) leftChildResult - (Long) rightChildResult;
 
@@ -30,7 +33,7 @@ public class PySubtractNode extends BinaryNode {
     public void print(int indent) {
         printIndented("-", indent);
         for (PyNode child : children) {
-            child.print(indent+1);
+            child.print(indent + 1);
         }
     }
 }

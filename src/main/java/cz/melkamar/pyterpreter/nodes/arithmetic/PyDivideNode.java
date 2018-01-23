@@ -20,6 +20,9 @@ public class PyDivideNode extends BinaryNode {
         Object leftChildResult = children.get(0).execute(env);
         Object rightChildResult = children.get(1).execute(env);
 
+        if (leftChildResult instanceof Double || rightChildResult instanceof Double)
+            return (Double) leftChildResult / (Double) rightChildResult;
+
         if (leftChildResult instanceof Long && rightChildResult instanceof Long)
             return (Long) leftChildResult / (Long) rightChildResult;
         
