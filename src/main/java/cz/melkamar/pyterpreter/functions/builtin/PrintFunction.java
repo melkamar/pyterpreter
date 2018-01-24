@@ -10,7 +10,11 @@ public class PrintFunction extends Function {
 
     @Override
     public Object execute(Environment env) {
-        System.out.println("OUT: "+String.valueOf(env.getValue("text")));
+        if (Environment.DEBUG_MODE)
+            System.out.println("OUT: " + String.valueOf(env.getValue("text")));
+        else
+            System.out.println(String.valueOf(env.getValue("text")));
+
         return null;
     }
 }

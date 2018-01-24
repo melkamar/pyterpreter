@@ -1,9 +1,13 @@
 package cz.melkamar.pyterpreter;
 
+import cz.melkamar.pyterpreter.functions.builtin.InputFunction;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public class PyMain {
     public static void main(String[] args) throws IOException {
@@ -42,16 +46,30 @@ public class PyMain {
 //                "else:\n" +
 //                "    y=2";
 
+//        code = "" +
+//                "def pwr(number, limit):   \n" +
+//                "    if number == limit:   \n" +
+//                "        return            \n" +
+//                "                                         \n" +
+//                "    res = number*number   \n" +
+//                "    print(number+\": \"+res)\n" +
+//                "    pwr(number+1, limit)\n" +
+//                "\n" +
+//                "pwr(1, 20)\n" +
+//               "";
+
+
+        String stdin = "" +
+                "example input -\n" +
+                "and a second line." +
+                "";
+        InputStream inputStream = new ByteArrayInputStream(stdin.getBytes(StandardCharsets.UTF_8.name()));
+
+        InputFunction.setStdin(inputStream);
         code = "" +
-                "def pwr(number, limit):   \n" +
-                "    if number == limit:   \n" +
-                "        return            \n" +
-                "                                         \n" +
-                "    res = number*number   \n" +
-                "    print(number+\": \"+res)\n" +
-                "    pwr(number+1, limit)\n" +
-                "\n" +
-                "pwr(1, 20)\n" +
+                "x = input()\n" +
+                "print(x)\n" +
+                "print(input())\n" +
                 "";
 
 
