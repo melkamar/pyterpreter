@@ -14,9 +14,9 @@ repositories {
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile "org.antlr:antlr4:4.5" // use ANTLR version 4
-    compile "com.oracle.truffle:truffle-api:0.29"
-    compile "com.oracle.truffle:truffle-tck:0.29"
-    compile "com.oracle.truffle:truffle-dsl-processor:0.29"
+    compile "com.oracle.truffle:truffle-api:0.30"
+    compile "com.oracle.truffle:truffle-dsl-processor:0.30"
+    compile "com.oracle.truffle:truffle-tck:0.30"
 }
 
 buildscript {

@@ -230,7 +230,7 @@ public class SptToAstTransformer {
         PyDefFuncNode funcNode = new PyDefFuncNode(functionName,
                 Arrays.copyOf(args.toArray(), args.toArray().length, String[].class));
 
-        for (PyNode funcNodeChild : funcCode.getChildren())
+        for (PyNode funcNodeChild : funcCode.getChildNodes())
             funcNode.addChild(funcNodeChild);
 
         return funcNode;

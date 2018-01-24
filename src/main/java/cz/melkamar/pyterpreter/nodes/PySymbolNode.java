@@ -5,7 +5,7 @@ import cz.melkamar.pyterpreter.Environment;
 /**
  * Created by Martin Melka (martin.melka@gmail.com) on 15.01.2018 21:01.
  */
-public class PySymbolNode extends PyNode{
+public class PySymbolNode extends PyNode {
     public String name;
 
     public PySymbolNode(String name) {
@@ -19,6 +19,6 @@ public class PySymbolNode extends PyNode{
 
     @Override
     public void print(int indent) {
-        printIndented("{" + this.name+"}", indent);
+        printIndented("{" + this.name + "}", indent);
     }
 }
