@@ -9,41 +9,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Function {
-//    public final RootCallTarget callTarget;
-//    private MaterializedFrame scope;
+    public final RootCallTarget callTarget;
+    private MaterializedFrame scope;
 
     protected String[] args;
     protected List<PyNode> body;
 
-//    public Function(RootCallTarget callTarget) {
-//        this.args = new String[0];
-//        body = new ArrayList<>();
-//        this.callTarget = callTarget;
-//    }
-
-//    public Function(String[] args, RootCallTarget callTarget) {
-//        this.args = args;
-//        body = new ArrayList<>();
-//        this.callTarget = callTarget;
-//    }
-
-    public Function() {
+    public Function(RootCallTarget callTarget) {
         this.args = new String[0];
         body = new ArrayList<>();
+        this.callTarget = callTarget;
     }
 
-    public Function(String[] args) {
+    public Function(String[] args, RootCallTarget callTarget) {
         this.args = args;
         body = new ArrayList<>();
+        this.callTarget = callTarget;
     }
 
-//    public MaterializedFrame getScope() {
-//        return scope;
-//    }
-//
-//    public void setScope(MaterializedFrame scope) {
-//        this.scope = scope;
-//    }
+    public MaterializedFrame getScope() {
+        return scope;
+    }
+
+    public void setScope(MaterializedFrame scope) {
+        this.scope = scope;
+    }
 
     public String[] getArgNames() {
         return args;

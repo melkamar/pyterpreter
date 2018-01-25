@@ -6,6 +6,7 @@ import cz.melkamar.pyterpreter.functions.Function;
 @TypeSystem({
         long.class,
         boolean.class,
+        double.class,
         String.class,
         Function.class,
         // TODO bigint?

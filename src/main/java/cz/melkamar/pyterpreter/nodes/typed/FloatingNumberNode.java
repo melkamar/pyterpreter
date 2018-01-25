@@ -1,5 +1,7 @@
 package cz.melkamar.pyterpreter.nodes.typed;
 
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import cz.melkamar.pyterpreter.Environment;
 import cz.melkamar.pyterpreter.nodes.PyNode;
 
@@ -15,7 +17,12 @@ public class FloatingNumberNode extends PyNode {
     }
 
     @Override
-    public Object execute(Environment env) {
+    public Object execute(VirtualFrame frame) {
+        return this.number;
+    }
+
+    @Override
+    public double executeDouble(VirtualFrame frame) throws UnexpectedResultException {
         return this.number;
     }
 

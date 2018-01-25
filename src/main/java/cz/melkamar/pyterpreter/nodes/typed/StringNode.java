@@ -1,5 +1,7 @@
 package cz.melkamar.pyterpreter.nodes.typed;
 
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import cz.melkamar.pyterpreter.Environment;
 import cz.melkamar.pyterpreter.nodes.PyNode;
 
@@ -12,7 +14,12 @@ public class StringNode extends PyNode {
     }
 
     @Override
-    public Object execute(Environment env) {
+    public Object execute(VirtualFrame frame) {
+        return this.text;
+    }
+
+    @Override
+    public String executeString(VirtualFrame frame) throws UnexpectedResultException {
         return this.text;
     }
 

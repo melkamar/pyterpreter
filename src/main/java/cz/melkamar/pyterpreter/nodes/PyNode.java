@@ -5,7 +5,8 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import cz.melkamar.pyterpreter.Environment;
-import cz.melkamar.pyterpreter.truffle.PyTypes;
+import cz.melkamar.pyterpreter.functions.Function;
+import cz.melkamar.pyterpreter.truffle.PyTypesGen;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,8 +16,7 @@ import java.util.List;
  * Created by Martin Melka (martin.melka@gmail.com) on 03.11.2017 10:09.
  */
 @NodeInfo(language = "Python", description = "Abstract base node")
-//public abstract class PyNode extends Node {
-public abstract class PyNode {
+public abstract class PyNode extends Node {
     public ArrayList<PyNode> children = new ArrayList<>();
 
     public void addChild(PyNode node) {
@@ -51,12 +51,26 @@ public abstract class PyNode {
         System.out.println(builder.toString());
     }
 
-//    public abstract Object execute(VirtualFrame frame);
-    public abstract Object execute(Environment env);
+    public abstract Object execute(VirtualFrame frame);
 
     public long executeLong(VirtualFrame frame) throws UnexpectedResultException {
-//        return PyTypesGen.PYTYPES
-        PyTypes.
-        return 5;
+        return PyTypesGen.expectLong(execute(frame));
     }
+
+    public double executeDouble(VirtualFrame frame) throws UnexpectedResultException {
+        return PyTypesGen.expectDouble(execute(frame));
+    }
+
+    public boolean executeBoolean(VirtualFrame frame) throws UnexpectedResultException {
+        return PyTypesGen.expectBoolean(execute(frame));
+    }
+
+    public String executeString(VirtualFrame frame) throws UnexpectedResultException {
+        return PyTypesGen.expectString(execute(frame));
+    }
+
+    public Function executeFunction(VirtualFrame frame) throws UnexpectedResultException {
+        return PyTypesGen.expectFunction(execute(frame));
+    }
+
 }
