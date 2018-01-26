@@ -29,6 +29,7 @@ import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.exceptions.ParseException;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
+import cz.melkamar.pyterpreter.nodes.PySuiteNode;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
@@ -224,8 +225,8 @@ public class SimpleParseTree {
      * Generate AST from this SimpleParseTree.
      */
     public PyRootNode generateAST() {
-        PyRootNode rootPyNode = new PyRootNode();
-        rootPyNode.addChild(SptToAstTransformer.parseFileInputBlock(this));
+        PySuiteNode suiteNode = SptToAstTransformer.parseFileInputBlock(this);
+        PyRootNode rootPyNode = new PyRootNode(suiteNode);
         return rootPyNode;
     }
 

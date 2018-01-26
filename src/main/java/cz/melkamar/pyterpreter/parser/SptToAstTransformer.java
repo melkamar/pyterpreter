@@ -3,31 +3,16 @@ package cz.melkamar.pyterpreter.parser;
 import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
-import cz.melkamar.pyterpreter.functions.CodeBlockNode;
-import cz.melkamar.pyterpreter.functions.FunctionCallNode;
-import cz.melkamar.pyterpreter.functions.PyDefFuncNode;
-import cz.melkamar.pyterpreter.functions.ReturnNode;
-import cz.melkamar.pyterpreter.nodes.AssignNode;
-import cz.melkamar.pyterpreter.nodes.FileInputBlockNode;
-import cz.melkamar.pyterpreter.nodes.PyNode;
-import cz.melkamar.pyterpreter.nodes.PySymbolNode;
-import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
-import cz.melkamar.pyterpreter.nodes.arithmetic.PyDivideNode;
-import cz.melkamar.pyterpreter.nodes.arithmetic.PyMultiplyNode;
-import cz.melkamar.pyterpreter.nodes.arithmetic.PySubtractNode;
-import cz.melkamar.pyterpreter.nodes.comparison.EqualsNode;
-import cz.melkamar.pyterpreter.nodes.comparison.NotEqualsNode;
-import cz.melkamar.pyterpreter.nodes.flow.AndNode;
-import cz.melkamar.pyterpreter.nodes.flow.IfNode;
-import cz.melkamar.pyterpreter.nodes.flow.NotNode;
-import cz.melkamar.pyterpreter.nodes.flow.OrNode;
-import cz.melkamar.pyterpreter.nodes.typed.*;
+import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
+import cz.melkamar.pyterpreter.nodes.PyStatementNode;
+import cz.melkamar.pyterpreter.nodes.PySuiteNode;
+import cz.melkamar.pyterpreter.nodes.expr.PyAddNodeGen;
+import cz.melkamar.pyterpreter.nodes.expr.literal.PyLiteralNode;
+import cz.melkamar.pyterpreter.nodes.expr.literal.PyLongLitNode;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class SptToAstTransformer {
     final static String NODE_STR_TERM = "term";
@@ -72,30 +57,30 @@ public class SptToAstTransformer {
      * <p>
      * In this case parse arglist as if it was an "argument" node.
      */
-    public static List<PyNode> parseArgList(SimpleParseTree simpleParseTree) {
-        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_ARGLIST);
-        List<PyNode> result = new ArrayList<>();
-
-        // For explanation of this special case see javadoc.
-        if (!simpleParseTree.getChildPayload(0).equals(NODE_STR_ARGUMENT)) {
-            PyNode argNode = parseExpression(simpleParseTree);
-            result.add(argNode);
-            return result;
-        }
-
-
-        for (SimpleParseTree child : simpleParseTree.getChildren()) {
-            if (child.isToken()) { // If a child is directly a token, it should be a comma separating arguments in list
-                if (child.asToken().getType() == Python3Parser.COMMA) continue; // Skip commas in arglist
-                throw new NotImplementedException("Parsing arglist, got token type " + child.asToken().getType());
-            }
-
-            PyNode argNode = parseExpression(child);
-            result.add(argNode);
-        }
-
-        return result;
-    }
+//    public static List<PyNode> parseArgList(SimpleParseTree simpleParseTree) {
+//        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_ARGLIST);
+//        List<PyNode> result = new ArrayList<>();
+//
+//        // For explanation of this special case see javadoc.
+//        if (!simpleParseTree.getChildPayload(0).equals(NODE_STR_ARGUMENT)) {
+//            PyNode argNode = parseExpression(simpleParseTree);
+//            result.add(argNode);
+//            return result;
+//        }
+//
+//
+//        for (SimpleParseTree child : simpleParseTree.getChildren()) {
+//            if (child.isToken()) { // If a child is directly a token, it should be a comma separating arguments in list
+//                if (child.asToken().getType() == Python3Parser.COMMA) continue; // Skip commas in arglist
+//                throw new NotImplementedException("Parsing arglist, got token type " + child.asToken().getType());
+//            }
+//
+//            PyNode argNode = parseExpression(child);
+//            result.add(argNode);
+//        }
+//
+//        return result;
+//    }
 
     /**
      * Parse if-elif-else statement, e.g.
@@ -128,28 +113,28 @@ public class SptToAstTransformer {
      * @param simpleParseTree
      * @return
      */
-    public static PyNode parseIfStmt(SimpleParseTree simpleParseTree) {
-        assert simpleParseTree.isChildToken(0) &&
-                simpleParseTree.childAsToken(0).getType() == Python3Parser.IF;
-
-        PyNode testNode = parseIfTestCondition(simpleParseTree.getChild(1));
-        PyNode doIfTrueNode = parseCodeBlock(simpleParseTree.getChild(3));
-        PyNode doIfFalseNode = null;
-
-        if (simpleParseTree.getChildCount() > 4) {
-            if (simpleParseTree.childAsToken(4).getType() == Python3Parser.ELSE) {
-                doIfFalseNode = parseCodeBlock(simpleParseTree.getChild(6));
-            } else {
-                throw new NotImplementedException("elif not implemented");
-            }
-        }
-
-        IfNode ifNode = new IfNode();
-        ifNode.addChild(testNode);
-        ifNode.addChild(doIfTrueNode);
-        if (doIfFalseNode != null) ifNode.addChild(doIfFalseNode);
-        return ifNode;
-    }
+//    public static PyNode parseIfStmt(SimpleParseTree simpleParseTree) {
+//        assert simpleParseTree.isChildToken(0) &&
+//                simpleParseTree.childAsToken(0).getType() == Python3Parser.IF;
+//
+//        PyNode testNode = parseIfTestCondition(simpleParseTree.getChild(1));
+//        PyNode doIfTrueNode = parseCodeBlock(simpleParseTree.getChild(3));
+//        PyNode doIfFalseNode = null;
+//
+//        if (simpleParseTree.getChildCount() > 4) {
+//            if (simpleParseTree.childAsToken(4).getType() == Python3Parser.ELSE) {
+//                doIfFalseNode = parseCodeBlock(simpleParseTree.getChild(6));
+//            } else {
+//                throw new NotImplementedException("elif not implemented");
+//            }
+//        }
+//
+//        IfNode ifNode = new IfNode();
+//        ifNode.addChild(testNode);
+//        ifNode.addChild(doIfTrueNode);
+//        if (doIfFalseNode != null) ifNode.addChild(doIfFalseNode);
+//        return ifNode;
+//    }
 
     /**
      * Parse test condition, e.g. x==1 and y==2 or not z==3
@@ -157,87 +142,87 @@ public class SptToAstTransformer {
      * @param simpleParseTree
      * @return
      */
-    public static PyNode parseIfTestCondition(SimpleParseTree simpleParseTree) {
-        // Case of three children and first and last are parentheses - just return parsed middle child
-        if (simpleParseTree.getChildCount() == 3 &&
-                simpleParseTree.isChildToken(0) &&
-                simpleParseTree.isChildToken(2) &&
-                simpleParseTree.childAsToken(0).getType() == Python3Parser.OPEN_PAREN &&
-                simpleParseTree.childAsToken(2).getType() == Python3Parser.CLOSE_PAREN
-                ) return parseIfTestCondition(simpleParseTree.getChild(1));
+//    public static PyNode parseIfTestCondition(SimpleParseTree simpleParseTree) {
+//        // Case of three children and first and last are parentheses - just return parsed middle child
+//        if (simpleParseTree.getChildCount() == 3 &&
+//                simpleParseTree.isChildToken(0) &&
+//                simpleParseTree.isChildToken(2) &&
+//                simpleParseTree.childAsToken(0).getType() == Python3Parser.OPEN_PAREN &&
+//                simpleParseTree.childAsToken(2).getType() == Python3Parser.CLOSE_PAREN
+//                ) return parseIfTestCondition(simpleParseTree.getChild(1));
+//
+//        // Case of "not <expr>"
+//        if (simpleParseTree.getChildCount() == 2 && simpleParseTree.isChildToken(0)) {
+//            if (simpleParseTree.childAsToken(0).getType() == Python3Parser.NOT) {
+//                NotNode notNode = new NotNode();
+//                notNode.addChild(parseIfTestCondition(simpleParseTree.getChild(1)));
+//                return notNode;
+//            }
+//            throw new NotImplementedException("Test node has two children, but first is not 'not'");
+//        }
+//
+//        // Case of some combination of and/or
+//        if (simpleParseTree.getChildCount() > 1 && simpleParseTree.isChildToken(1)) {
+//            PyNode opNode;
+//            switch (simpleParseTree.childAsToken(1).getType()) {
+//                case Python3Parser.OR:
+//                    opNode = new OrNode();
+//                    break;
+//                case Python3Parser.AND:
+//                    opNode = new AndNode();
+//                    break;
+//                default:
+//                    return parseExpression(simpleParseTree);
+//            }
+//            for (int i = 0; i < simpleParseTree.getChildCount(); i += 2) {
+//                opNode.addChild(parseIfTestCondition(simpleParseTree.getChild(i)));
+//            }
+//            return opNode;
+//        }
+//
+//        // If neither "not" nor "and/or", just parse the current node as an expression
+//        return parseExpression(simpleParseTree);
+//    }
 
-        // Case of "not <expr>"
-        if (simpleParseTree.getChildCount() == 2 && simpleParseTree.isChildToken(0)) {
-            if (simpleParseTree.childAsToken(0).getType() == Python3Parser.NOT) {
-                NotNode notNode = new NotNode();
-                notNode.addChild(parseIfTestCondition(simpleParseTree.getChild(1)));
-                return notNode;
-            }
-            throw new NotImplementedException("Test node has two children, but first is not 'not'");
-        }
-
-        // Case of some combination of and/or
-        if (simpleParseTree.getChildCount() > 1 && simpleParseTree.isChildToken(1)) {
-            PyNode opNode;
-            switch (simpleParseTree.childAsToken(1).getType()) {
-                case Python3Parser.OR:
-                    opNode = new OrNode();
-                    break;
-                case Python3Parser.AND:
-                    opNode = new AndNode();
-                    break;
-                default:
-                    return parseExpression(simpleParseTree);
-            }
-            for (int i = 0; i < simpleParseTree.getChildCount(); i += 2) {
-                opNode.addChild(parseIfTestCondition(simpleParseTree.getChild(i)));
-            }
-            return opNode;
-        }
-
-        // If neither "not" nor "and/or", just parse the current node as an expression
-        return parseExpression(simpleParseTree);
-    }
-
-    public static PyNode parseFuncDef(SimpleParseTree simpleParseTree) {
-        // Get function name
-        String functionName = ((Token) simpleParseTree.getChildPayload(1)).getText();
-
-        // Get parameters
-        List<String> args = new ArrayList<>();
-        SimpleParseTree typedArgsList = simpleParseTree.getChild(2).getChild(1); // get node typedargslist
-
-        for (SimpleParseTree arg : typedArgsList.getChildren()) {
-            if (arg.getPayload() instanceof Token) {
-                // when there is a single parameter, it will be directly under typedargslist
-                Token argToken = (Token) arg.getPayload();
-                if (argToken.getType() == Python3Lexer.NAME) args.add(argToken.getText());
-            } else if (Objects.equals(String.valueOf(arg.getPayload()), "tfpdef")) {
-                // when there are two or more parameters, they will be under typedargslist/tfpdef
-                assert arg.getChildCount() == 1;
-                Object childPayload = arg.getChildPayload(0);
-                assert childPayload instanceof Token;
-                Token argToken = (Token) childPayload;
-                args.add(argToken.getText());
-            } else {
-                throw new AssertionError("multiple-argument func " +
-                                                 "unexpected node: " + String.valueOf(arg.getPayload()));
-            }
-        }
-
-        SimpleParseTree suiteNode = simpleParseTree.getChild(4);
-        CodeBlockNode funcCode = parseCodeBlock(suiteNode);
-
-        PyDefFuncNode funcNode = new PyDefFuncNode(functionName,
-                                                   Arrays.copyOf(args.toArray(),
-                                                                 args.toArray().length,
-                                                                 String[].class));
-
-        for (PyNode funcNodeChild : funcCode.getChildNodes())
-            funcNode.addChild(funcNodeChild);
-
-        return funcNode;
-    }
+//    public static PyNode parseFuncDef(SimpleParseTree simpleParseTree) {
+//        // Get function name
+//        String functionName = ((Token) simpleParseTree.getChildPayload(1)).getText();
+//
+//        // Get parameters
+//        List<String> args = new ArrayList<>();
+//        SimpleParseTree typedArgsList = simpleParseTree.getChild(2).getChild(1); // get node typedargslist
+//
+//        for (SimpleParseTree arg : typedArgsList.getChildren()) {
+//            if (arg.getPayload() instanceof Token) {
+//                // when there is a single parameter, it will be directly under typedargslist
+//                Token argToken = (Token) arg.getPayload();
+//                if (argToken.getType() == Python3Lexer.NAME) args.add(argToken.getText());
+//            } else if (Objects.equals(String.valueOf(arg.getPayload()), "tfpdef")) {
+//                // when there are two or more parameters, they will be under typedargslist/tfpdef
+//                assert arg.getChildCount() == 1;
+//                Object childPayload = arg.getChildPayload(0);
+//                assert childPayload instanceof Token;
+//                Token argToken = (Token) childPayload;
+//                args.add(argToken.getText());
+//            } else {
+//                throw new AssertionError("multiple-argument func " +
+//                                                 "unexpected node: " + String.valueOf(arg.getPayload()));
+//            }
+//        }
+//
+//        SimpleParseTree suiteNode = simpleParseTree.getChild(4);
+//        CodeBlockNode funcCode = parseCodeBlock(suiteNode);
+//
+//        PyDefFuncNode funcNode = new PyDefFuncNode(functionName,
+//                                                   Arrays.copyOf(args.toArray(),
+//                                                                 args.toArray().length,
+//                                                                 String[].class));
+//
+//        for (PyNode funcNodeChild : funcCode.getChildNodes())
+//            funcNode.addChild(funcNodeChild);
+//
+//        return funcNode;
+//    }
 
     /**
      * Clean case when there are two child nodes, but the second one is just a newline.
@@ -263,13 +248,14 @@ public class SptToAstTransformer {
      * @param simpleParseTree ParseTree node to convert.
      * @return Newly created root of an AST subtree.
      */
-    public static PyNode parseStatement(SimpleParseTree simpleParseTree) {
+    public static PyStatementNode parseStatement(SimpleParseTree simpleParseTree) {
         simpleParseTree = removeTrailingNewline(simpleParseTree);
         assert simpleParseTree.getPayloadAsString().equals(NODE_STR_STMT) ||
                 simpleParseTree.getPayloadAsString().equals(NODE_STR_SMALL_STMT);
 
         if (simpleParseTree.getChildCount() == 0) {
 //            return parseTermNode(simpleParseTree.body.get(0));
+            // TODO
             throw new NotImplementedException();
         }
 
@@ -278,27 +264,35 @@ public class SptToAstTransformer {
 
             // Defining a function?
             if (firstToken.getType() == Python3Lexer.DEF) {
-                return parseFuncDef(simpleParseTree);
+                // TODO
+                throw new NotImplementedException();
+//                return parseFuncDef(simpleParseTree);
             }
 
             if (firstToken.getType() == Python3Parser.IF) {
-                return parseIfStmt(simpleParseTree);
+                // TODO
+                throw new NotImplementedException();
+//                return parseIfStmt(simpleParseTree);
             }
         }
 
         if (simpleParseTree.getChildCount() == 1 && simpleParseTree.isChildToken(0) &&
                 simpleParseTree.childAsToken(0).getType() == Python3Parser.RETURN) {
-            return new ReturnNode();
+            // TODO
+            throw new NotImplementedException();
+//            return new ReturnNode();
         }
 
         // return xxx statement?
         if (simpleParseTree.getChildCount() == 2) {
             if (simpleParseTree.isChildToken(0) &&
                     simpleParseTree.childAsToken(0).getType() == Python3Parser.RETURN) {
-                ReturnNode returnNode = new ReturnNode();
-                PyNode returnBody = parseExpression(simpleParseTree.getChild(1));
-                returnNode.addChild(returnBody);
-                return returnNode;
+                // TODO
+                throw new NotImplementedException();
+//                ReturnNode returnNode = new ReturnNode();
+//                PyNode returnBody = parseExpression(simpleParseTree.getChild(1));
+//                returnNode.addChild(returnBody);
+//                return returnNode;
             }
         }
 
@@ -308,15 +302,17 @@ public class SptToAstTransformer {
 
                 // Is this assignment? e.g.   x = 5 + 4
                 if (secondToken.getType() == Python3Lexer.ASSIGN) {
-                    PyNode varNameNode = parseExpression(simpleParseTree, 0, 0);
-
-                    AssignNode assignNode = new AssignNode();
-                    PyNode assignExpression = parseExpression(simpleParseTree,
-                                                              2,
-                                                              simpleParseTree.getChildCount() - 1);
-                    assignNode.addChild(varNameNode);
-                    assignNode.addChild(assignExpression);
-                    return assignNode;
+                    // TODO
+                    throw new NotImplementedException();
+//                    PyNode varNameNode = parseExpression(simpleParseTree, 0, 0);
+//
+//                    AssignNode assignNode = new AssignNode();
+//                    PyNode assignExpression = parseExpression(simpleParseTree,
+//                                                              2,
+//                                                              simpleParseTree.getChildCount() - 1);
+//                    assignNode.addChild(varNameNode);
+//                    assignNode.addChild(assignExpression);
+//                    return assignNode;
                 }
             }
         }
@@ -324,32 +320,42 @@ public class SptToAstTransformer {
         return parseExpression(simpleParseTree, 0, simpleParseTree.getChildCount() - 1);
     }
 
-    public static PyNode parseToken(SimpleParseTree simpleParseTree) {
+    public static PyLiteralNode parseToken(SimpleParseTree simpleParseTree) {
         assert simpleParseTree.isToken();
 
         if (simpleParseTree.isToken()) {
             if (simpleParseTree.asToken().getType() == Python3Lexer.DECIMAL_INTEGER) {
-                return new NumberNode(Long.parseLong(simpleParseTree.asToken().getText()));
+                return new PyLongLitNode(Long.parseLong(simpleParseTree.asToken().getText()));
             }
 
             if (simpleParseTree.asToken().getType() == Python3Lexer.NAME) {
-                return new PySymbolNode(simpleParseTree.asToken().getText());
+                // TODO
+                throw new NotImplementedException();
+//                return new PySymbolNode(simpleParseTree.asToken().getText());
             }
 
             if (simpleParseTree.asToken().getType() == Python3Parser.STRING_LITERAL) {
-                return new StringNode(simpleParseTree.asToken().getText());
+                // TODO
+                throw new NotImplementedException();
+//                return new StringNode(simpleParseTree.asToken().getText());
             }
 
             if (simpleParseTree.asToken().getType() == Python3Parser.TRUE) {
-                return new TrueNode();
+                // TODO
+                throw new NotImplementedException();
+//                return new TrueNode();
             }
 
             if (simpleParseTree.asToken().getType() == Python3Parser.FALSE) {
-                return new FalseNode();
+                // TODO
+                throw new NotImplementedException();
+//                return new FalseNode();
             }
 
             if (simpleParseTree.asToken().getType() == Python3Parser.FLOAT_NUMBER) {
-                return new FloatingNumberNode(simpleParseTree.asToken().getText());
+                // TODO
+                throw new NotImplementedException();
+//                return new FloatingNumberNode(simpleParseTree.asToken().getText());
             }
         }
 
@@ -359,7 +365,7 @@ public class SptToAstTransformer {
     /**
      * Convenience method for parseExpression(SPT, from, to).
      */
-    public static PyNode parseExpression(SimpleParseTree simpleParseTree) {
+    public static PyExpressionNode parseExpression(SimpleParseTree simpleParseTree) {
         return parseExpression(simpleParseTree, 0, simpleParseTree.getChildCount() - 1);
     }
 
@@ -385,7 +391,7 @@ public class SptToAstTransformer {
      * @param toIndex         Index of child at which to end (inclusive)
      * @return Root of the new AST subtree.
      */
-    public static PyNode parseExpression(SimpleParseTree simpleParseTree, int fromIndex, int toIndex) {
+    public static PyExpressionNode parseExpression(SimpleParseTree simpleParseTree, int fromIndex, int toIndex) {
         if (toIndex < fromIndex) {
             // This node does not have body - either a token or WTF
             if (simpleParseTree.isToken()) {
@@ -413,11 +419,13 @@ public class SptToAstTransformer {
 
                 SimpleParseTree arglistNode = simpleParseTree.getChild(1).getChild(1);
 
-                FunctionCallNode callNode = new FunctionCallNode(funcName);
-                if (arglistNode.getPayloadAsString().equals(NODE_STR_ARGLIST)) {
-                    callNode.addChildren(parseArgList(arglistNode));
-                }
-                return callNode;
+                // TODO
+                throw new NotImplementedException();
+//                FunctionCallNode callNode = new FunctionCallNode(funcName);
+//                if (arglistNode.getPayloadAsString().equals(NODE_STR_ARGLIST)) {
+//                    callNode.addChildren(parseArgList(arglistNode));
+//                }
+//                return callNode;
             }
         }
 
@@ -434,34 +442,35 @@ public class SptToAstTransformer {
 
             if (simpleParseTree.isChildToken(toIndex - 1)) {
 
-                PyNode binaryNode = null;
+                PyExpressionNode right = parseExpression(simpleParseTree, toIndex, toIndex);
+                PyExpressionNode left = parseExpression(simpleParseTree, fromIndex, toIndex - 2);
+
                 switch (simpleParseTree.childAsToken(toIndex - 1).getType()) {
                     case Python3Lexer.ADD:
-                        binaryNode = new PyAddNode();
-                        break;
+                        return PyAddNodeGen.create(left, right);
                     case Python3Lexer.MINUS:
-                        binaryNode = new PySubtractNode();
-                        break;
+                        // TODO
+                        throw new NotImplementedException();
+//                        binaryNode = new PySubtractNode();
+//                        break;
                     case Python3Lexer.STAR:
-                        binaryNode = new PyMultiplyNode();
-                        break;
+                        // TODO
+                        throw new NotImplementedException();
+//                        binaryNode = new PyMultiplyNode();
+//                        break;
                     case Python3Lexer.DIV:
-                        binaryNode = new PyDivideNode();
-                        break;
+                        // TODO
+                        throw new NotImplementedException();
+//                        binaryNode = new PyDivideNode();
+//                        break;
                     case Python3Lexer.EQUALS:
-                        binaryNode = new EqualsNode();
-                        break;
+                        // TODO
+                        throw new NotImplementedException();
+//                        binaryNode = new EqualsNode();
+//                        break;
                     default:
                         throw new NotImplementedException();
                 }
-
-                PyNode right = parseExpression(simpleParseTree, toIndex, toIndex);
-                PyNode left = parseExpression(simpleParseTree, fromIndex, toIndex - 2);
-
-                binaryNode.addChild(left);
-                binaryNode.addChild(right);
-                return binaryNode;
-
             }
 
             /*
@@ -475,36 +484,39 @@ public class SptToAstTransformer {
              * |     '- TOKEN[type: 38, text: 0]
              */
             if (simpleParseTree.getChildPayload(toIndex - 1).equals(NODE_STR_COMP_OP)) {
-                PyNode compNode;
-                switch (simpleParseTree.getChild(toIndex - 1).childAsToken(0).getType()) {
-                    case Python3Parser.EQUALS:
-                        compNode = new EqualsNode();
-                        break;
-                    case Python3Parser.NOT_EQ_1:
-                    case Python3Parser.NOT_EQ_2:
-                        compNode = new NotEqualsNode();
-                        break;
-
-                    default:
-                        throw new NotImplementedException("comp_op not implemented: " + simpleParseTree.getChild(toIndex - 1)
-                                .childAsToken(0)
-                                .getType());
-                }
-
-                PyNode right = parseExpression(simpleParseTree, toIndex, toIndex);
-                PyNode left = parseExpression(simpleParseTree, fromIndex, toIndex - 2);
-
-                compNode.addChild(left);
-                compNode.addChild(right);
-                return compNode;
+                // TODO
+                throw new NotImplementedException();
+//                PyNode compNode;
+//                switch (simpleParseTree.getChild(toIndex - 1).childAsToken(0).getType()) {
+//                    case Python3Parser.EQUALS:
+//                        compNode = new EqualsNode();
+//                        break;
+//                    case Python3Parser.NOT_EQ_1:
+//                    case Python3Parser.NOT_EQ_2:
+//                        compNode = new NotEqualsNode();
+//                        break;
+//
+//                    default:
+//                        throw new NotImplementedException("comp_op not implemented: " + simpleParseTree.getChild(toIndex - 1)
+//                                .childAsToken(0)
+//                                .getType());
+//                }
+//
+//                PyNode right = parseExpression(simpleParseTree, toIndex, toIndex);
+//                PyNode left = parseExpression(simpleParseTree, fromIndex, toIndex - 2);
+//
+//                compNode.addChild(left);
+//                compNode.addChild(right);
+//                return compNode;
             }
         }
         throw new NotImplementedException("Got '" + simpleParseTree.getPayloadAsString() + "' from " + fromIndex + " to " + toIndex);
     }
 
-    public static CodeBlockNode parseCodeBlock(SimpleParseTree suiteNode) {
+    public static PySuiteNode parseCodeBlock(SimpleParseTree suiteNode) {
         assert suiteNode.getPayloadAsString().equals("suite");
-        CodeBlockNode codeNode = new CodeBlockNode();
+
+        List<PyStatementNode> statementNodes = new ArrayList<>();
         for (SimpleParseTree child : suiteNode.getChildren()) {
             if (child.isToken()) {
                 int tokenType = child.asToken().getType();
@@ -514,16 +526,16 @@ public class SptToAstTransformer {
                     continue;
             }
 
-            PyNode node = parseStatement(child);
-            codeNode.addChild(node);
+            statementNodes.add(parseStatement(child));
         }
 
-        return codeNode;
+        return new PySuiteNode(statementNodes.toArray(new PyStatementNode[statementNodes.size()]), false);
     }
 
-    public static FileInputBlockNode parseFileInputBlock(SimpleParseTree fileInputNode) {
+    public static PySuiteNode parseFileInputBlock(SimpleParseTree fileInputNode) {
         assert fileInputNode.getPayloadAsString().equals(NODE_STR_FILE_INPUT);
-        FileInputBlockNode codeNode = new FileInputBlockNode();
+
+        List<PyStatementNode> statementNodes = new ArrayList<>();
         for (SimpleParseTree child : fileInputNode.getChildren()) {
             if (child.isToken()) {
                 int tokenType = child.asToken().getType();
@@ -531,11 +543,11 @@ public class SptToAstTransformer {
                     continue;
             }
 
-            PyNode node = parseStatement(child);
-            codeNode.addChild(node);
+            PyStatementNode statementNode = parseStatement(child);
+            statementNodes.add(statementNode);
         }
 
-        return codeNode;
+        // TODO do I really want to always return last result? Should I detect if I am in REPL mode?
+        return new PySuiteNode(statementNodes.toArray(new PyStatementNode[statementNodes.size()]), true);
     }
-
 }

@@ -30,6 +30,15 @@ buildscript {
     }
 }
 
+sourceSets.main.java.srcDir new File(buildDir, 'build/classes/java/main')
+idea {
+    module {
+        // Marks the already(!) added srcDir as "generated"
+        generatedSourceDirs += file('build/classes/java/main')
+        sourceDirs += file('build/classes/java/main')
+    }
+}
+
 idea.module {
     generatedSourceDirs += file('someextrafile')
 }

@@ -21,3 +21,7 @@ $ java -jar build/libs/pyterpreter*all.jar
 
 - No arguments - start REPL
 - Single argument - path to file - execute that file
+
+## Troubleshooting
+
+- Annotated classes not being generated? Go to settings-annotation processor and uncheck->apply->check->okay and rerun gradle build step

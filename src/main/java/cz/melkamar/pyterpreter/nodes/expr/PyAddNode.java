@@ -7,7 +7,7 @@ import cz.melkamar.pyterpreter.nodes.PyBinaryNode;
 
 import java.math.BigInteger;
 
-@NodeInfo(shortName = "1")
+@NodeInfo(shortName = "+")
 public abstract class PyAddNode extends PyBinaryNode {
     @Specialization(rewriteOn = ArithmeticException.class)
     protected long add(long left, long right) {

@@ -1,14 +1,16 @@
 package cz.melkamar.pyterpreter.nodes.expr.literal;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
 
-public class PyLongLitNode extends PyExpressionNode {
+public class PyLongLitNode extends PyLiteralNode {
     private final long value;
 
     public PyLongLitNode(long value) {
         this.value = value;
+    }
+
+    public PyLongLitNode(String value) {
+        this.value = Long.parseLong(value);
     }
 
     // TODO tady throws UnexpectedResultException? možná to není potřeba
