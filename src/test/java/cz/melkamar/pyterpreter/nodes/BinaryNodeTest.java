@@ -19,10 +19,26 @@ public class BinaryNodeTest {
     }
 
     @Test
+    public void additionString() {
+        String code = "'hello'+' '+'world'";
+        Object result = Pyterpreter.runCodeForResult(code);
+
+        Assert.assertTrue(result instanceof String);
+        Assert.assertEquals("hello world", result);
+    }
+
+    @Test
     public void subtraction() {
         String code = "6-5-2-3";
         Object result = Pyterpreter.runCodeForResult(code);
         assertEquals(6L - 5 - 2 - 3, (long) result);
+    }
+
+    @Test
+    public void multiplicationString() {
+        String code = "'x' * 5";
+        Object result = Pyterpreter.runCodeForResult(code);
+        assertEquals("xxxxx", result);
     }
 
     @Test

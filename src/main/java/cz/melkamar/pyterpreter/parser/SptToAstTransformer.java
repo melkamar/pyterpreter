@@ -12,6 +12,7 @@ import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyMultiplyNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PySubtractNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.literal.PyLiteralNode;
 import cz.melkamar.pyterpreter.nodes.expr.literal.PyLongLitNode;
+import cz.melkamar.pyterpreter.nodes.expr.literal.PyStringLitNode;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
@@ -338,9 +339,7 @@ public class SptToAstTransformer {
             }
 
             if (simpleParseTree.asToken().getType() == Python3Parser.STRING_LITERAL) {
-                // TODO
-                throw new NotImplementedException();
-//                return new StringNode(simpleParseTree.asToken().getText());
+                return new PyStringLitNode(simpleParseTree.asToken().getText());
             }
 
             if (simpleParseTree.asToken().getType() == Python3Parser.TRUE) {
