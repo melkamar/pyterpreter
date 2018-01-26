@@ -23,7 +23,7 @@ public class SimpleParseTreeTest {
         PyRootNode rootNode = SimpleParseTree.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
         assertEquals(rootNode.children.size(), 1);
 
-        PyNode firstChild = rootNode.children.get(0);
+        PyNode firstChild = rootNode.getChild(0).getChild(0);
         assertTrue(firstChild instanceof PyAddNode);
         assertTrue(firstChild.children.size() == 2);
 
@@ -41,7 +41,7 @@ public class SimpleParseTreeTest {
         PyRootNode rootNode = SimpleParseTree.astFromCode("1 - 4 - 3");
         assertEquals(rootNode.children.size(), 1);
 
-        PyNode firstChild = rootNode.children.get(0);
+        PyNode firstChild = rootNode.getChild(0).getChild(0);
         assertTrue(firstChild instanceof PySubtractNode);
         assertTrue(firstChild.children.size() == 2);
 
@@ -58,7 +58,7 @@ public class SimpleParseTreeTest {
         PyRootNode rootNode = SimpleParseTree.astFromCode("1 - 4 * 3 + 2");
         assertEquals(rootNode.children.size(), 1);
 
-        PyNode firstChild = rootNode.getChild(0);
+        PyNode firstChild = rootNode.getChild(0).getChild(0);
         assertTrue(firstChild instanceof PyAddNode);
         assertTrue(firstChild.children.size() == 2);
 
@@ -79,7 +79,7 @@ public class SimpleParseTreeTest {
     @Test
     public void assignSimple() {
         PyRootNode rootNode = SimpleParseTree.astFromCode("x = 5");
-        PyNode firstChild = rootNode.getChild(0);
+        PyNode firstChild = rootNode.getChild(0).getChild(0);
 
         assertTrue(firstChild instanceof AssignNode);
         assertTrue(firstChild.getChild(0) instanceof PySymbolNode);
@@ -92,7 +92,7 @@ public class SimpleParseTreeTest {
     @Test
     public void assignHarder() {
         PyRootNode rootNode = SimpleParseTree.astFromCode("x = 5 + 1");
-        PyNode firstChild = rootNode.getChild(0);
+        PyNode firstChild = rootNode.getChild(0).getChild(0);
 
         assertTrue(firstChild instanceof AssignNode);
         assertTrue(firstChild.getChild(0) instanceof PySymbolNode);
@@ -113,7 +113,7 @@ public class SimpleParseTreeTest {
                 "\n";
 
         PyRootNode rootNode = SimpleParseTree.astFromCode(code);
-        PyNode firstChild = rootNode.getChild(0);
+        PyNode firstChild = rootNode.getChild(0).getChild(0);
 
         assertTrue(firstChild instanceof PyDefFuncNode);
 
