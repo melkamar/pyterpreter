@@ -33,4 +33,10 @@ public class Pyterpreter {
             System.out.println("Expected zero or one argument.");
         }
     }
+
+    public static Object runCodeForResult(String code){
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
+        return target.call();
+    }
 }

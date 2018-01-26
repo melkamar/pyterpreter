@@ -1,23 +1,59 @@
 package cz.melkamar.pyterpreter.nodes;
 
-import com.oracle.truffle.api.CallTarget;
-import com.oracle.truffle.api.Truffle;
-import cz.melkamar.pyterpreter.parser.SimpleParseTree;
+import cz.melkamar.pyterpreter.Pyterpreter;
 import org.junit.Assert;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 public class BinaryNodeTest {
     @Test
     public void addition() {
         String code = "1+2+3+4+5+6";
-
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
-        CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
-        Object result = target.call();
+        Object result = Pyterpreter.runCodeForResult(code);
 
         Assert.assertTrue(result instanceof Long);
         Assert.assertEquals(1 + 2 + 3 + 4 + 5 + 6, (long) result);
 
         System.out.println("RESULT: " + result);
     }
+
+    @Test
+    public void subtraction() {
+        String code = "6-5-2-3";
+        Object result = Pyterpreter.runCodeForResult(code);
+        assertEquals(6L - 5 - 2 - 3, (long) result);
+    }
+
+    @Test
+    public void multiplication() {
+        String code = "1+2*3*4+2+3";
+        Object result = Pyterpreter.runCodeForResult(code);
+        assertEquals(1 + 2 * 3 * 4 + 2 + 3, (long) result);
+    }
+
+    @Test
+    public void division() {
+        String code = "1+4/2-2";
+        Object result = Pyterpreter.runCodeForResult(code);
+        assertEquals(1 + 4 / 2 - 2, (long) result);
+    }
+
+    @Test
+    public void parensPreference() {
+        String code = "(((2+4/2)-2)*4)/2";
+        Object result = Pyterpreter.runCodeForResult(code);
+        assertEquals((((2 + 4 / 2) - 2) * 4) / 2, (long) result);
+    }
+
+
+//    @Test
+//    public void assignment() {
+//        PyRootNode rootNode = SimpleParseTree.astFromCode("x = 5 + 1");
+//        Environment env = Environment.getDefaultEnvironment();
+//        rootNode.execute(env);
+//
+//        assertTrue(env.contains("x"));
+//        assertEquals(6, (long) env.getValue("x"));
+//    }
 }

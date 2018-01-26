@@ -1,4 +1,4 @@
-package cz.melkamar.pyterpreter.nodes.expr;
+package cz.melkamar.pyterpreter.nodes.expr.arithmetic;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Specialization;

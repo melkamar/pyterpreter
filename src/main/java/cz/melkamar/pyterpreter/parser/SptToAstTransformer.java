@@ -6,7 +6,10 @@ import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
 import cz.melkamar.pyterpreter.nodes.PyStatementNode;
 import cz.melkamar.pyterpreter.nodes.PySuiteNode;
-import cz.melkamar.pyterpreter.nodes.expr.PyAddNodeGen;
+import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyAddNodeGen;
+import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyDivideNodeGen;
+import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyMultiplyNodeGen;
+import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PySubtractNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.literal.PyLiteralNode;
 import cz.melkamar.pyterpreter.nodes.expr.literal.PyLongLitNode;
 import org.antlr.v4.runtime.Token;
@@ -449,20 +452,11 @@ public class SptToAstTransformer {
                     case Python3Lexer.ADD:
                         return PyAddNodeGen.create(left, right);
                     case Python3Lexer.MINUS:
-                        // TODO
-                        throw new NotImplementedException();
-//                        binaryNode = new PySubtractNode();
-//                        break;
+                        return PySubtractNodeGen.create(left, right);
                     case Python3Lexer.STAR:
-                        // TODO
-                        throw new NotImplementedException();
-//                        binaryNode = new PyMultiplyNode();
-//                        break;
+                        return PyMultiplyNodeGen.create(left, right);
                     case Python3Lexer.DIV:
-                        // TODO
-                        throw new NotImplementedException();
-//                        binaryNode = new PyDivideNode();
-//                        break;
+                        return PyDivideNodeGen.create(left, right);
                     case Python3Lexer.EQUALS:
                         // TODO
                         throw new NotImplementedException();
