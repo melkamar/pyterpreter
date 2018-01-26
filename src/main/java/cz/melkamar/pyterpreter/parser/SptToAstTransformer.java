@@ -8,6 +8,7 @@ import cz.melkamar.pyterpreter.functions.FunctionCallNode;
 import cz.melkamar.pyterpreter.functions.PyDefFuncNode;
 import cz.melkamar.pyterpreter.functions.ReturnNode;
 import cz.melkamar.pyterpreter.nodes.AssignNode;
+import cz.melkamar.pyterpreter.nodes.FileInputBlockNode;
 import cz.melkamar.pyterpreter.nodes.PyNode;
 import cz.melkamar.pyterpreter.nodes.PySymbolNode;
 import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
@@ -45,7 +46,7 @@ public class SptToAstTransformer {
 
     /**
      * Parse function call argument list, e.g.
-     *
+     * <p>
      * |- arglist
      * |  |- argument
      * |  |  '- TOKEN[type: 38, text: 1]
@@ -56,11 +57,11 @@ public class SptToAstTransformer {
      * |     |- TOKEN[type: 61, text: +]
      * |     '- term
      * |        '- TOKEN[type: 38, text: 3]
-     *
+     * <p>
      * Check if the first child of arglist is "argument" - if the first node is not "argument",
      * then there is only one argument and the node was deleted (because all nodes with a single
      * child were squished). It is like this:
-     *
+     * <p>
      * |- arglist
      * |  |- term
      * |  |  '- TOKEN[type: 38, text: 1234]
@@ -68,7 +69,7 @@ public class SptToAstTransformer {
      * |  '- term
      * |     '- TOKEN[type: 38, text: 1]
      * '- TOKEN[type: 48, text: )]
-     *
+     * <p>
      * In this case parse arglist as if it was an "argument" node.
      */
     public static List<PyNode> parseArgList(SimpleParseTree simpleParseTree) {
@@ -98,7 +99,7 @@ public class SptToAstTransformer {
 
     /**
      * Parse if-elif-else statement, e.g.
-     *
+     * <p>
      * stmt
      * |- TOKEN[type: 10, text: if]
      * |- test
@@ -220,7 +221,7 @@ public class SptToAstTransformer {
                 args.add(argToken.getText());
             } else {
                 throw new AssertionError("multiple-argument func " +
-                        "unexpected node: " + String.valueOf(arg.getPayload()));
+                                                 "unexpected node: " + String.valueOf(arg.getPayload()));
             }
         }
 
@@ -228,7 +229,9 @@ public class SptToAstTransformer {
         CodeBlockNode funcCode = parseCodeBlock(suiteNode);
 
         PyDefFuncNode funcNode = new PyDefFuncNode(functionName,
-                Arrays.copyOf(args.toArray(), args.toArray().length, String[].class));
+                                                   Arrays.copyOf(args.toArray(),
+                                                                 args.toArray().length,
+                                                                 String[].class));
 
         for (PyNode funcNodeChild : funcCode.getChildNodes())
             funcNode.addChild(funcNodeChild);
@@ -284,7 +287,7 @@ public class SptToAstTransformer {
         }
 
         if (simpleParseTree.getChildCount() == 1 && simpleParseTree.isChildToken(0) &&
-                simpleParseTree.childAsToken(0).getType()== Python3Parser.RETURN){
+                simpleParseTree.childAsToken(0).getType() == Python3Parser.RETURN) {
             return new ReturnNode();
         }
 
@@ -309,8 +312,8 @@ public class SptToAstTransformer {
 
                     AssignNode assignNode = new AssignNode();
                     PyNode assignExpression = parseExpression(simpleParseTree,
-                            2,
-                            simpleParseTree.getChildCount() - 1);
+                                                              2,
+                                                              simpleParseTree.getChildCount() - 1);
                     assignNode.addChild(varNameNode);
                     assignNode.addChild(assignExpression);
                     return assignNode;
@@ -345,7 +348,7 @@ public class SptToAstTransformer {
                 return new FalseNode();
             }
 
-            if (simpleParseTree.asToken().getType() == Python3Parser.FLOAT_NUMBER){
+            if (simpleParseTree.asToken().getType() == Python3Parser.FLOAT_NUMBER) {
                 return new FloatingNumberNode(simpleParseTree.asToken().getText());
             }
         }
@@ -365,13 +368,13 @@ public class SptToAstTransformer {
      * Only work with a subset of nodes, specified by fromIndex and toIndex (both inclusive).
      * <p>
      * E.g. Expression in the form of 1+2+3+4+5 will take several runs to be converted to binary AST:
-     *
+     * <p>
      * ...(+)
      * .1.....parse(2+3+4+5)
-     *
+     * <p>
      * ....v
      * ....v
-     *
+     * <p>
      * ......(+)
      * ....1.....(+)
      * .........2...parse(3+4+5)
@@ -394,8 +397,8 @@ public class SptToAstTransformer {
         if (toIndex == fromIndex) {
             // This node has a single child - parse it as expression
             return parseExpression(simpleParseTree.getChild(toIndex),
-                    0,
-                    simpleParseTree.getChild(toIndex).getChildCount() - 1);
+                                   0,
+                                   simpleParseTree.getChild(toIndex).getChildCount() - 1);
         }
 
         // Two body - function call?
@@ -424,7 +427,8 @@ public class SptToAstTransformer {
             if (simpleParseTree.isChildToken(0) &&
                     simpleParseTree.childAsToken(0).getType() == Python3Lexer.OPEN_PAREN &&
                     simpleParseTree.isChildToken(simpleParseTree.getChildCount() - 1) &&
-                    simpleParseTree.childAsToken(simpleParseTree.getChildCount() - 1).getType() == Python3Lexer.CLOSE_PAREN) {
+                    simpleParseTree.childAsToken(simpleParseTree.getChildCount() - 1)
+                            .getType() == Python3Lexer.CLOSE_PAREN) {
                 return parseExpression(simpleParseTree, 1, simpleParseTree.getChildCount() - 2);
             }
 
@@ -482,7 +486,9 @@ public class SptToAstTransformer {
                         break;
 
                     default:
-                        throw new NotImplementedException("comp_op not implemented: " + simpleParseTree.getChild(toIndex - 1).childAsToken(0).getType());
+                        throw new NotImplementedException("comp_op not implemented: " + simpleParseTree.getChild(toIndex - 1)
+                                .childAsToken(0)
+                                .getType());
                 }
 
                 PyNode right = parseExpression(simpleParseTree, toIndex, toIndex);
@@ -505,6 +511,23 @@ public class SptToAstTransformer {
                 if (tokenType == Python3Lexer.NEWLINE ||
                         tokenType == Python3Parser.INDENT ||
                         tokenType == Python3Parser.DEDENT)
+                    continue;
+            }
+
+            PyNode node = parseStatement(child);
+            codeNode.addChild(node);
+        }
+
+        return codeNode;
+    }
+
+    public static FileInputBlockNode parseFileInputBlock(SimpleParseTree fileInputNode) {
+        assert fileInputNode.getPayloadAsString().equals(NODE_STR_FILE_INPUT);
+        FileInputBlockNode codeNode = new FileInputBlockNode();
+        for (SimpleParseTree child : fileInputNode.getChildren()) {
+            if (child.isToken()) {
+                int tokenType = child.asToken().getType();
+                if (tokenType == Python3Lexer.NEWLINE || tokenType == Python3Parser.EOF)
                     continue;
             }
 

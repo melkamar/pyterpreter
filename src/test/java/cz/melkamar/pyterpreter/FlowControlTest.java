@@ -1,6 +1,6 @@
 package cz.melkamar.pyterpreter;
 
-import cz.melkamar.pyterpreter.nodes.PyRootNode;
+import cz.melkamar.pyterpreter.nodes.PyFuncRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ public class FlowControlTest {
                 "if x==0:\n" +
                 "    y=1\n";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -31,7 +31,7 @@ public class FlowControlTest {
                 "if 0:\n" +
                 "    z=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -51,7 +51,7 @@ public class FlowControlTest {
                 "if 0:\n" +
                 "    z=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -68,7 +68,7 @@ public class FlowControlTest {
                 "else:\n" +
                 "    y=2";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -97,7 +97,7 @@ public class FlowControlTest {
                 "if not 1:\n" +
                 "    g=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -128,7 +128,7 @@ public class FlowControlTest {
                 "if 1==1 and 2==2 and 3==4:\n" +
                 "    e=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -157,7 +157,7 @@ public class FlowControlTest {
                 "if 1==1 or 2==2: \n" +
                 "    e=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -180,7 +180,7 @@ public class FlowControlTest {
                 "if (2==2 or 1==2) and 2==3:\n" +
                 "    c=1" ;
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -199,7 +199,7 @@ public class FlowControlTest {
                 "    return\n" +
                 "f()";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 

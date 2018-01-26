@@ -1,7 +1,7 @@
 package cz.melkamar.pyterpreter.nodes.typed;
 
 import cz.melkamar.pyterpreter.Environment;
-import cz.melkamar.pyterpreter.nodes.PyRootNode;
+import cz.melkamar.pyterpreter.nodes.PyFuncRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
 
@@ -14,7 +14,7 @@ public class StringTest {
                 "x = \"hello\"\n" +
                 "y ='world'";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -27,7 +27,7 @@ public class StringTest {
         String code = "" +
                 "x ='hello '+'world'";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 

@@ -1,6 +1,6 @@
 package cz.melkamar.pyterpreter;
 
-import cz.melkamar.pyterpreter.nodes.PyRootNode;
+import cz.melkamar.pyterpreter.nodes.PyFuncRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
 
@@ -19,7 +19,7 @@ public class CompleteFuncTest {
                 "\n" +
                 "result = fact(6)";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -39,7 +39,7 @@ public class CompleteFuncTest {
                 "\n" +
                 "result = fib(10)";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 

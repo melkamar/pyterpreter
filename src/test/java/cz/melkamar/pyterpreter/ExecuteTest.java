@@ -1,7 +1,7 @@
 package cz.melkamar.pyterpreter;
 
 import cz.melkamar.pyterpreter.functions.UserFunction;
-import cz.melkamar.pyterpreter.nodes.PyRootNode;
+import cz.melkamar.pyterpreter.nodes.PyFuncRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
 
@@ -13,38 +13,38 @@ import static org.junit.Assert.*;
 public class ExecuteTest {
     @Test
     public void addition() {
-        PyRootNode rootNode = SimpleParseTree.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode("1 + 2 + 3 + 4 + 5 + 6");
         assertEquals(1L + 2 + 3 + 4 + 5 + 6, ((Long) rootNode.execute()).longValue());
     }
 
     @Test
     public void subtraction() {
-        PyRootNode rootNode = SimpleParseTree.astFromCode("6-5-2-3");
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode("6-5-2-3");
         assertEquals(6L - 5 - 2 - 3, ((Long) rootNode.execute()).longValue());
     }
 
     @Test
     public void multiplication() {
-        PyRootNode rootNode = SimpleParseTree.astFromCode("1+2*3*4-2+3");
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode("1+2*3*4-2+3");
         assertEquals(1 + 2 * 3 * 4 - 2 + 3, ((Long) rootNode.execute()).longValue());
     }
 
     @Test
     public void division() {
-        PyRootNode rootNode = SimpleParseTree.astFromCode("1+4/2-2");
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode("1+4/2-2");
         assertEquals(1 + 4 / 2 - 2, ((Long) rootNode.execute()).longValue());
     }
 
     @Test
     public void parensPreference() {
-        PyRootNode rootNode = SimpleParseTree.astFromCode("(((2+4/2)-2)*4)/2");
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode("(((2+4/2)-2)*4)/2");
         assertEquals((((2 + 4 / 2) - 2) * 4) / 2, ((Long) rootNode.execute()).longValue());
     }
 
 
     @Test
     public void assignment() {
-        PyRootNode rootNode = SimpleParseTree.astFromCode("x = 5 + 1");
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode("x = 5 + 1");
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -54,7 +54,7 @@ public class ExecuteTest {
 
     @Test
     public void assignmentNested() {
-        PyRootNode rootNode = SimpleParseTree.astFromCode("x = 5 + 1\ny=x+1");
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode("x = 5 + 1\ny=x+1");
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -74,7 +74,7 @@ public class ExecuteTest {
                 "    druha=2*x+1" +
                 "\n";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -97,7 +97,7 @@ public class ExecuteTest {
                 "\n" +
                 "res = f(1+2,2*g())";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 
@@ -122,7 +122,7 @@ public class ExecuteTest {
                 "print(x)\n" +
                 "print(x+2)";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.execute(env);
 

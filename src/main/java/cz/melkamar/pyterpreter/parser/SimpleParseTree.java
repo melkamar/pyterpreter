@@ -28,10 +28,7 @@ import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.exceptions.ParseException;
-import cz.melkamar.pyterpreter.nodes.PyNode;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
-import cz.melkamar.pyterpreter.nodes.arithmetic.PyAddNode;
-import cz.melkamar.pyterpreter.nodes.typed.NumberNode;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
@@ -101,7 +98,9 @@ public class SimpleParseTree {
         this(simpleParseTree, tree, new ArrayList<SimpleParseTree>());
     }
 
-    private SimpleParseTree(SimpleParseTree parent, org.antlr.v4.runtime.tree.ParseTree tree, List<SimpleParseTree> children) {
+    private SimpleParseTree(SimpleParseTree parent,
+                            org.antlr.v4.runtime.tree.ParseTree tree,
+                            List<SimpleParseTree> children) {
 
         this.payload = getPayload(tree);
         this.children = children;
@@ -226,7 +225,7 @@ public class SimpleParseTree {
      */
     public PyRootNode generateAST() {
         PyRootNode rootPyNode = new PyRootNode();
-        traverse(this, rootPyNode);
+        rootPyNode.addChild(SptToAstTransformer.parseFileInputBlock(this));
         return rootPyNode;
     }
 
@@ -273,54 +272,6 @@ public class SimpleParseTree {
         return (Token) this.payload;
     }
 
-    public void traverse(SimpleParseTree simpleParseTree, PyNode currentPyNode) {
-        // If there are only two body and the second one is newline, directly traverse the first child, discard newline
-        if (simpleParseTree.children.size() == 2 &&
-                simpleParseTree.isChildToken(1) &&
-                simpleParseTree.childAsToken(1).getType() == Python3Lexer.NEWLINE) {
-            traverse(simpleParseTree.children.get(0), currentPyNode);
-            return;
-        }
-
-        if (!(simpleParseTree.payload instanceof Token)) {
-            switch (String.valueOf(simpleParseTree.payload)) {
-                case SptToAstTransformer.NODE_STR_FILE_INPUT:
-                    for (SimpleParseTree child : simpleParseTree.children) {
-                        traverse(child, currentPyNode);
-                    }
-                    break;
-
-                case SptToAstTransformer.NODE_STR_SMALL_STMT:
-                case SptToAstTransformer.NODE_STR_STMT:
-                    PyNode node = SptToAstTransformer.parseStatement(simpleParseTree);
-                    currentPyNode.addChild(node);
-                    break;
-
-                default:
-                    throw new NotImplementedException();
-            }
-
-        } else {
-            Token token = (Token) simpleParseTree.payload;
-            int tokenCode = token.getType();
-
-            String tokenEscaped = token.getText().replace("\n", "\\n").replace("\r", "\\r");
-            switch (tokenCode) {
-                case Python3Lexer.ADD:
-                    PyNode newPyNode = new PyAddNode();
-                    currentPyNode.addChild(newPyNode);
-                    currentPyNode = newPyNode;
-                    break;
-
-                case Python3Lexer.DECIMAL_INTEGER:
-                    currentPyNode.addChild(new NumberNode(token.getText()));
-                    break;
-            }
-
-
-        }
-    }
-
     @Override
     public String toString() {
 
@@ -347,7 +298,7 @@ public class SimpleParseTree {
                     Token token = (Token) simpleParseTree.payload;
                     String tokenEscaped = token.getText().replace("\n", "\\n").replace("\r", "\\r");
                     caption = String.format("TOKEN[type: %s, text: %s]",
-                            token.getType(), tokenEscaped);
+                                            token.getType(), tokenEscaped);
 //                    System.out.println("got token: " + tokenEscaped + " (" + token.getType() + ")");
                 } else {
                     caption = String.valueOf(simpleParseTree.payload);

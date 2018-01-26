@@ -1,6 +1,6 @@
 package cz.melkamar.pyterpreter;
 
-import cz.melkamar.pyterpreter.nodes.PyRootNode;
+import cz.melkamar.pyterpreter.nodes.PyFuncRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 
 import java.io.File;
@@ -12,7 +12,7 @@ public class Pyterpreter {
     public static void main(String[] args) {
         if (args.length == 0) startRepl();
         else if (args.length == 1){
-            PyRootNode rootNode = null;
+            PyFuncRootNode rootNode = null;
             try {
                 File file = new File(args[0]);
                 SimpleParseTree simpleParseTree = SimpleParseTree.fromFile(file);

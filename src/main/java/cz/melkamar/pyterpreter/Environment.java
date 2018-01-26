@@ -9,6 +9,8 @@ import java.util.HashMap;
  * Created by Martin Melka (martin.melka@gmail.com) on 05.11.2017 22:13.
  */
 public class Environment {
+    public static boolean DEBUG_MODE = false;
+
     private final HashMap<String, Object> env = new HashMap<>();
     private final Environment parent;
     private boolean returnFlag = false;

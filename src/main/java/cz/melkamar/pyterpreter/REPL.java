@@ -1,6 +1,6 @@
 package cz.melkamar.pyterpreter;
 
-import cz.melkamar.pyterpreter.nodes.PyRootNode;
+import cz.melkamar.pyterpreter.nodes.PyFuncRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 
 import java.util.Scanner;
@@ -54,7 +54,7 @@ public class REPL {
             inputBuffer.delete(0, inputBuffer.length());
 
             try {
-                PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+                PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
                 Object result = rootNode.execute(env);
                 if (result != null) {
                     // TODO how to handle case when I actually do want to return null? E.g. x=None; x?

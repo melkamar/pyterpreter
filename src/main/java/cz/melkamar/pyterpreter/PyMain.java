@@ -57,7 +57,7 @@ public class PyMain {
 
 
         SimpleParseTree.printParseTree(code);
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.print();
 
