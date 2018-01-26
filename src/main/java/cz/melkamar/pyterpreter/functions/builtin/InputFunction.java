@@ -1,12 +1,11 @@
 package cz.melkamar.pyterpreter.functions.builtin;
 
 import cz.melkamar.pyterpreter.Environment;
-import cz.melkamar.pyterpreter.functions.Function;
 
 import java.io.InputStream;
 import java.util.Scanner;
 
-public class InputFunction extends Function {
+public class InputFunction {
     private static Scanner sc;
 
     static {
@@ -22,11 +21,11 @@ public class InputFunction extends Function {
         sc = new Scanner(stdin);
     }
 
-    public InputFunction() {
-        super(new String[]{});
-    }
+//    public InputFunction() {
+//        super(new String[]{});
+//    }
 
-    @Override
+//    @Override
     public Object execute(Environment env) {
         String input = sc.nextLine();
         if (Environment.DEBUG_MODE)

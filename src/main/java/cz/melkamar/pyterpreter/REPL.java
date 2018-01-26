@@ -1,6 +1,8 @@
 package cz.melkamar.pyterpreter;
 
-import cz.melkamar.pyterpreter.nodes.PyFuncRootNode;
+import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.Truffle;
+import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 
 import java.util.Scanner;
@@ -54,8 +56,10 @@ public class REPL {
             inputBuffer.delete(0, inputBuffer.length());
 
             try {
-                PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
-                Object result = rootNode.execute(env);
+                PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+                CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
+                Object result = target.call();
+                // TODO jak tady řešit předávání environmentu?! zeptat se podlesáka?
                 if (result != null) {
                     // TODO how to handle case when I actually do want to return null? E.g. x=None; x?
                     System.out.println(result);

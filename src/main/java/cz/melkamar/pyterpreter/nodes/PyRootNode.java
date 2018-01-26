@@ -18,4 +18,9 @@ public class PyRootNode extends RootNode {
         // keep track of result for REPL
         return child.executeGeneric(frame);
     }
+
+    public void print(){
+        System.out.println("root");
+        child.print(0);
+    }
 }

@@ -1,7 +1,7 @@
 package cz.melkamar.pyterpreter;
 
+import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
-import cz.melkamar.pyterpreter.functions.builtin.BuiltinFunctions;
 
 import java.util.HashMap;
 
@@ -79,7 +79,9 @@ public class Environment {
 
     public static Environment getDefaultEnvironment() {
         Environment env = new Environment();
-        BuiltinFunctions.fillEnv(env);
-        return env;
+        // TODO
+        throw new NotImplementedException();
+//        BuiltinFunctions.fillEnv(env);
+//        return env;
     }
 }

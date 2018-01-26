@@ -1,5 +1,8 @@
 package cz.melkamar.pyterpreter;
 
+import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.Truffle;
+import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 
 import java.io.IOException;
@@ -54,13 +57,14 @@ public class PyMain {
                 "";
 
 
-
         SimpleParseTree.printParseTree(code);
-        PyFuncRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
         Environment env = Environment.getDefaultEnvironment();
         rootNode.print();
 
-        System.out.println(rootNode.execute(env));
+        CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
+        target.call();
+//        System.out.println(rootNode.execute(env));
 
         System.out.println("DONE. Environment:");
         System.out.println(env);

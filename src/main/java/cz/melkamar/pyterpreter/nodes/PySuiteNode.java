@@ -29,4 +29,9 @@ public final class PySuiteNode extends PyStatementNode {
         }
         return lastResult;
     }
+
+    @Override
+    public void print(int indent) {
+        printIndented("suite", indent+1);
+    }
 }

@@ -33,4 +33,9 @@ public abstract class PyAddNode extends PyBinaryNode {
     protected boolean isString(Object a, Object b) {
         return a instanceof String || b instanceof String;
     }
+
+    @Override
+    public void print(int indent) {
+        printIndented("+", indent+1);
+    }
 }

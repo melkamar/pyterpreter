@@ -23,4 +23,9 @@ public class PyLongLitNode extends PyLiteralNode {
     public Object executeGeneric(VirtualFrame frame) {
         return value;
     }
+
+    @Override
+    public void print(int indent) {
+        printIndented("["+value+"]", indent+1);
+    }
 }

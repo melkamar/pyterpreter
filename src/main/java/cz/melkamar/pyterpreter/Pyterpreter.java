@@ -19,13 +19,13 @@ public class Pyterpreter {
                 File file = new File(args[0]);
                 SimpleParseTree simpleParseTree = SimpleParseTree.fromFile(file);
                 rootNode = simpleParseTree.generateAST();
-                Environment env = Environment.getDefaultEnvironment();
+//                Environment env = Environment.getDefaultEnvironment();
 
                 CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
                 target.call();
 
                 System.out.println("\n\nEnvironment (root):");
-                System.out.println(env);
+//                System.out.println(env);
             } catch (IOException e) {
                 e.printStackTrace();
             }
