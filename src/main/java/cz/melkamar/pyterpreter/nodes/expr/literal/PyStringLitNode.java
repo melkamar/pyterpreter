@@ -6,11 +6,12 @@ public class PyStringLitNode extends PyLiteralNode {
     private final String text;
 
     public PyStringLitNode(String text) {
-        this.text = text.substring(1, text.length() - 1);
+        if (text.startsWith("\"") || text.startsWith("'")) this.text = text.substring(1, text.length() - 1);
+        else this.text = text;
     }
 
     @Override
-    public Object executeGeneric(VirtualFrame frame) {
+    public String executeGeneric(VirtualFrame frame) {
         return text;
     }
 

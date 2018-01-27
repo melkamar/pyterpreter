@@ -1,13 +1,13 @@
 package cz.melkamar.pyterpreter.nodes;
 
 import cz.melkamar.pyterpreter.Pyterpreter;
+import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.math.BigInteger;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class BinaryNodeTest {
     @Test
@@ -28,7 +28,7 @@ public class BinaryNodeTest {
 
         Assert.assertTrue(result instanceof BigInteger);
 
-        BigInteger expected = new BigInteger(""+Long.MAX_VALUE).add(new BigInteger(""+Long.MAX_VALUE));
+        BigInteger expected = new BigInteger("" + Long.MAX_VALUE).add(new BigInteger("" + Long.MAX_VALUE));
         Assert.assertTrue(expected.equals(result));
 
         System.out.println("RESULT: " + result);
@@ -81,9 +81,11 @@ public class BinaryNodeTest {
 
     @Test
     public void assignment() {
-        String code = "x=5";
-        Object result = Pyterpreter.runCodeForResult(code);
+        String code = "x=5\ny=5*3+2";
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
 
-        assertTrue(false);
+        assertEquals(5L, rootNode.getFrameValue("x"));
+        assertEquals(5L * 3 + 2, rootNode.getFrameValue("y"));
     }
 }

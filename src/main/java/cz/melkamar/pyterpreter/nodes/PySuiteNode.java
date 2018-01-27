@@ -32,6 +32,7 @@ public final class PySuiteNode extends PyStatementNode {
 
     @Override
     public void print(int indent) {
-        printIndented("suite", indent+1);
+        printIndented("suite", indent);
+        for (PyStatementNode statement: statements) statement.print(indent+1);
     }
 }

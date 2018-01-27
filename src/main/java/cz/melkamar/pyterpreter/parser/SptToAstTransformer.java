@@ -1,11 +1,10 @@
 package cz.melkamar.pyterpreter.parser;
 
+import com.oracle.truffle.api.frame.FrameSlot;
 import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
-import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
-import cz.melkamar.pyterpreter.nodes.PyStatementNode;
-import cz.melkamar.pyterpreter.nodes.PySuiteNode;
+import cz.melkamar.pyterpreter.nodes.*;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyAddNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyDivideNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyMultiplyNodeGen;
@@ -307,17 +306,17 @@ public class SptToAstTransformer {
 
                 // Is this assignment? e.g.   x = 5 + 4
                 if (secondToken.getType() == Python3Lexer.ASSIGN) {
-                    // TODO
-                    throw new NotImplementedException();
-//                    PyNode varNameNode = parseExpression(simpleParseTree, 0, 0);
-//
-//                    AssignNode assignNode = new AssignNode();
-//                    PyNode assignExpression = parseExpression(simpleParseTree,
-//                                                              2,
-//                                                              simpleParseTree.getChildCount() - 1);
-//                    assignNode.addChild(varNameNode);
-//                    assignNode.addChild(assignExpression);
-//                    return assignNode;
+                    PyExpressionNode varNameNode = parseExpression(simpleParseTree, 0, 0);
+                    String varName = ((PyStringLitNode) varNameNode).executeGeneric(null);
+                    PyExpressionNode assignValueNode = parseExpression(simpleParseTree,
+                                                                            2,
+                                                                            simpleParseTree.getChildCount() - 1);
+
+//                    FrameDescriptor frameDescriptor = new FrameDescriptor();
+                    FrameSlot slot = SimpleParseTree.frameDescriptor.findOrAddFrameSlot(varName);
+                    PyAssignNode assignNode = PyAssignNodeGen.create(assignValueNode, slot);
+
+                    return assignNode;
                 }
             }
         }
@@ -334,9 +333,7 @@ public class SptToAstTransformer {
             }
 
             if (simpleParseTree.asToken().getType() == Python3Lexer.NAME) {
-                // TODO
-                throw new NotImplementedException();
-//                return new PySymbolNode(simpleParseTree.asToken().getText());
+                return new PyStringLitNode(simpleParseTree.asToken().getText());
             }
 
             if (simpleParseTree.asToken().getType() == Python3Parser.STRING_LITERAL) {
