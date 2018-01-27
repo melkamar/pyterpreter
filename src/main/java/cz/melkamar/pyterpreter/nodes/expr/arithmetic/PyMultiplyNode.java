@@ -3,7 +3,6 @@ package cz.melkamar.pyterpreter.nodes.expr.arithmetic;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.nodes.PyBinaryNode;
 
 import java.math.BigInteger;
@@ -24,8 +23,9 @@ public abstract class PyMultiplyNode extends PyBinaryNode {
     @Specialization(guards = "stringMultLong(left, right)")
     @TruffleBoundary
     protected String multiply(Object left, Object right) {
-        // Todo python multiply strings
-        throw new NotImplementedException();
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < (long) right; i++) builder.append(left);
+        return builder.toString();
     }
 
     protected boolean stringMultLong(Object a, Object b) {

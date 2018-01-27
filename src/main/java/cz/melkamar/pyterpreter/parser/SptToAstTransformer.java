@@ -10,6 +10,7 @@ import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyAddNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyDivideNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyMultiplyNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PySubtractNodeGen;
+import cz.melkamar.pyterpreter.nodes.expr.literal.PyBooleanLitNode;
 import cz.melkamar.pyterpreter.nodes.expr.literal.PyLiteralNode;
 import cz.melkamar.pyterpreter.nodes.expr.literal.PyLongLitNode;
 import cz.melkamar.pyterpreter.nodes.expr.literal.PyStringLitNode;
@@ -343,15 +344,11 @@ public class SptToAstTransformer {
             }
 
             if (simpleParseTree.asToken().getType() == Python3Parser.TRUE) {
-                // TODO
-                throw new NotImplementedException();
-//                return new TrueNode();
+                return new PyBooleanLitNode(true);
             }
 
             if (simpleParseTree.asToken().getType() == Python3Parser.FALSE) {
-                // TODO
-                throw new NotImplementedException();
-//                return new FalseNode();
+                return new PyBooleanLitNode(false);
             }
 
             if (simpleParseTree.asToken().getType() == Python3Parser.FLOAT_NUMBER) {

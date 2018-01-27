@@ -23,7 +23,7 @@ public class BasicTypesTest {
 
     @Test
     public void falseType() {
-        Object result = Pyterpreter.runCodeForResult("True");
+        Object result = Pyterpreter.runCodeForResult("False");
 
         Assert.assertTrue(result instanceof Boolean);
         Assert.assertEquals(false, result);
@@ -31,7 +31,7 @@ public class BasicTypesTest {
 
     @Test
     public void trueType() {
-        Object result = Pyterpreter.runCodeForResult("False");
+        Object result = Pyterpreter.runCodeForResult("True");
 
         Assert.assertTrue(result instanceof Boolean);
         Assert.assertEquals(true, result);
