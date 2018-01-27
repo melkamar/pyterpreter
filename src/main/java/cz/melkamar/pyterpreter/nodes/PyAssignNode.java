@@ -9,18 +9,40 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 
 @NodeChild("valueNode")
 @NodeField(name = "slot", type = FrameSlot.class)
-public abstract class PyAssignNode extends PyExpressionNode {
+public abstract class PyAssignNode extends PyStatementNode {
     protected abstract FrameSlot getSlot();
 
+    // TODO remove printlns
     @Specialization(guards = "isLongOrBlank(frame)")
-    protected long writeLong(VirtualFrame frame, long value) {
+    protected Object writeLong(VirtualFrame frame, long value) {
         getSlot().setKind(FrameSlotKind.Long);
         frame.setLong(getSlot(), value);
-        return value;
+        System.out.println("write long");
+        return null; // Declaring function return type void causes annotation processor error
+    }
+
+    @Specialization(guards = "isBoolOrBlank(frame)")
+    protected Object writeBoolean(VirtualFrame frame, boolean value) {
+        getSlot().setKind(FrameSlotKind.Boolean);
+        frame.setBoolean(getSlot(), value);
+        System.out.println("write bool");
+        return null; // Declaring function return type void causes annotation processor error
+    }
+
+    @Specialization(replaces = {"writeLong", "writeBoolean"})
+    protected Object writeGeneric(VirtualFrame frame, Object value) {
+        getSlot().setKind(FrameSlotKind.Object);
+        frame.setObject(getSlot(), value);
+        System.out.println("write generic");
+        return null; // Declaring function return type void causes annotation processor error
     }
 
     protected boolean isLongOrBlank(VirtualFrame frame) { // Parameter must be here, even though it is not used
         return getSlot().getKind() == FrameSlotKind.Long || getSlot().getKind() == FrameSlotKind.Illegal;
+    }
+
+    protected boolean isBoolOrBlank(VirtualFrame frame) { // Parameter must be here, even though it is not used
+        return getSlot().getKind() == FrameSlotKind.Boolean || getSlot().getKind() == FrameSlotKind.Illegal;
     }
 
     @Override

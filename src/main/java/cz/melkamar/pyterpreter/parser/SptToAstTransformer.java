@@ -9,10 +9,7 @@ import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyAddNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyDivideNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyMultiplyNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PySubtractNodeGen;
-import cz.melkamar.pyterpreter.nodes.expr.literal.PyBooleanLitNode;
-import cz.melkamar.pyterpreter.nodes.expr.literal.PyLiteralNode;
-import cz.melkamar.pyterpreter.nodes.expr.literal.PyLongLitNode;
-import cz.melkamar.pyterpreter.nodes.expr.literal.PyStringLitNode;
+import cz.melkamar.pyterpreter.nodes.expr.literal.*;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
@@ -329,7 +326,11 @@ public class SptToAstTransformer {
 
         if (simpleParseTree.isToken()) {
             if (simpleParseTree.asToken().getType() == Python3Lexer.DECIMAL_INTEGER) {
-                return new PyLongLitNode(Long.parseLong(simpleParseTree.asToken().getText()));
+                try {
+                    return new PyLongLitNode(Long.parseLong(simpleParseTree.asToken().getText()));
+                } catch (NumberFormatException e){
+                    return new PyBigNumLitNode(simpleParseTree.asToken().getText());
+                }
             }
 
             if (simpleParseTree.asToken().getType() == Python3Lexer.NAME) {
