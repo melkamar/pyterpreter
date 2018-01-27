@@ -4,7 +4,10 @@ import cz.melkamar.pyterpreter.Pyterpreter;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigInteger;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class BinaryNodeTest {
     @Test
@@ -14,6 +17,19 @@ public class BinaryNodeTest {
 
         Assert.assertTrue(result instanceof Long);
         Assert.assertEquals(1 + 2 + 3 + 4 + 5 + 6, (long) result);
+
+        System.out.println("RESULT: " + result);
+    }
+
+    @Test
+    public void additionBig() {
+        String code = Long.MAX_VALUE + "+" + Long.MAX_VALUE;
+        Object result = Pyterpreter.runCodeForResult(code);
+
+        Assert.assertTrue(result instanceof BigInteger);
+
+        BigInteger expected = new BigInteger(""+Long.MAX_VALUE).add(new BigInteger(""+Long.MAX_VALUE));
+        Assert.assertTrue(expected.equals(result));
 
         System.out.println("RESULT: " + result);
     }
@@ -63,13 +79,11 @@ public class BinaryNodeTest {
     }
 
 
-//    @Test
-//    public void assignment() {
-//        PyRootNode rootNode = SimpleParseTree.astFromCode("x = 5 + 1");
-//        Environment env = Environment.getDefaultEnvironment();
-//        rootNode.execute(env);
-//
-//        assertTrue(env.contains("x"));
-//        assertEquals(6, (long) env.getValue("x"));
-//    }
+    @Test
+    public void assignment() {
+        String code = "x=5";
+        Object result = Pyterpreter.runCodeForResult(code);
+
+        assertTrue(false);
+    }
 }
