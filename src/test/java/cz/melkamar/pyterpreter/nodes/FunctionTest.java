@@ -6,6 +6,18 @@ import org.junit.Test;
 
 public class FunctionTest {
     @Test
+    public void defOnly() {
+        String code = "" +
+                "def f():\n" +
+                "    return 5\n";
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        Assert.assertNotNull(rootNode.getFrameValue("f"));
+        Assert.assertNull(rootNode.getFrameValue("g"));
+    }
+
+    @Test
     public void noParams() {
         String code = "" +
                 "def f():\n" +

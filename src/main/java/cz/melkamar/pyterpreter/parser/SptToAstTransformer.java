@@ -13,10 +13,14 @@ import cz.melkamar.pyterpreter.nodes.expr.literal.PyBigNumLitNode;
 import cz.melkamar.pyterpreter.nodes.expr.literal.PyBooleanLitNode;
 import cz.melkamar.pyterpreter.nodes.expr.literal.PyLongLitNode;
 import cz.melkamar.pyterpreter.nodes.expr.literal.PyStringLitNode;
+import cz.melkamar.pyterpreter.nodes.function.PyDefFuncNode;
+import cz.melkamar.pyterpreter.nodes.function.PyReturnNode;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class SptToAstTransformer {
     final static String NODE_STR_TERM = "term";
@@ -188,45 +192,44 @@ public class SptToAstTransformer {
 //        return parseExpression(simpleParseTree);
 //    }
 
-//    public static PyNode parseFuncDef(SimpleParseTree simpleParseTree) {
-//        // Get function name
-//        String functionName = ((Token) simpleParseTree.getChildPayload(1)).getText();
-//
-//        // Get parameters
-//        List<String> args = new ArrayList<>();
-//        SimpleParseTree typedArgsList = simpleParseTree.getChild(2).getChild(1); // get node typedargslist
-//
-//        for (SimpleParseTree arg : typedArgsList.getChildren()) {
-//            if (arg.getPayload() instanceof Token) {
-//                // when there is a single parameter, it will be directly under typedargslist
-//                Token argToken = (Token) arg.getPayload();
-//                if (argToken.getType() == Python3Lexer.NAME) args.add(argToken.getText());
-//            } else if (Objects.equals(String.valueOf(arg.getPayload()), "tfpdef")) {
-//                // when there are two or more parameters, they will be under typedargslist/tfpdef
-//                assert arg.getChildCount() == 1;
-//                Object childPayload = arg.getChildPayload(0);
-//                assert childPayload instanceof Token;
-//                Token argToken = (Token) childPayload;
-//                args.add(argToken.getText());
-//            } else {
-//                throw new AssertionError("multiple-argument func " +
-//                                                 "unexpected node: " + String.valueOf(arg.getPayload()));
-//            }
-//        }
-//
-//        SimpleParseTree suiteNode = simpleParseTree.getChild(4);
-//        CodeBlockNode funcCode = parseCodeBlock(suiteNode);
-//
-//        PyDefFuncNode funcNode = new PyDefFuncNode(functionName,
-//                                                   Arrays.copyOf(args.toArray(),
-//                                                                 args.toArray().length,
-//                                                                 String[].class));
-//
-//        for (PyNode funcNodeChild : funcCode.getChildNodes())
-//            funcNode.addChild(funcNodeChild);
-//
-//        return funcNode;
-//    }
+    public static PyDefFuncNode parseFuncDef(SimpleParseTree simpleParseTree) {
+        // Get function name
+        String functionName = ((Token) simpleParseTree.getChildPayload(1)).getText();
+
+        // Get parameters
+        List<String> args = new ArrayList<>();
+        SimpleParseTree typedArgsList = simpleParseTree.getChild(2).getChild(1); // get node typedargslist
+
+        for (SimpleParseTree arg : typedArgsList.getChildren()) {
+            if (arg.getPayload() instanceof Token) {
+                // when there is a single parameter, it will be directly under typedargslist
+                Token argToken = (Token) arg.getPayload();
+                if (argToken.getType() == Python3Lexer.NAME) args.add(argToken.getText());
+            } else if (Objects.equals(String.valueOf(arg.getPayload()), "tfpdef")) {
+                // when there are two or more parameters, they will be under typedargslist/tfpdef
+                assert arg.getChildCount() == 1;
+                Object childPayload = arg.getChildPayload(0);
+                assert childPayload instanceof Token;
+                Token argToken = (Token) childPayload;
+                args.add(argToken.getText());
+            } else {
+                throw new AssertionError("multiple-argument function " +
+                                                 "unexpected node: " + String.valueOf(arg.getPayload()));
+            }
+        }
+
+        SimpleParseTree suiteNode = simpleParseTree.getChild(4);
+        PySuiteNode funcCode = parseCodeBlock(suiteNode);
+
+        PyDefFuncNode funcNode = new PyDefFuncNode(functionName,
+                                                   Arrays.copyOf(args.toArray(),
+                                                                 args.toArray().length,
+                                                                 String[].class),
+                                                   funcCode);
+
+
+        return funcNode;
+    }
 
     /**
      * Clean case when there are two child nodes, but the second one is just a newline.
@@ -268,9 +271,7 @@ public class SptToAstTransformer {
 
             // Defining a function?
             if (firstToken.getType() == Python3Lexer.DEF) {
-                // TODO
-                throw new NotImplementedException();
-//                return parseFuncDef(simpleParseTree);
+                return parseFuncDef(simpleParseTree);
             }
 
             if (firstToken.getType() == Python3Parser.IF) {
@@ -291,12 +292,9 @@ public class SptToAstTransformer {
         if (simpleParseTree.getChildCount() == 2) {
             if (simpleParseTree.isChildToken(0) &&
                     simpleParseTree.childAsToken(0).getType() == Python3Parser.RETURN) {
-                // TODO
-                throw new NotImplementedException();
-//                ReturnNode returnNode = new ReturnNode();
-//                PyNode returnBody = parseExpression(simpleParseTree.getChild(1));
-//                returnNode.addChild(returnBody);
-//                return returnNode;
+                PyExpressionNode returnBody = parseExpression(simpleParseTree.getChild(1));
+                PyReturnNode returnNode = new PyReturnNode(returnBody);
+                return returnNode;
             }
         }
 
