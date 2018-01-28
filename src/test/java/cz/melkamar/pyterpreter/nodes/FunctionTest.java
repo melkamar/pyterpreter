@@ -93,12 +93,14 @@ public class FunctionTest {
                 "    x=2\n" +
                 "    a=2\n" +
                 "    return 3\n" +
-                "y = f()";
+                "y = f()\n" +
+                "y";
         PyRootNode rootNode = SimpleParseTree.astFromCode(code);
         Object result = rootNode.run();
 
+        // TODO clean up FrameDescriptor handling, having it in SimpleParseTree is ugly.
         Assert.assertTrue(result instanceof Long);
-        Assert.assertEquals(5, (long) result);
+        Assert.assertEquals(3, (long) result);
         Assert.assertNotNull(rootNode.getFrameValue("f"));
         Assert.assertNull(rootNode.getFrameValue("g"));
         Assert.assertNull(rootNode.getFrameValue("a"));
