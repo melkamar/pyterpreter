@@ -11,6 +11,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 @NodeField(name = "slot", type = FrameSlot.class)
 public abstract class PyAssignNode extends PyStatementNode {
     protected abstract FrameSlot getSlot();
+    protected abstract PyStatementNode getValueNode();
 
     // TODO remove printlns
     @Specialization(guards = "isLongOrBlank(frame)")
@@ -48,5 +49,6 @@ public abstract class PyAssignNode extends PyStatementNode {
     @Override
     public void print(int indent) {
         printIndented(":= "+getSlot().toString(), indent);
+        getValueNode().print(indent+1);
     }
 }

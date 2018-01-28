@@ -9,7 +9,10 @@ import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyAddNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyDivideNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyMultiplyNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PySubtractNodeGen;
-import cz.melkamar.pyterpreter.nodes.expr.literal.*;
+import cz.melkamar.pyterpreter.nodes.expr.literal.PyBigNumLitNode;
+import cz.melkamar.pyterpreter.nodes.expr.literal.PyBooleanLitNode;
+import cz.melkamar.pyterpreter.nodes.expr.literal.PyLongLitNode;
+import cz.melkamar.pyterpreter.nodes.expr.literal.PyStringLitNode;
 import org.antlr.v4.runtime.Token;
 
 import java.util.ArrayList;
@@ -304,12 +307,13 @@ public class SptToAstTransformer {
                 // Is this assignment? e.g.   x = 5 + 4
                 if (secondToken.getType() == Python3Lexer.ASSIGN) {
                     PyExpressionNode varNameNode = parseExpression(simpleParseTree, 0, 0);
-                    String varName = ((PyStringLitNode) varNameNode).executeGeneric(null);
+
+                    // Parsing a NAME will yield a ReadVarNode, but in this special case (lhs in assignment) we only
+                    // care about the variable name (and do not want to read anything)
+                    String varName = ((PyReadVarNode) varNameNode).getVarName();
                     PyExpressionNode assignValueNode = parseExpression(simpleParseTree,
                                                                             2,
                                                                             simpleParseTree.getChildCount() - 1);
-
-//                    FrameDescriptor frameDescriptor = new FrameDescriptor();
                     FrameSlot slot = SimpleParseTree.frameDescriptor.findOrAddFrameSlot(varName);
                     PyAssignNode assignNode = PyAssignNodeGen.create(assignValueNode, slot);
 
@@ -321,7 +325,7 @@ public class SptToAstTransformer {
         return parseExpression(simpleParseTree, 0, simpleParseTree.getChildCount() - 1);
     }
 
-    public static PyLiteralNode parseToken(SimpleParseTree simpleParseTree) {
+    public static PyExpressionNode parseToken(SimpleParseTree simpleParseTree) {
         assert simpleParseTree.isToken();
 
         if (simpleParseTree.isToken()) {
@@ -334,7 +338,8 @@ public class SptToAstTransformer {
             }
 
             if (simpleParseTree.asToken().getType() == Python3Lexer.NAME) {
-                return new PyStringLitNode(simpleParseTree.asToken().getText());
+                FrameSlot slot = SimpleParseTree.frameDescriptor.findOrAddFrameSlot(simpleParseTree.asToken().getText());
+                return PyReadVarNodeGen.create(slot);
             }
 
             if (simpleParseTree.asToken().getType() == Python3Parser.STRING_LITERAL) {
