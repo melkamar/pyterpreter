@@ -14,7 +14,10 @@ public final class PyReturnNode extends PyStatementNode{
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        if (valueNode != null) throw new ReturnException(valueNode.executeGeneric(frame));
+        if (valueNode != null){
+            Object result = valueNode.executeGeneric(frame);
+            throw new ReturnException(result);
+        }
         else throw new ReturnException(null);
     }
 

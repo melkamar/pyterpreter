@@ -5,7 +5,6 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.RootNode;
 
 public class PyRootNode extends RootNode {
@@ -24,7 +23,6 @@ public class PyRootNode extends RootNode {
     }
 
     @Override
-    @ExplodeLoop
     public Object execute(VirtualFrame frame) {
         lastExecutionFrame = frame; // Keep track of last frame for debugging
         // keep track of result for REPL

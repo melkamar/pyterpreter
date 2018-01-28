@@ -14,6 +14,8 @@ import cz.melkamar.pyterpreter.nodes.expr.literal.PyBooleanLitNode;
 import cz.melkamar.pyterpreter.nodes.expr.literal.PyLongLitNode;
 import cz.melkamar.pyterpreter.nodes.expr.literal.PyStringLitNode;
 import cz.melkamar.pyterpreter.nodes.function.PyDefFuncNode;
+import cz.melkamar.pyterpreter.nodes.function.PyFunctionCallNode;
+import cz.melkamar.pyterpreter.nodes.function.PyReadArgNode;
 import cz.melkamar.pyterpreter.nodes.function.PyReturnNode;
 import org.antlr.v4.runtime.Token;
 
@@ -65,30 +67,31 @@ public class SptToAstTransformer {
      * <p>
      * In this case parse arglist as if it was an "argument" node.
      */
-//    public static List<PyNode> parseArgList(SimpleParseTree simpleParseTree) {
-//        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_ARGLIST);
-//        List<PyNode> result = new ArrayList<>();
-//
-//        // For explanation of this special case see javadoc.
-//        if (!simpleParseTree.getChildPayload(0).equals(NODE_STR_ARGUMENT)) {
-//            PyNode argNode = parseExpression(simpleParseTree);
-//            result.add(argNode);
-//            return result;
-//        }
-//
-//
-//        for (SimpleParseTree child : simpleParseTree.getChildren()) {
-//            if (child.isToken()) { // If a child is directly a token, it should be a comma separating arguments in list
-//                if (child.asToken().getType() == Python3Parser.COMMA) continue; // Skip commas in arglist
-//                throw new NotImplementedException("Parsing arglist, got token type " + child.asToken().getType());
-//            }
-//
-//            PyNode argNode = parseExpression(child);
-//            result.add(argNode);
-//        }
-//
-//        return result;
-//    }
+    public static List<PyExpressionNode> parseArgList(SimpleParseTree simpleParseTree) {
+        System.out.println(simpleParseTree.getPayloadAsString());
+        assert simpleParseTree.getPayloadAsString().equals(NODE_STR_ARGLIST);
+        List<PyExpressionNode> result = new ArrayList<>();
+
+        // For explanation of this special case see javadoc.
+        if (!simpleParseTree.getChildPayload(0).equals(NODE_STR_ARGUMENT)) {
+            PyExpressionNode argNode = parseExpression(simpleParseTree);
+            result.add(argNode);
+            return result;
+        }
+
+
+        for (SimpleParseTree child : simpleParseTree.getChildren()) {
+            if (child.isToken()) { // If a child is directly a token, it should be a comma separating arguments in list
+                if (child.asToken().getType() == Python3Parser.COMMA) continue; // Skip commas in arglist
+                throw new NotImplementedException("Parsing arglist, got token type " + child.asToken().getType());
+            }
+
+            PyExpressionNode argNode = parseExpression(child);
+            result.add(argNode);
+        }
+
+        return result;
+    }
 
     /**
      * Parse if-elif-else statement, e.g.
@@ -191,7 +194,6 @@ public class SptToAstTransformer {
 //        // If neither "not" nor "and/or", just parse the current node as an expression
 //        return parseExpression(simpleParseTree);
 //    }
-
     public static PyDefFuncNode parseFuncDef(SimpleParseTree simpleParseTree) {
         // Get function name
         String functionName = ((Token) simpleParseTree.getChildPayload(1)).getText();
@@ -218,8 +220,17 @@ public class SptToAstTransformer {
             }
         }
 
+        List<PyStatementNode> initParamStatements = new ArrayList<>(args.size());
+        for (int i=0; i<args.size(); i++){
+            String argName = args.get(i);
+            PyExpressionNode assignValueNode = new PyReadArgNode(i);
+            FrameSlot slot = SimpleParseTree.frameDescriptor.findOrAddFrameSlot(argName);
+            PyAssignNode assignNode = PyAssignNodeGen.create(assignValueNode, slot);
+            initParamStatements.add(assignNode);
+        }
+
         SimpleParseTree suiteNode = simpleParseTree.getChild(4);
-        PySuiteNode funcCode = parseCodeBlock(suiteNode);
+        PySuiteNode funcCode = parseCodeBlock(suiteNode, initParamStatements);
 
         PyDefFuncNode funcNode = new PyDefFuncNode(functionName,
                                                    Arrays.copyOf(args.toArray(),
@@ -310,8 +321,8 @@ public class SptToAstTransformer {
                     // care about the variable name (and do not want to read anything)
                     String varName = ((PyReadVarNode) varNameNode).getVarName();
                     PyExpressionNode assignValueNode = parseExpression(simpleParseTree,
-                                                                            2,
-                                                                            simpleParseTree.getChildCount() - 1);
+                                                                       2,
+                                                                       simpleParseTree.getChildCount() - 1);
                     FrameSlot slot = SimpleParseTree.frameDescriptor.findOrAddFrameSlot(varName);
                     PyAssignNode assignNode = PyAssignNodeGen.create(assignValueNode, slot);
 
@@ -330,13 +341,14 @@ public class SptToAstTransformer {
             if (simpleParseTree.asToken().getType() == Python3Lexer.DECIMAL_INTEGER) {
                 try {
                     return new PyLongLitNode(Long.parseLong(simpleParseTree.asToken().getText()));
-                } catch (NumberFormatException e){
+                } catch (NumberFormatException e) {
                     return new PyBigNumLitNode(simpleParseTree.asToken().getText());
                 }
             }
 
             if (simpleParseTree.asToken().getType() == Python3Lexer.NAME) {
-                FrameSlot slot = SimpleParseTree.frameDescriptor.findOrAddFrameSlot(simpleParseTree.asToken().getText());
+                FrameSlot slot = SimpleParseTree.frameDescriptor.findOrAddFrameSlot(simpleParseTree.asToken()
+                                                                                            .getText());
                 return PyReadVarNodeGen.create(slot);
             }
 
@@ -419,13 +431,16 @@ public class SptToAstTransformer {
 
                 SimpleParseTree arglistNode = simpleParseTree.getChild(1).getChild(1);
 
-                // TODO
-                throw new NotImplementedException();
-//                FunctionCallNode callNode = new FunctionCallNode(funcName);
-//                if (arglistNode.getPayloadAsString().equals(NODE_STR_ARGLIST)) {
-//                    callNode.addChildren(parseArgList(arglistNode));
-//                }
-//                return callNode;
+                PyFunctionCallNode callNode;
+
+                if (arglistNode.getPayloadAsString().equals(NODE_STR_ARGLIST)) {
+                    List<PyExpressionNode> arglist = parseArgList(arglistNode);
+                    callNode = new PyFunctionCallNode(funcName, arglist.toArray(new PyExpressionNode[arglist.size()]));
+                } else {
+                    callNode = new PyFunctionCallNode(funcName, null);
+                }
+
+                return callNode;
             }
         }
 
@@ -505,9 +520,19 @@ public class SptToAstTransformer {
     }
 
     public static PySuiteNode parseCodeBlock(SimpleParseTree suiteNode) {
+        return parseCodeBlock(suiteNode, null);
+    }
+
+    /**
+     * Parse a suite subtree. Optionally provide list of nodes - if so, new nodes will be appended to the list.
+     * This is useful for function calls - caller will pass list of read-write statement nodes to initialize
+     * function parameters as local variables.
+     */
+    public static PySuiteNode parseCodeBlock(SimpleParseTree suiteNode, List<PyStatementNode> statementNodes) {
         assert suiteNode.getPayloadAsString().equals("suite");
 
-        List<PyStatementNode> statementNodes = new ArrayList<>();
+        if (statementNodes == null) statementNodes = new ArrayList<>();
+
         for (SimpleParseTree child : suiteNode.getChildren()) {
             if (child.isToken()) {
                 int tokenType = child.asToken().getType();

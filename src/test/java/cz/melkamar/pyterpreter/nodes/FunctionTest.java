@@ -1,5 +1,7 @@
 package cz.melkamar.pyterpreter.nodes;
 
+import cz.melkamar.pyterpreter.Pyterpreter;
+import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Assert;
 import org.junit.Test;
@@ -74,13 +76,22 @@ public class FunctionTest {
         Assert.assertTrue(result == null);
     }
 
+    @Test(expected = UndefinedVariableException.class)
+    public void undefined() {
+        String code = "" +
+                "def f():\n" +
+                "    1+2\n" +
+                "g()";
+        Pyterpreter.runCodeForResult(code);
+    }
+
     @Test
     public void scope() {
         String code = "" +
                 "x=1\n" +
                 "def f():\n" +
                 "    x=2\n" +
-                "    a=2" +
+                "    a=2\n" +
                 "    return 3\n" +
                 "y = f()";
         PyRootNode rootNode = SimpleParseTree.astFromCode(code);
