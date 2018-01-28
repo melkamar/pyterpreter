@@ -4,6 +4,8 @@ import cz.melkamar.pyterpreter.Pyterpreter;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.math.BigInteger;
+
 public class BasicTypesTest {
     @Test
     public void longType() {
@@ -35,5 +37,14 @@ public class BasicTypesTest {
 
         Assert.assertTrue(result instanceof Boolean);
         Assert.assertEquals(true, result);
+    }
+
+    @Test
+    public void bigNumberType() {
+        String bignum = "999999999999999999999999999999999999999999999999999999999999999";
+        Object result = Pyterpreter.runCodeForResult(bignum);
+
+        Assert.assertTrue(result instanceof BigInteger);
+        Assert.assertEquals(new BigInteger(bignum), result);
     }
 }

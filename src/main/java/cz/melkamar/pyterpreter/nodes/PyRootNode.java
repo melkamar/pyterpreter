@@ -3,6 +3,7 @@ package cz.melkamar.pyterpreter.nodes;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.RootNode;
@@ -17,7 +18,9 @@ public class PyRootNode extends RootNode {
     }
 
     public Object getFrameValue(String key){
-        return lastExecutionFrame.getValue(lastExecutionFrame.getFrameDescriptor().findFrameSlot(key));
+        FrameSlot slot = lastExecutionFrame.getFrameDescriptor().findFrameSlot(key);
+        if (slot == null) return null;
+        return lastExecutionFrame.getValue(slot);
     }
 
     @Override
