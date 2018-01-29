@@ -18,6 +18,7 @@ public class REPL {
      */
     public static void startRepl() {
         Scanner sc = new Scanner(System.in);
+        Environment environment = new Environment();
 
         int indentLevel = 0;
         StringBuilder inputBuffer = new StringBuilder();
@@ -58,7 +59,7 @@ public class REPL {
             try {
                 PyRootNode rootNode = SimpleParseTree.astFromCode(code);
                 CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
-                Object result = target.call();
+                Object result = target.call(environment.getDefaultFrame());
 
                 // TODO jak tady řešit předávání environmentu?! zeptat se podlesáka?
                 if (result != null) {
