@@ -1,8 +1,8 @@
 package cz.melkamar.pyterpreter.truffle;
 
 public class PyNoneType {
-    public static PyNoneType NONE_SINGLETON;
-    {
+    final public static PyNoneType NONE_SINGLETON;
+    static {
         NONE_SINGLETON = new PyNoneType();
     }
 

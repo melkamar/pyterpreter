@@ -16,26 +16,26 @@ public abstract class PyAssignNode extends PyStatementNode {
     // TODO remove printlns
     @Specialization(guards = "isLongOrBlank(frame)")
     protected Object writeLong(VirtualFrame frame, long value) {
-        System.out.println("write long fd "+getSlot().getFrameDescriptor());
+        System.out.println("write long  - "+value);
         getSlot().setKind(FrameSlotKind.Long);
         frame.setLong(getSlot(), value);
-        return value; // Declaring function return type void causes annotation processor error
+        return null; // Declaring function return type void causes annotation processor error
     }
 
     @Specialization(guards = "isBoolOrBlank(frame)")
     protected Object writeBoolean(VirtualFrame frame, boolean value) {
         getSlot().setKind(FrameSlotKind.Boolean);
         frame.setBoolean(getSlot(), value);
-        System.out.println("write bool");
-        return value; // Declaring function return type void causes annotation processor error
+        System.out.println("write bool - "+value);
+        return null; // Declaring function return type void causes annotation processor error
     }
 
     @Specialization(replaces = {"writeLong", "writeBoolean"})
     protected Object writeGeneric(VirtualFrame frame, Object value) {
         getSlot().setKind(FrameSlotKind.Object);
         frame.setObject(getSlot(), value);
-        System.out.println("write generic");
-        return value; // Declaring function return type void causes annotation processor error
+        System.out.println("write generic - "+value);
+        return null; // Declaring function return type void causes annotation processor error
     }
 
     protected boolean isLongOrBlank(VirtualFrame frame) { // Parameter must be here, even though it is not used

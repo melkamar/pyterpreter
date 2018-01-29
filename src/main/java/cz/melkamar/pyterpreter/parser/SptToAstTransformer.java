@@ -10,10 +10,7 @@ import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyAddNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyDivideNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyMultiplyNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PySubtractNodeGen;
-import cz.melkamar.pyterpreter.nodes.expr.literal.PyBigNumLitNode;
-import cz.melkamar.pyterpreter.nodes.expr.literal.PyBooleanLitNode;
-import cz.melkamar.pyterpreter.nodes.expr.literal.PyLongLitNode;
-import cz.melkamar.pyterpreter.nodes.expr.literal.PyStringLitNode;
+import cz.melkamar.pyterpreter.nodes.expr.literal.*;
 import cz.melkamar.pyterpreter.nodes.function.PyDefFuncNode;
 import cz.melkamar.pyterpreter.nodes.function.PyFunctionCallNode;
 import cz.melkamar.pyterpreter.nodes.function.PyReadArgNode;
@@ -372,6 +369,10 @@ public class SptToAstTransformer {
                 // TODO
                 throw new NotImplementedException();
 //                return new FloatingNumberNode(simpleParseTree.asToken().getText());
+            }
+
+            if (simpleParseTree.asToken().getType() == Python3Parser.NONE) {
+                return new PyNoneLitNode();
             }
         }
 

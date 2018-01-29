@@ -62,7 +62,6 @@ public class REPL {
 
                 // TODO jak tady řešit předávání environmentu?! zeptat se podlesáka?
                 if (result != null) {
-                    // TODO how to handle case when I actually do want to return null? E.g. x=None; x?
                     System.out.println(result);
                 }
             } catch (UndefinedVariableException e){

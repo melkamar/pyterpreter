@@ -3,6 +3,7 @@ package cz.melkamar.pyterpreter.nodes;
 import cz.melkamar.pyterpreter.Pyterpreter;
 import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
+import cz.melkamar.pyterpreter.truffle.PyNoneType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -75,7 +76,7 @@ public class FunctionTest {
         PyRootNode rootNode = SimpleParseTree.astFromCode(code);
         Object result = rootNode.run();
 
-        Assert.assertTrue(result == null);
+        Assert.assertTrue(result == PyNoneType.NONE_SINGLETON);
     }
 
     @Test(expected = UndefinedVariableException.class)
