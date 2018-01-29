@@ -3,6 +3,7 @@ version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'application'
 apply plugin: "com.github.johnrengelman.shadow"
 
 sourceCompatibility = 1.8
@@ -17,12 +18,17 @@ dependencies {
     compile "com.oracle.truffle:truffle-api:0.30"
     compile "com.oracle.truffle:truffle-dsl-processor:0.30"
     compile "com.oracle.truffle:truffle-tck:0.30"
+//    runtime name: 'pyterpreter-1.0-SNAPSHOT-all'
+    runtime files('build/libs/pyterpreter-1.0-SNAPSHOT-all.jar')
 }
 
 buildscript {
     repositories {
         maven {
             url "https://plugins.gradle.org/m2/"
+        }
+        flatDir {
+            dirs 'build/libs'
         }
     }
     dependencies {
@@ -31,6 +37,7 @@ buildscript {
 }
 
 sourceSets.main.java.srcDir new File(buildDir, 'build/classes/java/main')
+
 idea {
     module {
         // Marks the already(!) added srcDir as "generated"
@@ -53,3 +60,5 @@ jar {
         )
     }
 }
+
+mainClassName = 'cz.melkamar.pyterpreter.Pyterpreter'

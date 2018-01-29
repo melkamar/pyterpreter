@@ -106,4 +106,23 @@ public class FunctionTest {
         Assert.assertNull(rootNode.getFrameValue("a"));
     }
 
+    @Test(expected = UndefinedVariableException.class)
+    public void accessOutOfScopeVariable() {
+        String code = "" +
+                "def f():\n" +
+                "    a=2\n" +
+                "    return 3\n" +
+                "f()\n" +
+                "a";
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Object result = rootNode.run();
+
+        // TODO clean up FrameDescriptor handling, having it in SimpleParseTree is ugly.
+        Assert.assertTrue(result instanceof Long);
+        Assert.assertEquals(3, (long) result);
+        Assert.assertNotNull(rootNode.getFrameValue("f"));
+        Assert.assertNull(rootNode.getFrameValue("g"));
+        Assert.assertNull(rootNode.getFrameValue("a"));
+    }
+
 }

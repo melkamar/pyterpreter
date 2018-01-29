@@ -2,6 +2,7 @@ package cz.melkamar.pyterpreter;
 
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Truffle;
+import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 
@@ -16,7 +17,6 @@ public class REPL {
      * have to wait to dedent to run the whole thing.
      */
     public static void startRepl() {
-        Environment env = Environment.getDefaultEnvironment();
         Scanner sc = new Scanner(System.in);
 
         int indentLevel = 0;
@@ -59,12 +59,16 @@ public class REPL {
                 PyRootNode rootNode = SimpleParseTree.astFromCode(code);
                 CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
                 Object result = target.call();
+
                 // TODO jak tady řešit předávání environmentu?! zeptat se podlesáka?
                 if (result != null) {
                     // TODO how to handle case when I actually do want to return null? E.g. x=None; x?
                     System.out.println(result);
                 }
-            } catch (Exception e) {
+            } catch (UndefinedVariableException e){
+                System.err.println(e.toString());
+            }
+            catch (Exception e) {
                 e.printStackTrace(System.out);
             }
         }
