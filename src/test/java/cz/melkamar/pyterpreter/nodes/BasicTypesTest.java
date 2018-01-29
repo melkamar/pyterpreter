@@ -1,6 +1,7 @@
 package cz.melkamar.pyterpreter.nodes;
 
 import cz.melkamar.pyterpreter.Pyterpreter;
+import cz.melkamar.pyterpreter.truffle.PyNoneType;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,6 +38,13 @@ public class BasicTypesTest {
 
         Assert.assertTrue(result instanceof Boolean);
         Assert.assertEquals(true, result);
+    }
+
+    @Test
+    public void noneType() {
+        Object result = Pyterpreter.runCodeForResult("None");
+
+        Assert.assertEquals(result, PyNoneType.NONE_SINGLETON);
     }
 
     @Test

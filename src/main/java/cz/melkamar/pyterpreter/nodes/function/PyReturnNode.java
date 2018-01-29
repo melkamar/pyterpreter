@@ -1,6 +1,7 @@
 package cz.melkamar.pyterpreter.nodes.function;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.exceptions.ReturnException;
 import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
 import cz.melkamar.pyterpreter.nodes.PyStatementNode;
@@ -18,7 +19,8 @@ public final class PyReturnNode extends PyStatementNode{
             Object result = valueNode.executeGeneric(frame);
             throw new ReturnException(result);
         }
-        else throw new ReturnException(null);
+//        else throw new ReturnException(PyNoneType.NONE_SINGLETON);
+        else throw new NotImplementedException("valueNode == null - what does that mean?");
     }
 
     @Override

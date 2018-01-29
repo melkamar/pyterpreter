@@ -8,6 +8,7 @@ import cz.melkamar.pyterpreter.exceptions.ReturnException;
 import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 import cz.melkamar.pyterpreter.functions.PyFunction;
 import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
+import cz.melkamar.pyterpreter.truffle.PyNoneType;
 
 public class PyFunctionCallNode extends PyExpressionNode {
     private String name;
@@ -30,7 +31,7 @@ public class PyFunctionCallNode extends PyExpressionNode {
         try {
             PyFunction function = (PyFunction) frame.getObject(slot);
             function.getCallTarget().call(args);
-            return null;
+            return PyNoneType.NONE_SINGLETON;
         } catch (FrameSlotTypeException | NullPointerException e) {
             throw new UndefinedVariableException(name);
         } catch (ReturnException e){

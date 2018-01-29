@@ -5,6 +5,7 @@ import com.oracle.truffle.api.profiles.BranchProfile;
 import cz.melkamar.pyterpreter.exceptions.ReturnException;
 import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
 import cz.melkamar.pyterpreter.nodes.PySuiteNode;
+import cz.melkamar.pyterpreter.truffle.PyNoneType;
 
 public final class PyFunctionBodyNode extends PyExpressionNode{
     @Child private PySuiteNode body;
@@ -29,7 +30,7 @@ public final class PyFunctionBodyNode extends PyExpressionNode{
         }
 
         nullTaken.enter();
-        return null; // TODO create NoneType?
+        return PyNoneType.NONE_SINGLETON; // TODO create NoneType?
     }
 
     @Override

@@ -1,5 +1,6 @@
 package cz.melkamar.pyterpreter.nodes;
 
+import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Test;
 
@@ -16,7 +17,7 @@ public class AssignmentTest {
 
         assertEquals(5L, rootNode.getFrameValue("x"));
         assertEquals(5L * 3 + 2, rootNode.getFrameValue("y"));
-        assertNull(result);
+        assertEquals(5L * 3 + 2, result); // Assignment yields the assigned value
     }
 
     @Test
@@ -26,7 +27,7 @@ public class AssignmentTest {
         Object result = rootNode.run();
 
         assertEquals("hello", rootNode.getFrameValue("x"));
-        assertNull(result);
+        assertEquals("hello", result); // Assignment yields the assigned value
     }
 
     @Test
@@ -37,18 +38,18 @@ public class AssignmentTest {
 
         assertTrue((boolean) rootNode.getFrameValue("x"));
         assertFalse((boolean) rootNode.getFrameValue("y"));
-        assertNull(result);
+        assertEquals(false, result); // Assignment yields the assigned value
     }
 
     @Test
     public void assignmentBignumber() {
-        BigInteger bigNum = new BigInteger(Long.MAX_VALUE+"").add(new BigInteger(Long.MAX_VALUE+""));
-        String code = "x="+bigNum.toString();
+        BigInteger bigNum = new BigInteger(Long.MAX_VALUE + "").add(new BigInteger(Long.MAX_VALUE + ""));
+        String code = "x=" + bigNum.toString();
         PyRootNode rootNode = SimpleParseTree.astFromCode(code);
         Object result = rootNode.run();
 
         assertEquals(bigNum.toString(), rootNode.getFrameValue("x").toString());
-        assertNull(result);
+        assertEquals(bigNum, result); // Assignment yields the assigned value
     }
 
     @Test
@@ -58,7 +59,7 @@ public class AssignmentTest {
         Object result = rootNode.run();
 
         assertEquals(5L * 3 + 2, rootNode.getFrameValue("z"));
-        assertNull(result);
+        assertEquals(5L*3+2, result); // Assignment yields the assigned value
     }
 
     @Test
@@ -68,7 +69,7 @@ public class AssignmentTest {
         Object result = rootNode.run();
 
         assertEquals("hello", rootNode.getFrameValue("z"));
-        assertNull(result);
+        assertEquals("hello", result); // Assignment yields the assigned value
     }
 
     @Test
@@ -78,17 +79,24 @@ public class AssignmentTest {
         Object result = rootNode.run();
 
         assertTrue((boolean) rootNode.getFrameValue("z"));
-        assertNull(result);
+        assertEquals(true, result); // Assignment yields the assigned value
     }
 
     @Test
     public void readBignumber() {
-        BigInteger bigNum = new BigInteger(Long.MAX_VALUE+"").add(new BigInteger(Long.MAX_VALUE+""));
-        String code = "x="+bigNum.toString()+"\ny=x";
+        BigInteger bigNum = new BigInteger(Long.MAX_VALUE + "").add(new BigInteger(Long.MAX_VALUE + ""));
+        String code = "x=" + bigNum.toString() + "\ny=x";
         PyRootNode rootNode = SimpleParseTree.astFromCode(code);
         Object result = rootNode.run();
 
         assertEquals(bigNum.toString(), rootNode.getFrameValue("y").toString());
-        assertNull(result);
+        assertEquals(bigNum, result); // Assignment yields the assigned value
+    }
+
+    @Test(expected = UndefinedVariableException.class)
+    public void readUndefined() {
+        String code = "x";
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
     }
 }

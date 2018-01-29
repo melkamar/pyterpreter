@@ -1,5 +1,6 @@
 package cz.melkamar.pyterpreter.parser;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
 import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
@@ -67,14 +68,14 @@ public class SptToAstTransformer {
      * <p>
      * In this case parse arglist as if it was an "argument" node.
      */
-    public static List<PyExpressionNode> parseArgList(SimpleParseTree simpleParseTree) {
+    public static List<PyExpressionNode> parseArgList(SimpleParseTree simpleParseTree, FrameDescriptor frameDescriptor) {
         System.out.println(simpleParseTree.getPayloadAsString());
         assert simpleParseTree.getPayloadAsString().equals(NODE_STR_ARGLIST);
         List<PyExpressionNode> result = new ArrayList<>();
 
         // For explanation of this special case see javadoc.
         if (!simpleParseTree.getChildPayload(0).equals(NODE_STR_ARGUMENT)) {
-            PyExpressionNode argNode = parseExpression(simpleParseTree);
+            PyExpressionNode argNode = parseExpression(simpleParseTree, frameDescriptor);
             result.add(argNode);
             return result;
         }
@@ -86,7 +87,7 @@ public class SptToAstTransformer {
                 throw new NotImplementedException("Parsing arglist, got token type " + child.asToken().getType());
             }
 
-            PyExpressionNode argNode = parseExpression(child);
+            PyExpressionNode argNode = parseExpression(child, frameDescriptor);
             result.add(argNode);
         }
 
@@ -194,7 +195,7 @@ public class SptToAstTransformer {
 //        // If neither "not" nor "and/or", just parse the current node as an expression
 //        return parseExpression(simpleParseTree);
 //    }
-    public static PyDefFuncNode parseFuncDef(SimpleParseTree simpleParseTree) {
+    public static PyDefFuncNode parseFuncDef(SimpleParseTree simpleParseTree, FrameDescriptor frameDescriptor) {
         // Get function name
         String functionName = ((Token) simpleParseTree.getChildPayload(1)).getText();
 
@@ -220,23 +221,25 @@ public class SptToAstTransformer {
             }
         }
 
+        FrameDescriptor newFrameDescriptor = new FrameDescriptor();
         List<PyStatementNode> initParamStatements = new ArrayList<>(args.size());
         for (int i=0; i<args.size(); i++){
             String argName = args.get(i);
             PyExpressionNode assignValueNode = new PyReadArgNode(i);
-            FrameSlot slot = SimpleParseTree.frameDescriptor.findOrAddFrameSlot(argName);
+            FrameSlot slot = newFrameDescriptor.findOrAddFrameSlot(argName);
             PyAssignNode assignNode = PyAssignNodeGen.create(assignValueNode, slot);
             initParamStatements.add(assignNode);
         }
 
         SimpleParseTree suiteNode = simpleParseTree.getChild(4);
-        PySuiteNode funcCode = parseCodeBlock(suiteNode, initParamStatements);
+        PySuiteNode funcCode = parseCodeBlock(suiteNode, initParamStatements, newFrameDescriptor);
 
         PyDefFuncNode funcNode = new PyDefFuncNode(functionName,
                                                    Arrays.copyOf(args.toArray(),
                                                                  args.toArray().length,
                                                                  String[].class),
-                                                   funcCode);
+                                                   funcCode,
+                                                   newFrameDescriptor);
 
 
         return funcNode;
@@ -266,7 +269,7 @@ public class SptToAstTransformer {
      * @param simpleParseTree ParseTree node to convert.
      * @return Newly created root of an AST subtree.
      */
-    public static PyStatementNode parseStatement(SimpleParseTree simpleParseTree) {
+    public static PyStatementNode parseStatement(SimpleParseTree simpleParseTree, FrameDescriptor frameDescriptor) {
         simpleParseTree = removeTrailingNewline(simpleParseTree);
         assert simpleParseTree.getPayloadAsString().equals(NODE_STR_STMT) ||
                 simpleParseTree.getPayloadAsString().equals(NODE_STR_SMALL_STMT);
@@ -282,7 +285,7 @@ public class SptToAstTransformer {
 
             // Defining a function?
             if (firstToken.getType() == Python3Lexer.DEF) {
-                return parseFuncDef(simpleParseTree);
+                return parseFuncDef(simpleParseTree, frameDescriptor);
             }
 
             if (firstToken.getType() == Python3Parser.IF) {
@@ -303,7 +306,7 @@ public class SptToAstTransformer {
         if (simpleParseTree.getChildCount() == 2) {
             if (simpleParseTree.isChildToken(0) &&
                     simpleParseTree.childAsToken(0).getType() == Python3Parser.RETURN) {
-                PyExpressionNode returnBody = parseExpression(simpleParseTree.getChild(1));
+                PyExpressionNode returnBody = parseExpression(simpleParseTree.getChild(1), frameDescriptor);
                 PyReturnNode returnNode = new PyReturnNode(returnBody);
                 return returnNode;
             }
@@ -315,15 +318,16 @@ public class SptToAstTransformer {
 
                 // Is this assignment? e.g.   x = 5 + 4
                 if (secondToken.getType() == Python3Lexer.ASSIGN) {
-                    PyExpressionNode varNameNode = parseExpression(simpleParseTree, 0, 0);
+                    PyExpressionNode varNameNode = parseExpression(simpleParseTree, 0, 0, frameDescriptor);
 
                     // Parsing a NAME will yield a ReadVarNode, but in this special case (lhs in assignment) we only
                     // care about the variable name (and do not want to read anything)
                     String varName = ((PyReadVarNode) varNameNode).getVarName();
                     PyExpressionNode assignValueNode = parseExpression(simpleParseTree,
                                                                        2,
-                                                                       simpleParseTree.getChildCount() - 1);
-                    FrameSlot slot = SimpleParseTree.frameDescriptor.findOrAddFrameSlot(varName);
+                                                                       simpleParseTree.getChildCount() - 1,
+                                                                       frameDescriptor);
+                    FrameSlot slot = frameDescriptor.findOrAddFrameSlot(varName);
                     PyAssignNode assignNode = PyAssignNodeGen.create(assignValueNode, slot);
 
                     return assignNode;
@@ -331,10 +335,10 @@ public class SptToAstTransformer {
             }
         }
 
-        return parseExpression(simpleParseTree, 0, simpleParseTree.getChildCount() - 1);
+        return parseExpression(simpleParseTree, 0, simpleParseTree.getChildCount() - 1, frameDescriptor);
     }
 
-    public static PyExpressionNode parseToken(SimpleParseTree simpleParseTree) {
+    public static PyExpressionNode parseToken(SimpleParseTree simpleParseTree, FrameDescriptor frameDescriptor) {
         assert simpleParseTree.isToken();
 
         if (simpleParseTree.isToken()) {
@@ -347,7 +351,7 @@ public class SptToAstTransformer {
             }
 
             if (simpleParseTree.asToken().getType() == Python3Lexer.NAME) {
-                FrameSlot slot = SimpleParseTree.frameDescriptor.findOrAddFrameSlot(simpleParseTree.asToken()
+                FrameSlot slot = frameDescriptor.findOrAddFrameSlot(simpleParseTree.asToken()
                                                                                             .getText());
                 return PyReadVarNodeGen.create(slot);
             }
@@ -377,8 +381,8 @@ public class SptToAstTransformer {
     /**
      * Convenience method for parseExpression(SPT, from, to).
      */
-    public static PyExpressionNode parseExpression(SimpleParseTree simpleParseTree) {
-        return parseExpression(simpleParseTree, 0, simpleParseTree.getChildCount() - 1);
+    public static PyExpressionNode parseExpression(SimpleParseTree simpleParseTree, FrameDescriptor frameDescriptor) {
+        return parseExpression(simpleParseTree, 0, simpleParseTree.getChildCount() - 1, frameDescriptor);
     }
 
     /**
@@ -403,11 +407,11 @@ public class SptToAstTransformer {
      * @param toIndex         Index of child at which to end (inclusive)
      * @return Root of the new AST subtree.
      */
-    public static PyExpressionNode parseExpression(SimpleParseTree simpleParseTree, int fromIndex, int toIndex) {
+    public static PyExpressionNode parseExpression(SimpleParseTree simpleParseTree, int fromIndex, int toIndex, FrameDescriptor frameDescriptor) {
         if (toIndex < fromIndex) {
             // This node does not have body - either a token or WTF
             if (simpleParseTree.isToken()) {
-                return parseToken(simpleParseTree);
+                return parseToken(simpleParseTree, frameDescriptor);
             }
             throw new NotImplementedException("No body for node, but node not Token.");
         }
@@ -416,7 +420,8 @@ public class SptToAstTransformer {
             // This node has a single child - parse it as expression
             return parseExpression(simpleParseTree.getChild(toIndex),
                                    0,
-                                   simpleParseTree.getChild(toIndex).getChildCount() - 1);
+                                   simpleParseTree.getChild(toIndex).getChildCount() - 1,
+                                   frameDescriptor);
         }
 
         // Two body - function call?
@@ -434,7 +439,7 @@ public class SptToAstTransformer {
                 PyFunctionCallNode callNode;
 
                 if (arglistNode.getPayloadAsString().equals(NODE_STR_ARGLIST)) {
-                    List<PyExpressionNode> arglist = parseArgList(arglistNode);
+                    List<PyExpressionNode> arglist = parseArgList(arglistNode, frameDescriptor);
                     callNode = new PyFunctionCallNode(funcName, arglist.toArray(new PyExpressionNode[arglist.size()]));
                 } else {
                     callNode = new PyFunctionCallNode(funcName, null);
@@ -452,13 +457,13 @@ public class SptToAstTransformer {
                     simpleParseTree.isChildToken(simpleParseTree.getChildCount() - 1) &&
                     simpleParseTree.childAsToken(simpleParseTree.getChildCount() - 1)
                             .getType() == Python3Lexer.CLOSE_PAREN) {
-                return parseExpression(simpleParseTree, 1, simpleParseTree.getChildCount() - 2);
+                return parseExpression(simpleParseTree, 1, simpleParseTree.getChildCount() - 2, frameDescriptor);
             }
 
             if (simpleParseTree.isChildToken(toIndex - 1)) {
 
-                PyExpressionNode right = parseExpression(simpleParseTree, toIndex, toIndex);
-                PyExpressionNode left = parseExpression(simpleParseTree, fromIndex, toIndex - 2);
+                PyExpressionNode right = parseExpression(simpleParseTree, toIndex, toIndex, frameDescriptor);
+                PyExpressionNode left = parseExpression(simpleParseTree, fromIndex, toIndex - 2, frameDescriptor);
 
                 switch (simpleParseTree.childAsToken(toIndex - 1).getType()) {
                     case Python3Lexer.ADD:
@@ -519,8 +524,8 @@ public class SptToAstTransformer {
         throw new NotImplementedException("Got '" + simpleParseTree.getPayloadAsString() + "' from " + fromIndex + " to " + toIndex);
     }
 
-    public static PySuiteNode parseCodeBlock(SimpleParseTree suiteNode) {
-        return parseCodeBlock(suiteNode, null);
+    public static PySuiteNode parseCodeBlock(SimpleParseTree suiteNode, FrameDescriptor frameDescriptor) {
+        return parseCodeBlock(suiteNode, null, frameDescriptor);
     }
 
     /**
@@ -528,7 +533,7 @@ public class SptToAstTransformer {
      * This is useful for function calls - caller will pass list of read-write statement nodes to initialize
      * function parameters as local variables.
      */
-    public static PySuiteNode parseCodeBlock(SimpleParseTree suiteNode, List<PyStatementNode> statementNodes) {
+    public static PySuiteNode parseCodeBlock(SimpleParseTree suiteNode, List<PyStatementNode> statementNodes, FrameDescriptor frameDescriptor) {
         assert suiteNode.getPayloadAsString().equals("suite");
 
         if (statementNodes == null) statementNodes = new ArrayList<>();
@@ -542,13 +547,13 @@ public class SptToAstTransformer {
                     continue;
             }
 
-            statementNodes.add(parseStatement(child));
+            statementNodes.add(parseStatement(child, frameDescriptor));
         }
 
         return new PySuiteNode(statementNodes.toArray(new PyStatementNode[statementNodes.size()]), false);
     }
 
-    public static PySuiteNode parseFileInputBlock(SimpleParseTree fileInputNode) {
+    public static PySuiteNode parseFileInputBlock(SimpleParseTree fileInputNode, FrameDescriptor frameDescriptor) {
         assert fileInputNode.getPayloadAsString().equals(NODE_STR_FILE_INPUT);
 
         List<PyStatementNode> statementNodes = new ArrayList<>();
@@ -559,7 +564,7 @@ public class SptToAstTransformer {
                     continue;
             }
 
-            PyStatementNode statementNode = parseStatement(child);
+            PyStatementNode statementNode = parseStatement(child, frameDescriptor);
             statementNodes.add(statementNode);
         }
 

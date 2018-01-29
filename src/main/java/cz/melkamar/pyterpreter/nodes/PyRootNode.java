@@ -30,14 +30,14 @@ public class PyRootNode extends RootNode {
     }
 
     public void print(){
-        System.out.println("root");
+        System.out.println("root (fd "+getFrameDescriptor()+")");
         child.print(1);
     }
 
     public Object run(){
+        this.print();
         CallTarget target = Truffle.getRuntime().createCallTarget(this);
         Object result = target.call();
-        this.print();
         return result;
     }
 }

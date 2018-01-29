@@ -7,6 +7,7 @@ import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.FrameUtil;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 
 @NodeField(name = "slot", type = FrameSlot.class)
 public abstract class PyReadVarNode extends PyExpressionNode {
@@ -35,7 +36,12 @@ public abstract class PyReadVarNode extends PyExpressionNode {
             return result;
         }
 
-        return FrameUtil.getObjectSafe(frame, getSlot());
+        Object result = FrameUtil.getObjectSafe(frame, getSlot());
+        if (result == null){ // null means variable not found, for None there is PyNoneType to avoid clashing
+            CompilerDirectives.transferToInterpreter();
+            throw new UndefinedVariableException(getVarName());
+        }
+        return result;
     }
 
     protected boolean isLong(VirtualFrame frame) {

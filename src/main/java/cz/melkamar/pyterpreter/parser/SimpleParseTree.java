@@ -222,12 +222,12 @@ public class SimpleParseTree {
         System.out.println(ast);
     }
 
-    public static FrameDescriptor frameDescriptor = new FrameDescriptor();
     /**
      * Generate AST from this SimpleParseTree.
      */
     public PyRootNode generateAST() {
-        PySuiteNode suiteNode = SptToAstTransformer.parseFileInputBlock(this);
+        FrameDescriptor frameDescriptor = new FrameDescriptor();
+        PySuiteNode suiteNode = SptToAstTransformer.parseFileInputBlock(this, frameDescriptor);
         PyRootNode rootPyNode = new PyRootNode(suiteNode, frameDescriptor);
         return rootPyNode;
     }

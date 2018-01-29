@@ -12,6 +12,7 @@ import java.math.BigInteger;
         double.class,
         BigInteger.class,
         String.class,
+        PyNoneType.class
 })
 public abstract class PyTypes {
     @ImplicitCast
