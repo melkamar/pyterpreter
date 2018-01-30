@@ -2,6 +2,8 @@ package cz.melkamar.pyterpreter;
 
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.frame.Frame;
+import cz.melkamar.pyterpreter.exceptions.ParseException;
 import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
@@ -19,6 +21,7 @@ public class REPL {
     public static void startRepl() {
         Scanner sc = new Scanner(System.in);
         Environment environment = new Environment();
+        Frame lastFrame = environment.getDefaultFrame();
 
         int indentLevel = 0;
         StringBuilder inputBuffer = new StringBuilder();
@@ -59,14 +62,19 @@ public class REPL {
             try {
                 PyRootNode rootNode = SimpleParseTree.astFromCode(code);
                 CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
-                Object result = target.call(environment.getDefaultFrame());
+                Object result = target.call(lastFrame);
 
-                // TODO jak tady řešit předávání environmentu?! zeptat se podlesáka?
                 if (result != null) {
                     System.out.println(result);
                 }
+
+                lastFrame = rootNode.lastExecutionFrame;
+
+
             } catch (UndefinedVariableException e){
                 System.err.println(e.toString());
+            } catch (ParseException e) {
+                System.err.println(e.getMessage());
             }
             catch (Exception e) {
                 e.printStackTrace(System.out);
