@@ -16,10 +16,7 @@ import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyMultiplyNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PySubtractNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.compare.*;
 import cz.melkamar.pyterpreter.nodes.expr.literal.*;
-import cz.melkamar.pyterpreter.nodes.function.PyDefFuncNode;
-import cz.melkamar.pyterpreter.nodes.function.PyFunctionCallNode;
-import cz.melkamar.pyterpreter.nodes.function.PyReadArgNode;
-import cz.melkamar.pyterpreter.nodes.function.PyReturnNode;
+import cz.melkamar.pyterpreter.nodes.function.*;
 import org.antlr.v4.runtime.Token;
 
 import java.lang.reflect.InvocationTargetException;
@@ -281,23 +278,16 @@ public class SptToAstTransformer {
         }
 
         SimpleParseTree suiteNode = simpleParseTree.getChild(4);
-        PySuiteNode funcCode = parseCodeBlock(suiteNode, initParamStatements, newFrameDescriptor);
 
-        PyRootNode rootNode = new PyRootNode(funcCode, newFrameDescriptor);
-        PyUserFunction userFunction = new PyUserFunction(Truffle.getRuntime().createCallTarget(rootNode));
+        // Create hierarchy RootNode -> PyFunctionRootNode -> PySuiteNode
+        PySuiteNode funcCodeBlock = parseCodeBlock(suiteNode, initParamStatements, newFrameDescriptor);
+        PyFunctionRootNode funcRootNode = new PyFunctionRootNode(funcCodeBlock);
+        PyRootNode rootNode = new PyRootNode(funcRootNode, newFrameDescriptor);
+
+        // Create a new UserFunction and a PyDefFuncNode defining this function
+        PyUserFunction userFunction = new PyUserFunction(Truffle.getRuntime().createCallTarget(rootNode), args.size());
         PyDefFuncNode defFuncNode = new PyDefFuncNode(userFunction, functionName);
         return defFuncNode;
-
-//        PyDefFuncNode funcNode = PyDefFuncNodeGen.createFunction(rootNode
-//                functionName,
-//                Arrays.copyOf(args.toArray(),
-//                              args.toArray().length,
-//                              String[].class),
-//                funcCode,
-//                newFrameDescriptor);
-
-
-//        return funcNode;
     }
 
     /**

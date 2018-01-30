@@ -6,11 +6,11 @@ import com.oracle.truffle.api.frame.MaterializedFrame;
 public abstract class PyFunction {
     protected RootCallTarget callTarget;
     protected MaterializedFrame scope;
-//    private final String[] args;
+    public final int argc;
 
-    public PyFunction(RootCallTarget callTarget) {
+    public PyFunction(RootCallTarget callTarget, int argc) {
         this.callTarget = callTarget;
-//        this.args = args;
+        this.argc = argc;
     }
 
     public RootCallTarget getCallTarget() {
