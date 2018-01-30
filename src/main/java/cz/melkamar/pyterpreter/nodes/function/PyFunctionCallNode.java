@@ -31,6 +31,7 @@ public class PyFunctionCallNode extends PyExpressionNode {
         FrameSlot slot = frame.getFrameDescriptor().findFrameSlot(name);
         try {
             PyFunction function = (PyFunction) frame.getObject(slot);
+            // now I have a function, need to execute it in a given frame
             function.getCallTarget().call(args);
             return PyNoneType.NONE_SINGLETON;
         } catch (FrameSlotTypeException | NullPointerException e) {

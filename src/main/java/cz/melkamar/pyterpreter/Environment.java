@@ -2,6 +2,7 @@ package cz.melkamar.pyterpreter;
 
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 
 /**
@@ -28,7 +29,8 @@ public class Environment {
     }
 
     private MaterializedFrame initDefaultFrame(FrameDescriptor frameDescriptor) {
-        Object[] defaultArgs = {};
-        return Truffle.getRuntime().createMaterializedFrame(defaultArgs, frameDescriptor);
+        MaterializedFrame frame = Truffle.getRuntime().createMaterializedFrame(null, frameDescriptor);
+        frame.setLong(frameDescriptor.findOrAddFrameSlot("ROOT", FrameSlotKind.Long), 42);
+        return frame;
     }
 }

@@ -30,7 +30,7 @@ public final class PyFunctionBodyNode extends PyExpressionNode{
         }
 
         nullTaken.enter();
-        return PyNoneType.NONE_SINGLETON; // TODO create NoneType?
+        return PyNoneType.NONE_SINGLETON;
     }
 
     @Override

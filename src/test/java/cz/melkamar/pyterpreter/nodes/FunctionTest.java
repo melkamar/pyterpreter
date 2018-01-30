@@ -108,7 +108,6 @@ public class FunctionTest {
         Assert.assertNull(rootNode.getFrameValue("a"));
     }
 
-//    @Ignore
     @Test
     public void accessOuterVariable() {
         String code = "" +
@@ -122,7 +121,7 @@ public class FunctionTest {
 
         Assert.assertTrue(result instanceof Long);
         Assert.assertEquals(3, (long) result);
-        Assert.assertEquals(3, rootNode.getFrameValue("y"));
+        Assert.assertEquals(3L, rootNode.getFrameValue("y"));
         Assert.assertNotNull(rootNode.getFrameValue("f"));
         Assert.assertNull(rootNode.getFrameValue("a"));
     }
