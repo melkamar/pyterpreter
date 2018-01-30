@@ -9,6 +9,7 @@ import cz.melkamar.pyterpreter.nodes.*;
 import cz.melkamar.pyterpreter.nodes.control.PyAndNode;
 import cz.melkamar.pyterpreter.nodes.control.PyIfNode;
 import cz.melkamar.pyterpreter.nodes.control.PyOrNode;
+import cz.melkamar.pyterpreter.nodes.control.PyWhileNode;
 import cz.melkamar.pyterpreter.nodes.expr.PyNotNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyAddNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyDivideNodeGen;
@@ -148,6 +149,27 @@ public class SptToAstTransformer {
         return ifNode;
     }
 
+    public static PyStatementNode parseWhileStmt(SimpleParseTree simpleParseTree, FrameDescriptor frameDescriptor) {
+        assert simpleParseTree.isChildToken(0) &&
+                simpleParseTree.childAsToken(0).getType() == Python3Parser.WHILE;
+
+        PyExpressionNode conditionNode = parseIfTestCondition(simpleParseTree.getChild(1), frameDescriptor);
+        PyStatementNode bodyNode = parseCodeBlock(simpleParseTree.getChild(3), frameDescriptor);
+
+        PyWhileNode ifNode = new PyWhileNode(conditionNode, bodyNode);
+        return ifNode;
+    }
+
+    /**
+     * Create a OR or AND node. In Java we need this ugliness because static methods cannot be abstract and overridden.
+     * And I don't want to bother with making factory classes.
+     *
+     * @param nodeClass Class of the node to create, it must have a constructor with two {@link PyExpressionNode}
+     *                  parameters.
+     * @param left Left child node.
+     * @param right Right child node.
+     * @return Newly created node.
+     */
     private static PyExpressionNode createLogicalNode(Class nodeClass, PyExpressionNode left, PyExpressionNode right){
         try {
             return (PyExpressionNode) nodeClass.getDeclaredConstructor(PyExpressionNode.class, PyExpressionNode.class).newInstance(left, right);
@@ -312,6 +334,10 @@ public class SptToAstTransformer {
 
             if (firstToken.getType() == Python3Parser.IF) {
                 return parseIfStmt(simpleParseTree, frameDescriptor);
+            }
+
+            if (firstToken.getType() == Python3Parser.WHILE) {
+                return parseWhileStmt(simpleParseTree, frameDescriptor);
             }
         }
 

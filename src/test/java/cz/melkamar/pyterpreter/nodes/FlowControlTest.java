@@ -333,4 +333,39 @@ public class FlowControlTest {
         assertNull(rootNode.getFrameValue("a"));
     }
 
+    @Test
+    public void whileLoop() {
+        String code = "" +
+                "x=5\n" +
+                "y=0\n" +
+                "while x>=0:\n" +
+                "    y = y+1\n" +
+                "    x = x-1\n" +
+                "";
+
+        SimpleParseTree.printParseTree(code);
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        assertEquals(-1L, rootNode.getFrameValue("x"));
+        assertEquals(6L, rootNode.getFrameValue("y"));
+    }
+
+    @Test
+    public void whileLoopFalseCondition() {
+        String code = "" +
+                "x=5\n" +
+                "y=0\n" +
+                "while x<=y:\n" +
+                "    y = y+1\n" +
+                "    x = x-1\n" +
+                "";
+
+        SimpleParseTree.printParseTree(code);
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        assertEquals(5L, rootNode.getFrameValue("x"));
+        assertEquals(0L, rootNode.getFrameValue("y"));
+    }
 }
