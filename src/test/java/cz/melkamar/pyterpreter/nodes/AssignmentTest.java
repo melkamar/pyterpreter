@@ -1,6 +1,7 @@
 package cz.melkamar.pyterpreter.nodes;
 
 import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
+import cz.melkamar.pyterpreter.functions.PyFunction;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import cz.melkamar.pyterpreter.truffle.PyNoneType;
 import org.junit.Test;
@@ -40,6 +41,24 @@ public class AssignmentTest {
         assertTrue((boolean) rootNode.getFrameValue("x"));
         assertFalse((boolean) rootNode.getFrameValue("y"));
         assertNull(result);
+    }
+
+    @Test
+    public void assignmentFunction() {
+        String code = "" +
+                "def f():\n" +
+                "    return 1\n" +
+                "x=f\n" +
+                "y=x" +
+                "";
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Object result = rootNode.run();
+
+        assertTrue(rootNode.getFrameValue("f") instanceof PyFunction);
+        assertTrue(rootNode.getFrameValue("x") instanceof PyFunction);
+        assertTrue(rootNode.getFrameValue("x") instanceof PyFunction);
+        assertEquals(rootNode.getFrameValue("f") instanceof PyFunction, rootNode.getFrameValue("x") instanceof PyFunction);
+        assertEquals(rootNode.getFrameValue("f") instanceof PyFunction, rootNode.getFrameValue("y") instanceof PyFunction);
     }
 
     @Test
