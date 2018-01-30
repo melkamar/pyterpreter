@@ -72,7 +72,7 @@ public class FlowControlTest {
     }
 
     @Test
-    public void iNot() {
+    public void ifNot() {
         String code = "" +
                 "if (not 1==2) and 2==2:\n" +
                 "    a=1\n" +

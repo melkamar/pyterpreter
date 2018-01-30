@@ -6,10 +6,15 @@ import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.nodes.*;
+import cz.melkamar.pyterpreter.nodes.control.PyAndNode;
+import cz.melkamar.pyterpreter.nodes.control.PyIfNode;
+import cz.melkamar.pyterpreter.nodes.control.PyOrNode;
+import cz.melkamar.pyterpreter.nodes.expr.PyNotNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyAddNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyDivideNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyMultiplyNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PySubtractNodeGen;
+import cz.melkamar.pyterpreter.nodes.expr.compare.PyEqualsNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.literal.*;
 import cz.melkamar.pyterpreter.nodes.function.PyDefFuncNode;
 import cz.melkamar.pyterpreter.nodes.function.PyFunctionCallNode;
@@ -17,6 +22,7 @@ import cz.melkamar.pyterpreter.nodes.function.PyReadArgNode;
 import cz.melkamar.pyterpreter.nodes.function.PyReturnNode;
 import org.antlr.v4.runtime.Token;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -122,28 +128,34 @@ public class SptToAstTransformer {
      * @param simpleParseTree
      * @return
      */
-//    public static PyNode parseIfStmt(SimpleParseTree simpleParseTree) {
-//        assert simpleParseTree.isChildToken(0) &&
-//                simpleParseTree.childAsToken(0).getType() == Python3Parser.IF;
-//
-//        PyNode testNode = parseIfTestCondition(simpleParseTree.getChild(1));
-//        PyNode doIfTrueNode = parseCodeBlock(simpleParseTree.getChild(3));
-//        PyNode doIfFalseNode = null;
-//
-//        if (simpleParseTree.getChildCount() > 4) {
-//            if (simpleParseTree.childAsToken(4).getType() == Python3Parser.ELSE) {
-//                doIfFalseNode = parseCodeBlock(simpleParseTree.getChild(6));
-//            } else {
-//                throw new NotImplementedException("elif not implemented");
-//            }
-//        }
-//
-//        IfNode ifNode = new IfNode();
-//        ifNode.addChild(testNode);
-//        ifNode.addChild(doIfTrueNode);
-//        if (doIfFalseNode != null) ifNode.addChild(doIfFalseNode);
-//        return ifNode;
-//    }
+    public static PyStatementNode parseIfStmt(SimpleParseTree simpleParseTree, FrameDescriptor frameDescriptor) {
+        assert simpleParseTree.isChildToken(0) &&
+                simpleParseTree.childAsToken(0).getType() == Python3Parser.IF;
+
+        PyExpressionNode testNode = parseIfTestCondition(simpleParseTree.getChild(1), frameDescriptor);
+        PyStatementNode doIfTrueNode = parseCodeBlock(simpleParseTree.getChild(3), frameDescriptor);
+        PyStatementNode doIfFalseNode = null;
+
+        if (simpleParseTree.getChildCount() > 4) {
+            if (simpleParseTree.childAsToken(4).getType() == Python3Parser.ELSE) {
+                doIfFalseNode = parseCodeBlock(simpleParseTree.getChild(6), frameDescriptor);
+            } else {
+                throw new NotImplementedException("elif not implemented");
+            }
+        }
+
+        PyIfNode ifNode = new PyIfNode(testNode, doIfTrueNode, doIfFalseNode);
+        return ifNode;
+    }
+
+    private static PyExpressionNode createLogicalNode(Class nodeClass, PyExpressionNode left, PyExpressionNode right){
+        try {
+            return (PyExpressionNode) nodeClass.getDeclaredConstructor(PyExpressionNode.class, PyExpressionNode.class).newInstance(left, right);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
+            throw new NotImplementedException("something has gone wrong with and|or");
+        }
+    }
 
     /**
      * Parse test condition, e.g. x==1 and y==2 or not z==3
@@ -151,47 +163,60 @@ public class SptToAstTransformer {
      * @param simpleParseTree
      * @return
      */
-//    public static PyNode parseIfTestCondition(SimpleParseTree simpleParseTree) {
-//        // Case of three children and first and last are parentheses - just return parsed middle child
-//        if (simpleParseTree.getChildCount() == 3 &&
-//                simpleParseTree.isChildToken(0) &&
-//                simpleParseTree.isChildToken(2) &&
-//                simpleParseTree.childAsToken(0).getType() == Python3Parser.OPEN_PAREN &&
-//                simpleParseTree.childAsToken(2).getType() == Python3Parser.CLOSE_PAREN
-//                ) return parseIfTestCondition(simpleParseTree.getChild(1));
-//
-//        // Case of "not <expr>"
-//        if (simpleParseTree.getChildCount() == 2 && simpleParseTree.isChildToken(0)) {
-//            if (simpleParseTree.childAsToken(0).getType() == Python3Parser.NOT) {
-//                NotNode notNode = new NotNode();
-//                notNode.addChild(parseIfTestCondition(simpleParseTree.getChild(1)));
-//                return notNode;
-//            }
-//            throw new NotImplementedException("Test node has two children, but first is not 'not'");
-//        }
-//
-//        // Case of some combination of and/or
-//        if (simpleParseTree.getChildCount() > 1 && simpleParseTree.isChildToken(1)) {
-//            PyNode opNode;
-//            switch (simpleParseTree.childAsToken(1).getType()) {
-//                case Python3Parser.OR:
-//                    opNode = new OrNode();
-//                    break;
-//                case Python3Parser.AND:
-//                    opNode = new AndNode();
-//                    break;
-//                default:
-//                    return parseExpression(simpleParseTree);
-//            }
-//            for (int i = 0; i < simpleParseTree.getChildCount(); i += 2) {
-//                opNode.addChild(parseIfTestCondition(simpleParseTree.getChild(i)));
-//            }
-//            return opNode;
-//        }
-//
-//        // If neither "not" nor "and/or", just parse the current node as an expression
-//        return parseExpression(simpleParseTree);
-//    }
+    public static PyExpressionNode parseIfTestCondition(SimpleParseTree simpleParseTree, FrameDescriptor frameDescriptor) {
+        // Case of three children and first and last are parentheses - just return parsed middle child
+        if (simpleParseTree.getChildCount() == 3 &&
+                simpleParseTree.isChildToken(0) &&
+                simpleParseTree.isChildToken(2) &&
+                simpleParseTree.childAsToken(0).getType() == Python3Parser.OPEN_PAREN &&
+                simpleParseTree.childAsToken(2).getType() == Python3Parser.CLOSE_PAREN
+                ) return parseIfTestCondition(simpleParseTree.getChild(1), frameDescriptor);
+
+        // Case of "not <expr>"
+        if (simpleParseTree.getChildCount() == 2 && simpleParseTree.isChildToken(0)) {
+            if (simpleParseTree.childAsToken(0).getType() == Python3Parser.NOT) {
+                PyExpressionNode expressionNode = parseIfTestCondition(simpleParseTree.getChild(1), frameDescriptor);
+                return PyNotNodeGen.create(expressionNode);
+            }
+            throw new NotImplementedException("Test node has two children, but first is not 'not'");
+        }
+
+        // Case of some combination of and/or
+        if (simpleParseTree.getChildCount() > 1 && simpleParseTree.isChildToken(1)) {
+
+            // We can go through a flat list of nodes because when parsetree contains a parent with multiple children,
+            // they are always joined with the same logical operator (different operator causes nesting)
+            List<PyExpressionNode> condNodes = new ArrayList<>();
+            for (int i = 0; i < simpleParseTree.getChildCount(); i += 2) {
+                condNodes.add(parseIfTestCondition(simpleParseTree.getChild(i), frameDescriptor));
+            }
+
+            Class logicalNodeClass; // TODO or or and?
+            switch (simpleParseTree.childAsToken(1).getType()) {
+                case Python3Parser.OR:
+                    logicalNodeClass = PyOrNode.class;
+                    break;
+                case Python3Parser.AND:
+                    logicalNodeClass = PyAndNode.class;
+                    break;
+                default:
+                    return parseExpression(simpleParseTree, frameDescriptor);
+            }
+
+            PyExpressionNode lastLogicalNode = createLogicalNode(logicalNodeClass, condNodes.get(condNodes.size()-2), condNodes.get(condNodes.size()-1));
+
+            for (int i=condNodes.size()-3; i>=0; i--){
+                PyExpressionNode newLogicalNode = createLogicalNode(logicalNodeClass, condNodes.get(i), lastLogicalNode);
+                lastLogicalNode = newLogicalNode;
+            }
+
+            return lastLogicalNode;
+        }
+
+        // If neither "not" nor "and/or", just parse the current node as an expression
+        return parseExpression(simpleParseTree, frameDescriptor);
+    }
+
     public static PyDefFuncNode parseFuncDef(SimpleParseTree simpleParseTree, FrameDescriptor frameDescriptor) {
         // Get function name
         String functionName = ((Token) simpleParseTree.getChildPayload(1)).getText();
@@ -286,9 +311,7 @@ public class SptToAstTransformer {
             }
 
             if (firstToken.getType() == Python3Parser.IF) {
-                // TODO
-                throw new NotImplementedException();
-//                return parseIfStmt(simpleParseTree);
+                return parseIfStmt(simpleParseTree, frameDescriptor);
             }
         }
 
@@ -478,7 +501,7 @@ public class SptToAstTransformer {
                     case Python3Lexer.EQUALS:
                         // TODO
                         throw new NotImplementedException();
-//                        binaryNode = new EqualsNode();
+//                        binaryNode = new PyEqualsNode();
 //                        break;
                     default:
                         throw new NotImplementedException();
@@ -496,30 +519,22 @@ public class SptToAstTransformer {
              * |     '- TOKEN[type: 38, text: 0]
              */
             if (simpleParseTree.getChildPayload(toIndex - 1).equals(NODE_STR_COMP_OP)) {
-                // TODO
-                throw new NotImplementedException();
-//                PyNode compNode;
-//                switch (simpleParseTree.getChild(toIndex - 1).childAsToken(0).getType()) {
-//                    case Python3Parser.EQUALS:
-//                        compNode = new EqualsNode();
-//                        break;
+                PyExpressionNode right = parseExpression(simpleParseTree, toIndex, toIndex, frameDescriptor);
+                PyExpressionNode left = parseExpression(simpleParseTree, fromIndex, toIndex - 2, frameDescriptor);
+
+                switch (simpleParseTree.getChild(toIndex - 1).childAsToken(0).getType()) {
+                    case Python3Parser.EQUALS:
+                        return PyEqualsNodeGen.create(left, right);
 //                    case Python3Parser.NOT_EQ_1:
 //                    case Python3Parser.NOT_EQ_2:
 //                        compNode = new NotEqualsNode();
 //                        break;
-//
-//                    default:
-//                        throw new NotImplementedException("comp_op not implemented: " + simpleParseTree.getChild(toIndex - 1)
-//                                .childAsToken(0)
-//                                .getType());
-//                }
-//
-//                PyNode right = parseExpression(simpleParseTree, toIndex, toIndex);
-//                PyNode left = parseExpression(simpleParseTree, fromIndex, toIndex - 2);
-//
-//                compNode.addChild(left);
-//                compNode.addChild(right);
-//                return compNode;
+
+                    default:
+                        throw new NotImplementedException("comp_op not implemented: " + simpleParseTree.getChild(toIndex - 1)
+                                .childAsToken(0)
+                                .getType());
+                }
             }
         }
         throw new NotImplementedException("Got '" + simpleParseTree.getPayloadAsString() + "' from " + fromIndex + " to " + toIndex);
