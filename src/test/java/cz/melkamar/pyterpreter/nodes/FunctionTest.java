@@ -2,6 +2,7 @@ package cz.melkamar.pyterpreter.nodes;
 
 import cz.melkamar.pyterpreter.Pyterpreter;
 import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
+import cz.melkamar.pyterpreter.exceptions.WrongParameterCountException;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import cz.melkamar.pyterpreter.types.PyNoneType;
 import org.junit.Assert;
@@ -139,4 +140,15 @@ public class FunctionTest {
         System.out.println(result);
     }
 
+    @Test(expected = WrongParameterCountException.class)
+    public void wrongParamNumber() {
+        String code = "" +
+                "def f():\n" +
+                "    a=2\n" +
+                "    return 3\n" +
+                "f(1)";
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Object result = rootNode.run();
+        System.out.println(result);
+    }
 }

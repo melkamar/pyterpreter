@@ -49,7 +49,7 @@ public abstract class PyReadVarNode extends PyExpressionNode {
 
     @Override
     public void print(int indent) {
-        printIndented("READ "+getVarName(), indent);
+        printIndented("READ "+getVarName() + " (desc "+getSlot().getFrameDescriptor()+")", indent);
     }
 
     private Frame getScope(Frame frame){
@@ -71,7 +71,9 @@ public abstract class PyReadVarNode extends PyExpressionNode {
                 CompilerDirectives.transferToInterpreter();
                 throw new UndefinedVariableException(getVarName());
             }
-            value = getter.get(frame, this.getSlot());
+//            value = getter.get(frame, this.getSlot());
+            FrameSlot slot = frame.getFrameDescriptor().findFrameSlot(getVarName());
+            if (slot != null) value = getter.get(frame, slot);
         }
         return value;
     }

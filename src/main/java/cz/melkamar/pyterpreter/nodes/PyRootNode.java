@@ -9,12 +9,16 @@ import com.oracle.truffle.api.nodes.RootNode;
 import cz.melkamar.pyterpreter.Environment;
 
 public class PyRootNode extends RootNode {
-    private final PyStatementNode child;
+    @Child private PyStatementNode child;
     public VirtualFrame lastExecutionFrame = null;
 
     public PyRootNode(PyStatementNode child, FrameDescriptor frameDescriptor) {
         super(null, frameDescriptor);
         this.child = child;
+    }
+
+    public PyStatementNode getChild() {
+        return child;
     }
 
     public Object getFrameValue(String key){
