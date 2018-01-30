@@ -6,10 +6,7 @@ import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.nodes.*;
-import cz.melkamar.pyterpreter.nodes.control.PyAndNode;
-import cz.melkamar.pyterpreter.nodes.control.PyIfNode;
-import cz.melkamar.pyterpreter.nodes.control.PyOrNode;
-import cz.melkamar.pyterpreter.nodes.control.PyWhileNode;
+import cz.melkamar.pyterpreter.nodes.control.*;
 import cz.melkamar.pyterpreter.nodes.expr.PyNotNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyAddNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyDivideNodeGen;
@@ -422,6 +419,14 @@ public class SptToAstTransformer {
 
             if (simpleParseTree.asToken().getType() == Python3Parser.NONE) {
                 return new PyNoneLitNode();
+            }
+
+            if (simpleParseTree.asToken().getType() == Python3Parser.CONTINUE) {
+                return new PyContinueNode();
+            }
+
+            if (simpleParseTree.asToken().getType() == Python3Parser.BREAK) {
+                return new PyBreakNode();
             }
         }
 

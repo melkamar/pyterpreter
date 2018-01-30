@@ -368,4 +368,44 @@ public class FlowControlTest {
         assertEquals(5L, rootNode.getFrameValue("x"));
         assertEquals(0L, rootNode.getFrameValue("y"));
     }
+
+    @Test
+    public void whileLoopContinue() {
+        String code = "" +
+                "x=5\n" +
+                "y=0\n" +
+                "while x>=0:\n" +
+                "    x = x-1\n" +
+                "    if x/2==1:\n" +
+                "        continue\n" +
+                "    y = y+1\n" +
+                "";
+
+        SimpleParseTree.printParseTree(code);
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        assertEquals(-1L, rootNode.getFrameValue("x"));
+        assertEquals(4L, rootNode.getFrameValue("y"));
+    }
+
+    @Test
+    public void whileLoopBreak() {
+        String code = "" +
+                "x=5\n" +
+                "y=0\n" +
+                "while x>=0:\n" +
+                "    x = x-1\n" +
+                "    if x==2:\n" +
+                "        break\n" +
+                "    y = y+1\n" +
+                "";
+
+        SimpleParseTree.printParseTree(code);
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        assertEquals(2L, rootNode.getFrameValue("x"));
+        assertEquals(2L, rootNode.getFrameValue("y"));
+    }
 }
