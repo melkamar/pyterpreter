@@ -24,8 +24,9 @@ public class PyFunctionCallNode extends PyExpressionNode {
     @ExplodeLoop
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = new Object[argNodes.length];
-        for (int i = 0; i < argNodes.length; i++) args[i] = argNodes[i].executeGeneric(frame);
+        Object[] args = new Object[argNodes.length+1];
+        args[0] = frame; // Pass current frame as first argument
+        for (int i = 0; i < argNodes.length; i++) args[i+1] = argNodes[i].executeGeneric(frame);
 
         FrameSlot slot = frame.getFrameDescriptor().findFrameSlot(name);
         try {

@@ -3,10 +3,8 @@ package cz.melkamar.pyterpreter.nodes;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.FrameSlot;
-import com.oracle.truffle.api.frame.FrameSlotKind;
-import com.oracle.truffle.api.frame.FrameUtil;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.*;
+import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 
 @NodeField(name = "slot", type = FrameSlot.class)
@@ -17,31 +15,28 @@ public abstract class PyReadVarNode extends PyExpressionNode {
         return (String) getSlot().getIdentifier();
     }
 
-    @Specialization(guards = "isLong(frame)")
-    protected long readLong(VirtualFrame frame) {
-        return FrameUtil.getLongSafe(frame, getSlot());
+    @Specialization(rewriteOn = FrameSlotTypeException.class)
+    protected long readLong(VirtualFrame frame) throws FrameSlotTypeException {
+        return readUpStack(Frame::getLong, frame);
     }
 
-    @Specialization(guards = "isBoolean(frame)")
-    protected boolean readBoolean(VirtualFrame frame) {
-        return FrameUtil.getBooleanSafe(frame, getSlot());
+    @Specialization(rewriteOn = FrameSlotTypeException.class)
+    protected boolean readBoolean(VirtualFrame frame) throws FrameSlotTypeException {
+        return readUpStack(Frame::getBoolean, frame);
     }
 
-    @Specialization(replaces = {"readLong", "readBoolean"})
-    protected Object readObject(VirtualFrame frame) {
-        if (!frame.isObject(getSlot())) {
-            CompilerDirectives.transferToInterpreter();
-            Object result = frame.getValue(getSlot());
-            frame.setObject(getSlot(), result);
-            return result;
-        }
+    @Specialization(rewriteOn = FrameSlotTypeException.class)
+    protected Object readObject(VirtualFrame frame) throws FrameSlotTypeException {
+        return readUpStack(Frame::getObject, frame);
+    }
 
-        Object result = FrameUtil.getObjectSafe(frame, getSlot());
-        if (result == null){ // null means variable not found, for None there is PyNoneType to avoid clashing
-            CompilerDirectives.transferToInterpreter();
-            throw new UndefinedVariableException(getVarName());
+    @Specialization(replaces = {"readLong", "readBoolean", "readObject"})
+    protected Object read(VirtualFrame virtualFrame) {
+        try {
+            return this.readUpStack(Frame::getValue, virtualFrame);
+        } catch (FrameSlotTypeException e) {
+            throw new NotImplementedException("This should never happen.");
         }
-        return result;
     }
 
     protected boolean isLong(VirtualFrame frame) {
@@ -55,5 +50,29 @@ public abstract class PyReadVarNode extends PyExpressionNode {
     @Override
     public void print(int indent) {
         printIndented("READ "+getVarName(), indent);
+    }
+
+    private Frame getScope(Frame frame){
+        Object[] args = frame.getArguments();
+        if (args == null || args.length == 0) return null;
+        return (Frame) args [0];
+    }
+
+    public static interface FrameGet<T> {
+        public T get(Frame frame, FrameSlot slot) throws FrameSlotTypeException;
+    }
+
+    public <T> T readUpStack(FrameGet<T> getter, Frame frame) throws FrameSlotTypeException {
+        T value = getter.get(frame, this.getSlot());
+
+        while (value == null) {
+            frame = this.getScope(frame);
+            if (frame == null) {
+                CompilerDirectives.transferToInterpreter();
+                throw new UndefinedVariableException(getVarName());
+            }
+            value = getter.get(frame, this.getSlot());
+        }
+        return value;
     }
 }

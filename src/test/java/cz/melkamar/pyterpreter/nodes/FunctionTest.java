@@ -5,7 +5,6 @@ import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import cz.melkamar.pyterpreter.types.PyNoneType;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class FunctionTest {
@@ -109,7 +108,7 @@ public class FunctionTest {
         Assert.assertNull(rootNode.getFrameValue("a"));
     }
 
-    @Ignore
+//    @Ignore
     @Test
     public void accessOuterVariable() {
         String code = "" +

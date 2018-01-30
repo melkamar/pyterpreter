@@ -12,9 +12,11 @@ public class Environment {
     private final FrameDescriptor defaultFrameDescriptor;
     private final MaterializedFrame defaultFrame;
 
+    public static Environment DEFAULT = new Environment();
+
     public Environment() {
         this.defaultFrameDescriptor = new FrameDescriptor();
-        this.defaultFrame = Truffle.getRuntime().createMaterializedFrame(null, this.defaultFrameDescriptor);
+        this.defaultFrame = initDefaultFrame(defaultFrameDescriptor);
     }
 
     public FrameDescriptor getDefaultFrameDescriptor() {
@@ -23,5 +25,10 @@ public class Environment {
 
     public MaterializedFrame getDefaultFrame() {
         return defaultFrame;
+    }
+
+    private MaterializedFrame initDefaultFrame(FrameDescriptor frameDescriptor) {
+        Object[] defaultArgs = {};
+        return Truffle.getRuntime().createMaterializedFrame(defaultArgs, frameDescriptor);
     }
 }

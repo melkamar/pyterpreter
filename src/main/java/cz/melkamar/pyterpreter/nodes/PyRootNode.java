@@ -6,6 +6,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
+import cz.melkamar.pyterpreter.Environment;
 
 public class PyRootNode extends RootNode {
     private final PyStatementNode child;
@@ -37,7 +38,7 @@ public class PyRootNode extends RootNode {
     public Object run(){
         this.print();
         CallTarget target = Truffle.getRuntime().createCallTarget(this);
-        Object result = target.call();
+        Object result = target.call(Environment.DEFAULT.getDefaultFrame());
         return result;
     }
 }

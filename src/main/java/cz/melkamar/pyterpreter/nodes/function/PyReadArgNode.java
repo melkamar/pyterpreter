@@ -14,12 +14,12 @@ public class PyReadArgNode extends PyExpressionNode {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         Object[] args = frame.getArguments();
-        if (index >= args.length) throw new WrongParameterCountException("WARGC " + args.length);
-        return args[index];
+        if (index+1 >= args.length) throw new WrongParameterCountException("WARGC " + (args.length-1));
+        return args[index+1];
     }
 
     @Override
     public void print(int indent) {
-        printIndented("RARG " + index, indent);
+        printIndented("ReadARG " + index, indent);
     }
 }

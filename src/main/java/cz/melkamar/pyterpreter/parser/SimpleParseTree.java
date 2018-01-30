@@ -25,6 +25,7 @@
 package cz.melkamar.pyterpreter.parser;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
+import cz.melkamar.pyterpreter.Environment;
 import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
@@ -226,7 +227,7 @@ public class SimpleParseTree {
      * Generate AST from this SimpleParseTree.
      */
     public PyRootNode generateAST() {
-        FrameDescriptor frameDescriptor = new FrameDescriptor();
+        FrameDescriptor frameDescriptor = Environment.DEFAULT.getDefaultFrameDescriptor();
         PySuiteNode suiteNode = SptToAstTransformer.parseFileInputBlock(this, frameDescriptor);
         PyRootNode rootPyNode = new PyRootNode(suiteNode, frameDescriptor);
         return rootPyNode;
