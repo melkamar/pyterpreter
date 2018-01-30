@@ -181,4 +181,156 @@ public class FlowControlTest {
         assertNull(rootNode.getFrameValue("c"));
     }
 
+    @Test
+    public void greater() {
+        String code = "" +
+                "x = 5\n" +
+                "if x>4:\n" +
+                "    y=1\n" +
+                "if x>5:\n" +
+                "    z=1\n" +
+                "if x>6:\n" +
+                "    a=1";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        assertEquals(1L, rootNode.getFrameValue("y"));
+        assertNull(rootNode.getFrameValue("z"));
+        assertNull(rootNode.getFrameValue("a"));
+    }
+
+    @Test
+    public void greaterEqual() {
+        String code = "" +
+                "x = 5\n" +
+                "if x>=4:\n" +
+                "    y=1\n" +
+                "if x>=5:\n" +
+                "    z=1\n" +
+                "if x>=6:\n" +
+                "    a=1";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        assertEquals(1L, rootNode.getFrameValue("y"));
+        assertEquals(1L, rootNode.getFrameValue("z"));
+        assertNull(rootNode.getFrameValue("a"));
+    }
+
+    @Test
+    public void equal() {
+        String code = "" +
+                "x = 5\n" +
+                "if x==4:\n" +
+                "    y=1\n" +
+                "if x==5:\n" +
+                "    z=1\n" +
+                "if x==6:\n" +
+                "    a=1";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        assertNull(rootNode.getFrameValue("y"));
+        assertEquals(1L, rootNode.getFrameValue("z"));
+        assertNull(rootNode.getFrameValue("a"));
+    }
+
+    @Test
+    public void notEqual() {
+        String code = "" +
+                "x = 5\n" +
+                "if x!=4:\n" +
+                "    y=1\n" +
+                "if x!=5:\n" +
+                "    z=1\n" +
+                "if x!=6:\n" +
+                "    a=1";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        assertEquals(1L, rootNode.getFrameValue("y"));
+        assertNull(rootNode.getFrameValue("z"));
+        assertEquals(1L, rootNode.getFrameValue("a"));
+    }
+
+    @Test
+    public void lesser() {
+        String code = "" +
+                "x = 5\n" +
+                "if x<4:\n" +
+                "    y=1\n" +
+                "if x<5:\n" +
+                "    z=1\n" +
+                "if x<6:\n" +
+                "    a=1";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        assertNull(rootNode.getFrameValue("y"));
+        assertNull(rootNode.getFrameValue("z"));
+        assertEquals(1L, rootNode.getFrameValue("a"));
+    }
+
+    @Test
+    public void lesserEqual() {
+        String code = "" +
+                "x = 5\n" +
+                "if x<=4:\n" +
+                "    y=1\n" +
+                "if x<=5:\n" +
+                "    z=1\n" +
+                "if x<=6:\n" +
+                "    a=1";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        assertNull(rootNode.getFrameValue("y"));
+        assertEquals(1L, rootNode.getFrameValue("z"));
+        assertEquals(1L, rootNode.getFrameValue("a"));
+    }
+
+    @Test
+    public void greaterBigNum() {
+        String code = "" +
+                "x = 9999999999999999999999999999999999999999999999999999999998\n" +
+                "if x>9999999999999999999999999999999999999999999999999999999997:\n" +
+                "    y=1\n" +
+                "if x>9999999999999999999999999999999999999999999999999999999998:\n" +
+                "    z=1\n" +
+                "if x>9999999999999999999999999999999999999999999999999999999999:\n" +
+                "    a=1";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        assertEquals(1L, rootNode.getFrameValue("y"));
+        assertNull(rootNode.getFrameValue("z"));
+        assertNull(rootNode.getFrameValue("a"));
+    }
+
+    @Test
+    public void greaterString() {
+        String code = "" +
+                "x = 'abc'\n" +
+                "if x>'ab':\n" +
+                "    y=1\n" +
+                "if x>'abc':\n" +
+                "    z=1\n" +
+                "if x>'abd':\n" +
+                "    a=1";
+
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        assertEquals(1L, rootNode.getFrameValue("y"));
+        assertNull(rootNode.getFrameValue("z"));
+        assertNull(rootNode.getFrameValue("a"));
+    }
+
 }

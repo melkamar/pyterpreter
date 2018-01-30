@@ -14,7 +14,7 @@ import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyAddNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyDivideNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyMultiplyNodeGen;
 import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PySubtractNodeGen;
-import cz.melkamar.pyterpreter.nodes.expr.compare.PyEqualsNodeGen;
+import cz.melkamar.pyterpreter.nodes.expr.compare.*;
 import cz.melkamar.pyterpreter.nodes.expr.literal.*;
 import cz.melkamar.pyterpreter.nodes.function.PyDefFuncNode;
 import cz.melkamar.pyterpreter.nodes.function.PyFunctionCallNode;
@@ -525,10 +525,21 @@ public class SptToAstTransformer {
                 switch (simpleParseTree.getChild(toIndex - 1).childAsToken(0).getType()) {
                     case Python3Parser.EQUALS:
                         return PyEqualsNodeGen.create(left, right);
-//                    case Python3Parser.NOT_EQ_1:
-//                    case Python3Parser.NOT_EQ_2:
-//                        compNode = new NotEqualsNode();
-//                        break;
+                    case Python3Parser.NOT_EQ_1:
+                    case Python3Parser.NOT_EQ_2:
+                        return PyNotNodeGen.create(PyEqualsNodeGen.create(left, right));
+
+                    case Python3Parser.LESS_THAN:
+                        return PyLesserNodeGen.create(left, right);
+
+                    case Python3Parser.LT_EQ:
+                        return PyLesserEqualNodeGen.create(left, right);
+
+                    case Python3Parser.GREATER_THAN:
+                        return PyGreaterNodeGen.create(left, right);
+
+                    case Python3Parser.GT_EQ:
+                        return PyGreaterEqualNodeGen.create(left, right);
 
                     default:
                         throw new NotImplementedException("comp_op not implemented: " + simpleParseTree.getChild(toIndex - 1)
