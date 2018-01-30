@@ -1,7 +1,7 @@
 package cz.melkamar.pyterpreter.nodes;
 
 import cz.melkamar.pyterpreter.Pyterpreter;
-import cz.melkamar.pyterpreter.truffle.PyNoneType;
+import cz.melkamar.pyterpreter.types.PyNoneType;
 import org.junit.Assert;
 import org.junit.Test;
 

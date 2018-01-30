@@ -1,7 +1,7 @@
 package cz.melkamar.pyterpreter.nodes.expr.literal;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import cz.melkamar.pyterpreter.truffle.PyNoneType;
+import cz.melkamar.pyterpreter.types.PyNoneType;
 
 public class PyNoneLitNode extends PyLiteralNode {
     @Override

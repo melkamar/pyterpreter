@@ -6,7 +6,7 @@ import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.profiles.ConditionProfile;
 import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
 import cz.melkamar.pyterpreter.nodes.PyStatementNode;
-import cz.melkamar.pyterpreter.truffle.PyNoneType;
+import cz.melkamar.pyterpreter.types.PyNoneType;
 
 public final class PyWhileNode extends PyStatementNode {
 //    @Child private PyExpressionNode conditionNode;

@@ -3,6 +3,7 @@ package cz.melkamar.pyterpreter.truffle;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.ImplicitCast;
 import com.oracle.truffle.api.dsl.TypeSystem;
+import cz.melkamar.pyterpreter.types.PyNoneType;
 
 import java.math.BigInteger;
 

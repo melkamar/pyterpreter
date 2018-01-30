@@ -8,7 +8,7 @@ import cz.melkamar.pyterpreter.exceptions.ReturnException;
 import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 import cz.melkamar.pyterpreter.functions.PyFunction;
 import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
-import cz.melkamar.pyterpreter.truffle.PyNoneType;
+import cz.melkamar.pyterpreter.types.PyNoneType;
 
 public class PyFunctionCallNode extends PyExpressionNode {
     private String name;

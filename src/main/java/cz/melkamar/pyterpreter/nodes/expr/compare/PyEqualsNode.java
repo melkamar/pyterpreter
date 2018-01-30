@@ -5,7 +5,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import cz.melkamar.pyterpreter.functions.PyFunction;
 import cz.melkamar.pyterpreter.nodes.PyBinaryNode;
 import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
-import cz.melkamar.pyterpreter.truffle.PyNoneType;
+import cz.melkamar.pyterpreter.types.PyNoneType;
 
 import java.math.BigInteger;
 
