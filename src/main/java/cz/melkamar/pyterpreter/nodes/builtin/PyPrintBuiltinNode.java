@@ -16,26 +16,26 @@ public abstract class PyPrintBuiltinNode extends PyBuiltinNode {
     @Specialization
     public Object printString(String toPrint) {
         getStdout().println(toPrint);
-        return PyNoneType.NONE_SINGLETON;
+        return null;
     }
 
     @Specialization
     public Object printLong(long toPrint) {
         getStdout().println(String.valueOf(toPrint));
-        return PyNoneType.NONE_SINGLETON;
+        return null;
     }
 
     @Specialization
     public Object printBool(boolean toPrint) {
         if (toPrint) getStdout().println("True");
         else getStdout().println("False");
-        return PyNoneType.NONE_SINGLETON;
+        return null;
     }
 
     @Specialization
     public Object printGeneric(Object toPrint) {
         getStdout().println(toPrint.toString());
-        return PyNoneType.NONE_SINGLETON;
+        return null;
     }
 
 
