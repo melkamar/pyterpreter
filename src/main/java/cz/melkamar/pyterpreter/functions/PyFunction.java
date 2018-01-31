@@ -4,6 +4,11 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 
 public abstract class PyFunction {
+    /**
+     * Truffle call target, created from a {@link cz.melkamar.pyterpreter.nodes.PyRootNode}, e.g.
+     *
+     * callTarget = Truffle.getRuntime().createCallTarget(rootNode)
+     */
     protected RootCallTarget callTarget;
     protected MaterializedFrame scope;
     public final int argc;

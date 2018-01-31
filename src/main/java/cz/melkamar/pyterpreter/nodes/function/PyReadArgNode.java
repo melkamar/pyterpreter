@@ -14,7 +14,7 @@ public class PyReadArgNode extends PyExpressionNode {
     @Override
     public Object executeGeneric(VirtualFrame frame) {
         Object[] args = frame.getArguments();
-        if (index+1 >= args.length) throw new WrongParameterCountException("WARGC " + (args.length-1));
+        if (index+1 >= args.length) throw new WrongParameterCountException("Wrong parameter count " + (args.length-1));
         return args[index+1];
     }
 

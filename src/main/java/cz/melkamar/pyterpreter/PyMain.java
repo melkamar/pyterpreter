@@ -1,8 +1,6 @@
 package cz.melkamar.pyterpreter;
 
-import com.oracle.truffle.api.CallTarget;
-import com.oracle.truffle.api.Truffle;
-import cz.melkamar.pyterpreter.nodes.PyRootNode;
+import cz.melkamar.pyterpreter.nodes.PyTopProgramNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 
 import java.io.IOException;
@@ -44,24 +42,26 @@ public class PyMain {
 //                "else:\n" +
 //                "    y=2";
 
+//        code = "" +
+//                "def pwr(number, limit):   \n" +
+//                "    if number == limit:   \n" +
+//                "        return            \n" +
+//                "                                         \n" +
+//                "    res = number*number   \n" +
+//                "    print(number+\": \"+res)\n" +
+//                "    pwr(number+1, limit)\n" +
+//                "\n" +
+//                "pwr(1, 20)\n" +
+//                "";
+
         code = "" +
-                "def pwr(number, limit):   \n" +
-                "    if number == limit:   \n" +
-                "        return            \n" +
-                "                                         \n" +
-                "    res = number*number   \n" +
-                "    print(number+\": \"+res)\n" +
-                "    pwr(number+1, limit)\n" +
-                "\n" +
-                "pwr(1, 20)\n" +
+                "print('hello world')\n" +
                 "";
 
         Environment environment = new EnvironmentBuilder().createEnvironment();
         SimpleParseTree.printParseTree(code);
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code, environment);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code, environment);
         rootNode.print();
-
-        CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
-        target.call();
+        rootNode.run();
     }
 }

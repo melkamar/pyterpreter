@@ -7,7 +7,7 @@ import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
 import cz.melkamar.pyterpreter.nodes.PySuiteNode;
 import cz.melkamar.pyterpreter.types.PyNoneType;
 
-public final class PyFunctionRootNode extends PyExpressionNode{
+public final class PyFunctionRootNode extends PyExpressionNode {
     @Child private PySuiteNode body;
 
     private final BranchProfile exceptionTaken = BranchProfile.create();
