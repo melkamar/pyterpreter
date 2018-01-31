@@ -6,6 +6,9 @@ import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import cz.melkamar.pyterpreter.functions.PyBuiltinFunction;
 import cz.melkamar.pyterpreter.nodes.builtin.*;
+import cz.melkamar.pyterpreter.nodes.builtin.typecast.PyIntBuiltinNodeGen;
+import cz.melkamar.pyterpreter.nodes.builtin.typecast.PyStrBuiltinNodeGen;
+import cz.melkamar.pyterpreter.nodes.function.PyReadArgNode;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -43,6 +46,8 @@ public class Environment {
                 new PyBuiltinFunction("time", new PyTimeBuiltinNode()),
                 new PyBuiltinFunction("sleep", new PySleepBuiltinNode()),
                 new PyBuiltinFunction("exit", new PyExitBuiltinNode()),
+                new PyBuiltinFunction("str", PyStrBuiltinNodeGen.create(new PyReadArgNode(0))),
+                new PyBuiltinFunction("int", PyIntBuiltinNodeGen.create(new PyReadArgNode(0))),
         };
 
         for (PyBuiltinFunction builtinFunction: builtinFunctions){

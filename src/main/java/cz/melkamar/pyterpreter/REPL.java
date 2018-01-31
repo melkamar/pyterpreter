@@ -66,7 +66,11 @@ public class REPL {
                 Object result = target.call(lastFrame);
 
                 if (result != null) {
-                    System.out.println(result);
+                    if (result instanceof String) {
+                        System.out.println("'"+result+"'");
+                    } else {
+                        System.out.println(result);
+                    }
                 }
 
                 lastFrame = rootNode.lastExecutionFrame;
@@ -79,7 +83,8 @@ public class REPL {
             } catch (SystemExitException e) {
                 System.exit(0);
             } catch (Exception e) {
-                e.printStackTrace(System.out);
+                if (Environment.DEBUG_MODE) e.printStackTrace(System.out);
+                else System.err.println(e.toString());
             }
         }
     }

@@ -14,6 +14,8 @@ import static cz.melkamar.pyterpreter.REPL.startRepl;
 
 public class Pyterpreter {
     public static void main(String[] args) {
+        System.out.println(System.getProperty("user.dir"));
+
         if (args.length == 0) startRepl();
         else if (args.length == 1){
             PyTopProgramNode rootNode = null;

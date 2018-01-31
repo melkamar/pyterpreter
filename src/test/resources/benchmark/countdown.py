@@ -19,12 +19,13 @@ def run_benchmark():
     start_time = time()
     do_stuff()
     end_time = time()
-    print(benchmark_name + " | no warmup | " + (end_time - start_time))
+    print(benchmark_name + " | no warmup | " + str(end_time - start_time))
 
     warmup()
     start_time = time()
     do_stuff()
     end_time = time()
-    print(benchmark_name + " | warmup    | " + (end_time - start_time))
+    print(benchmark_name + " | warmup    | " + str(end_time - start_time))
+
 
 run_benchmark()
