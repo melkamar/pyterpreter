@@ -99,4 +99,39 @@ public class BuiltinTest {
         Assert.assertEquals("[a][b][c][d][e]", rootNode.getFrameValue("s"));
     }
 
+
+    @Test
+    public void time() {
+        String code = "" +
+                "x = time()\n" +
+                "";
+
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+    }
+
+    @Test
+    public void timeSleepDiff() {
+        String code = "" +
+                "x = time()\n" +
+                "sleep(2)\n" +
+                "y = time()\n" +
+                "diff = y-x" +
+                "";
+
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        Assert.assertTrue((Long) rootNode.getFrameValue("diff") > 2);
+    }
+
+    @Test
+    public void sleep() {
+        String code = "" +
+                "sleep(1)\n" +
+                "";
+
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+    }
 }

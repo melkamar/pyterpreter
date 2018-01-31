@@ -3,29 +3,23 @@ package cz.melkamar.pyterpreter.nodes.builtin;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 
-import java.io.InputStream;
-import java.util.Scanner;
-
-public final class PyInputBuiltinNode extends PyBuiltinNode {
-    private final Scanner sc;
-
-    public PyInputBuiltinNode(InputStream stdin) {
-        sc = new Scanner(stdin);
+public class PyTimeBuiltinNode extends PyBuiltinNode {
+    public PyTimeBuiltinNode() {
     }
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
-        return readLine();
+        return getTime();
     }
 
     @CompilerDirectives.TruffleBoundary
-    private String readLine(){
-        return sc.nextLine();
+    private Long getTime(){
+        return System.nanoTime();
     }
 
     @Override
     public void print(int indent) {
-        printIndented("INPUT", indent);
+        printIndented("TIME", indent);
     }
 
     @Override
