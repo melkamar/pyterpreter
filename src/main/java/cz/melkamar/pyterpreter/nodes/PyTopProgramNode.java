@@ -21,7 +21,7 @@ public class PyTopProgramNode extends PyRootNode {
     }
 
     public Object run(){
-        this.print();
+        if (Environment.DEBUG_MODE) this.print();
         CallTarget target = Truffle.getRuntime().createCallTarget(this);
 
         // First argument in a call is a frame

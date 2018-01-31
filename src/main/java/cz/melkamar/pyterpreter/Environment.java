@@ -17,7 +17,7 @@ import java.io.PrintStream;
  * Created by Martin Melka (martin.melka@gmail.com) on 05.11.2017 22:13.
  */
 public class Environment {
-    public static boolean DEBUG_MODE = true;
+    public static boolean DEBUG_MODE = false;
     private final FrameDescriptor baseFrameDescriptor;
     private final MaterializedFrame baseFrame;
     private final InputStream stdin;

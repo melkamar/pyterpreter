@@ -36,7 +36,7 @@ public class Pyterpreter {
         PyRootNode rootNode = SimpleParseTree.astFromCode(code, environment);
         CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
         Object result = target.call();
-        rootNode.print();
+        if (Environment.DEBUG_MODE) rootNode.print();
         return result;
     }
 }
