@@ -11,7 +11,7 @@ Python interpreter built on Truffle and Graal VM
     - For better performance run on GraalVM (Linux/MAC)
         - [Download labsjdk on bottom of the page](http://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html)
         - Set `JAVA_HOME` to point to extracted LabsJDK archive and `PATH` to `JAVA_HOME/bin` 
-- Gradle (tested on 3.0)
+- Gradle will be used or automatically downloaded when running `gradlew` (see below) 
 
 #### Steps 
 ```
