@@ -17,6 +17,9 @@
     <option name="PASS_PARENT_ENVS" value="true" />
     <module name="pyterpreter" />
     <envs />
-    <method />
+    <method>
+      <option name="Make" enabled="false" />
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="jar" externalProjectPath="$PROJECT_DIR$" vmOptions="-ea" scriptParameters="" />
+    </method>
   </configuration>
 </component>

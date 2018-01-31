@@ -1,83 +1,88 @@
 package cz.melkamar.pyterpreter;
 
-import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
-import cz.melkamar.pyterpreter.functions.builtin.BuiltinFunctions;
+import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlotKind;
+import com.oracle.truffle.api.frame.MaterializedFrame;
+import cz.melkamar.pyterpreter.functions.PyBuiltinFunction;
+import cz.melkamar.pyterpreter.nodes.builtin.*;
+import cz.melkamar.pyterpreter.nodes.builtin.typecast.PyIntBuiltinNodeGen;
+import cz.melkamar.pyterpreter.nodes.builtin.typecast.PyStrBuiltinNodeGen;
+import cz.melkamar.pyterpreter.nodes.function.PyReadArgNode;
 
-import java.util.HashMap;
+import java.io.InputStream;
+import java.io.PrintStream;
 
 /**
  * Created by Martin Melka (martin.melka@gmail.com) on 05.11.2017 22:13.
  */
 public class Environment {
-    private final HashMap<String, Object> env = new HashMap<>();
-    private final Environment parent;
-    private boolean returnFlag = false;
+    public static boolean DEBUG_MODE = false;
+    private final FrameDescriptor baseFrameDescriptor;
+    private final MaterializedFrame baseFrame;
+    private final InputStream stdin;
+    private final PrintStream stdout;
+    private final PrintStream stderr;
 
-    public Environment() {
-        this.parent = null;
+//    public static Environment DEFAULT = new EnvironmentBuilder().createEnvironment();
+
+    protected Environment(FrameDescriptor baseFrameDescriptor,
+                          MaterializedFrame baseFrame,
+                          InputStream stdin,
+                          PrintStream stdout, PrintStream stderr) {
+        this.baseFrameDescriptor = baseFrameDescriptor;
+        this.baseFrame = baseFrame;
+        this.stdin = stdin;
+        this.stdout = stdout;
+        this.stderr = stderr;
+
+        initializeBuiltins();
     }
 
-    public Environment(Environment parent) {
-        this.parent = parent;
-    }
+    private void initializeBuiltins() {
+        PyBuiltinFunction[] builtinFunctions = {
+                new PyBuiltinFunction("print", PyPrintBuiltinNodeGen.create(new PyReadArgNode(0), stdout)),
+                new PyBuiltinFunction("input", new PyInputBuiltinNode(stdin)),
+                new PyBuiltinFunction("time", new PyTimeBuiltinNode()),
+                new PyBuiltinFunction("sleep", new PySleepBuiltinNode()),
+                new PyBuiltinFunction("exit", new PyExitBuiltinNode()),
+                new PyBuiltinFunction("str", PyStrBuiltinNodeGen.create(new PyReadArgNode(0))),
+                new PyBuiltinFunction("int", PyIntBuiltinNodeGen.create(new PyReadArgNode(0))),
+        };
 
-    public Object getValue(String name) {
-        if (env.containsKey(name)) return env.get(name);
-
-        if (parent != null) return parent.getValue(name);
-        throw new UndefinedVariableException(name);
-    }
-
-    public void putValue(String name, Object value) {
-        env.put(name, value);
-    }
-
-    public boolean contains(String name) {
-        try {
-            getValue(name);
-        } catch (UndefinedVariableException ex) {
-            return false;
+        for (PyBuiltinFunction builtinFunction: builtinFunctions){
+            baseFrame.setObject(baseFrameDescriptor.findOrAddFrameSlot(builtinFunction.getName()), builtinFunction);
         }
-        return true;
+
+        if (DEBUG_MODE) {
+            System.out.println("Initialized builtins for frame " + baseFrame + " with descriptor " + baseFrameDescriptor);
+        }
     }
 
-    public void setReturnFlag() {
-        returnFlag = true;
+
+    public FrameDescriptor getBaseFrameDescriptor() {
+        return baseFrameDescriptor;
     }
 
-    public boolean isReturnFlag() {
-        return returnFlag;
+    public MaterializedFrame getBaseFrame() {
+        return baseFrame;
     }
 
-    @Override
-    public String toString() {
-        return nestToString(1);
+    public static MaterializedFrame getDefaultFrame(FrameDescriptor frameDescriptor) {
+        MaterializedFrame frame = Truffle.getRuntime().createMaterializedFrame(null, frameDescriptor);
+        frame.setLong(frameDescriptor.findOrAddFrameSlot("ROOT", FrameSlotKind.Long), 42);
+        return frame;
     }
 
-    private String spacesFromLevel(int level) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < level; i++) builder.append("  ");
-        return builder.toString();
+    public InputStream getStdin() {
+        return stdin;
     }
 
-    /**
-     * Print this env's map and recursively call parent's print, if parent exists.
-     *
-     * Example output:
-     * ENV (1): {x=6, y=6}   (current)
-     * ENV (2): {}         (parent)
-     * ENV (3): {}       (parent's parent)
-     *
-     * @param level
-     * @return
-     */
-    public String nestToString(int level) {
-        return "ENV (" + level + "): " + this.env.toString() + (parent != null ? "\n" + spacesFromLevel(level) + parent.nestToString(level + 1) : "");
+    public PrintStream getStdout() {
+        return stdout;
     }
 
-    public static Environment getDefaultEnvironment() {
-        Environment env = new Environment();
-        BuiltinFunctions.fillEnv(env);
-        return env;
+    public PrintStream getStderr() {
+        return stderr;
     }
 }

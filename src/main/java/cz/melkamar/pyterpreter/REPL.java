@@ -1,5 +1,11 @@
 package cz.melkamar.pyterpreter;
 
+import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.frame.Frame;
+import cz.melkamar.pyterpreter.exceptions.ParseException;
+import cz.melkamar.pyterpreter.exceptions.SystemExitException;
+import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 
@@ -9,13 +15,14 @@ public class REPL {
 
     /**
      * Start a REPL loop.
-     *
+     * <p>
      * Not every enter will be interpreted as running a command - if we are indented, then we will
      * have to wait to dedent to run the whole thing.
      */
     public static void startRepl() {
-        Environment env = Environment.getDefaultEnvironment();
         Scanner sc = new Scanner(System.in);
+        Environment environment = new EnvironmentBuilder().createEnvironment();
+        Frame lastFrame = environment.getBaseFrame();
 
         int indentLevel = 0;
         StringBuilder inputBuffer = new StringBuilder();
@@ -54,14 +61,30 @@ public class REPL {
             inputBuffer.delete(0, inputBuffer.length());
 
             try {
-                PyRootNode rootNode = SimpleParseTree.astFromCode(code);
-                Object result = rootNode.execute(env);
+                PyRootNode rootNode = SimpleParseTree.astFromCode(code, environment);
+                CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
+                Object result = target.call(lastFrame);
+
                 if (result != null) {
-                    // TODO how to handle case when I actually do want to return null? E.g. x=None; x?
-                    System.out.println(result);
+                    if (result instanceof String) {
+                        System.out.println("'"+result+"'");
+                    } else {
+                        System.out.println(result);
+                    }
                 }
+
+                lastFrame = rootNode.lastExecutionFrame;
+
+
+            } catch (UndefinedVariableException e) {
+                System.err.println(e.toString());
+            } catch (ParseException e) {
+                System.err.println(e.getMessage());
+            } catch (SystemExitException e) {
+                System.exit(0);
             } catch (Exception e) {
-                e.printStackTrace(System.out);
+                if (Environment.DEBUG_MODE) e.printStackTrace(System.out);
+                else System.err.println(e.toString());
             }
         }
     }

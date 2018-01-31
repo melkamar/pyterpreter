@@ -1,35 +1,38 @@
 package cz.melkamar.pyterpreter.nodes;
 
-import cz.melkamar.pyterpreter.Environment;
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlot;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.RootNode;
 
-/**
- * Created by Martin Melka (martin.melka@gmail.com) on 03.11.2017 10:03.
- */
-public class PyRootNode extends PyNode {
-    public Object execute(){
-        return this.execute(Environment.getDefaultEnvironment());
+public class PyRootNode extends RootNode {
+    @Child private PyStatementNode child;
+    public VirtualFrame lastExecutionFrame = null;
+
+    public PyRootNode(PyStatementNode child, FrameDescriptor frameDescriptor) {
+        super(null, frameDescriptor);
+        this.child = child;
+    }
+
+    public PyStatementNode getChild() {
+        return child;
+    }
+
+    public Object getFrameValue(String key){
+        FrameSlot slot = lastExecutionFrame.getFrameDescriptor().findFrameSlot(key);
+        if (slot == null) return null;
+        return lastExecutionFrame.getValue(slot);
     }
 
     @Override
-    public Object execute(Environment env) {
-        Object lastReturned = null;
-        for (PyNode node: children){
-            lastReturned = node.execute(env);
-        }
-
-        return lastReturned; // Root node does not return anything anywhere
-    }
-
-    @Override
-    public void print(int indent) {
-        printIndented("ROOT", indent);
-
-        for (PyNode child : children) {
-            child.print(indent+1);
-        }
+    public Object execute(VirtualFrame frame) {
+        lastExecutionFrame = frame; // Keep track of last frame for debugging
+        // keep track of result for REPL
+        return child.executeGeneric(frame);
     }
 
     public void print(){
-        print(0);
+        System.out.println("root (fd "+getFrameDescriptor()+")");
+        child.print(1);
     }
 }

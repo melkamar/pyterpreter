@@ -3,7 +3,8 @@ version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'idea'
-apply plugin: "com.github.johnrengelman.shadow"
+apply plugin: 'application'
+//apply plugin: "com.github.johnrengelman.shadow"
 
 sourceCompatibility = 1.8
 
@@ -17,6 +18,8 @@ dependencies {
     compile "com.oracle.truffle:truffle-api:0.30"
     compile "com.oracle.truffle:truffle-dsl-processor:0.30"
     compile "com.oracle.truffle:truffle-tck:0.30"
+//    runtime name: 'pyterpreter-1.0-SNAPSHOT-all'
+    runtime files('build/libs/pyterpreter-all-1.0-SNAPSHOT.jar')
 }
 
 buildscript {
@@ -24,17 +27,24 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
+        flatDir {
+            dirs 'build/libs'
+        }
     }
-    dependencies {
-        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.1"
-    }
+//    dependencies {
+//        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.1"
+//    }
 }
 
-idea.module {
-    generatedSourceDirs += file('someextrafile')
-}
+sourceSets.main.java.srcDir new File(buildDir, 'build/classes/java/main')
 
-jar.dependsOn << shadowJar
+idea {
+    module {
+        // Marks the already(!) added srcDir as "generated"
+        generatedSourceDirs += file('build/classes/java/main')
+        sourceDirs += file('build/classes/java/main')
+    }
+}
 
 jar {
     manifest {
@@ -44,3 +54,20 @@ jar {
         )
     }
 }
+
+task fatJar(type: Jar) {
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'cz.melkamar.pyterpreter.Pyterpreter'
+        )
+    }
+
+    with jar
+}
+
+mainClassName = 'cz.melkamar.pyterpreter.Pyterpreter'
+jar.dependsOn << fatJar
