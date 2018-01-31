@@ -1,13 +1,12 @@
 package cz.melkamar.pyterpreter.nodes.builtin;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
 import cz.melkamar.pyterpreter.nodes.function.PyReadArgNode;
 import cz.melkamar.pyterpreter.types.PyNoneType;
 
 import java.io.PrintStream;
 
-public final class PyPrintBuiltinNode extends PyExpressionNode {
+public final class PyPrintBuiltinNode extends PyBuiltinNode {
     @Child private PyReadArgNode textArg;
     private final PrintStream stdout;
 
