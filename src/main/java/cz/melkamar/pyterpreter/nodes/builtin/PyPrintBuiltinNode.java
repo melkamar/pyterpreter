@@ -1,26 +1,43 @@
 package cz.melkamar.pyterpreter.nodes.builtin;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.dsl.NodeField;
+import com.oracle.truffle.api.dsl.Specialization;
 import cz.melkamar.pyterpreter.nodes.function.PyReadArgNode;
 import cz.melkamar.pyterpreter.types.PyNoneType;
 
 import java.io.PrintStream;
 
-public final class PyPrintBuiltinNode extends PyBuiltinNode {
-    @Child private PyReadArgNode textArg;
-    private final PrintStream stdout;
+@NodeChild(value = "argNode", type = PyReadArgNode.class)
+@NodeField(name = "stdout", type = PrintStream.class)
+public abstract class PyPrintBuiltinNode extends PyBuiltinNode {
+    protected abstract PrintStream getStdout();
 
-    public PyPrintBuiltinNode(PrintStream stdout) {
-        this.stdout = stdout;
-        textArg = new PyReadArgNode(0);
-    }
-
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        Object textToPrint = textArg.executeGeneric(frame);
-        stdout.println(textToPrint);
+    @Specialization
+    public Object printString(String toPrint) {
+        getStdout().println(toPrint);
         return PyNoneType.NONE_SINGLETON;
     }
+
+    @Specialization
+    public Object printLong(long toPrint) {
+        getStdout().println(String.valueOf(toPrint));
+        return PyNoneType.NONE_SINGLETON;
+    }
+
+    @Specialization
+    public Object printBool(boolean toPrint) {
+        if (toPrint) getStdout().println("True");
+        else getStdout().println("False");
+        return PyNoneType.NONE_SINGLETON;
+    }
+
+    @Specialization
+    public Object printGeneric(Object toPrint) {
+        getStdout().println(toPrint.toString());
+        return PyNoneType.NONE_SINGLETON;
+    }
+
 
     @Override
     public void print(int indent) {

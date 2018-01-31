@@ -41,7 +41,7 @@ public class Environment {
 
     private void initializeBuiltins() {
         PyBuiltinFunction[] builtinFunctions = {
-                new PyBuiltinFunction("print", new PyPrintBuiltinNode(stdout)),
+                new PyBuiltinFunction("print", PyPrintBuiltinNodeGen.create(new PyReadArgNode(0), stdout)),
                 new PyBuiltinFunction("input", new PyInputBuiltinNode(stdin)),
                 new PyBuiltinFunction("time", new PyTimeBuiltinNode()),
                 new PyBuiltinFunction("sleep", new PySleepBuiltinNode()),
