@@ -21,6 +21,7 @@ $ java -jar build/libs/pyterpreter*all*.jar
 
 - No arguments - start REPL
 - Single argument - path to file - execute that file
+- `-r file/in/resources` - run file from inside pyterpreter jar. See [resources folder](src/main/resources)
 
 ## Troubleshooting
 
