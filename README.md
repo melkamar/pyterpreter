@@ -14,7 +14,7 @@ Python interpreter built on Truffle and Graal VM
 $ git clone git@github.com:melkamar/pyterpreter.git
 $ cd pyterpreter
 $ gradle clean test jar
-$ java -jar build/libs/pyterpreter*all.jar
+$ java -jar build/libs/pyterpreter*all*.jar
 ```
 
 ## Usage

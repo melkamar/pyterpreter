@@ -69,7 +69,6 @@ public class SptToAstTransformer {
      */
     public static List<PyExpressionNode> parseArgList(SimpleParseTree simpleParseTree,
                                                       FrameDescriptor frameDescriptor) {
-        System.out.println(simpleParseTree.getPayloadAsString());
         assert simpleParseTree.getPayloadAsString().equals(NODE_STR_ARGLIST);
         List<PyExpressionNode> result = new ArrayList<>();
 

@@ -14,7 +14,7 @@ public class PyTimeBuiltinNode extends PyBuiltinNode {
 
     @CompilerDirectives.TruffleBoundary
     private Long getTime(){
-        return System.nanoTime();
+        return System.currentTimeMillis();
     }
 
     @Override

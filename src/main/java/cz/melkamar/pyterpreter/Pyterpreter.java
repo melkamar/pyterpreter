@@ -3,6 +3,7 @@ package cz.melkamar.pyterpreter;
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Truffle;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
+import cz.melkamar.pyterpreter.nodes.PyTopProgramNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 
 import java.io.File;
@@ -14,20 +15,14 @@ public class Pyterpreter {
     public static void main(String[] args) {
         if (args.length == 0) startRepl();
         else if (args.length == 1){
-            PyRootNode rootNode = null;
+            PyTopProgramNode rootNode = null;
             try {
                 File file = new File(args[0]);
                 SimpleParseTree simpleParseTree = SimpleParseTree.fromFile(file);
 
                 Environment environment = new EnvironmentBuilder().createEnvironment();
                 rootNode = simpleParseTree.generateAST(environment);
-
-
-                CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
-                target.call();
-
-                System.out.println("\n\nEnvironment (root):");
-//                System.out.println(env);
+                rootNode.run();
             } catch (IOException e) {
                 e.printStackTrace();
             }

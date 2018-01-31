@@ -13,10 +13,8 @@ public abstract class PyAssignNode extends PyStatementNode {
     protected abstract FrameSlot getSlot();
     protected abstract PyStatementNode getValueNode();
 
-    // TODO remove printlns
     @Specialization(guards = "isLongOrBlank(frame)")
     protected Object writeLong(VirtualFrame frame, long value) {
-        System.out.println("write long  - "+value);
         getSlot().setKind(FrameSlotKind.Long);
         frame.setLong(getSlot(), value);
         return null; // Declaring function return type void causes annotation processor error
@@ -26,7 +24,6 @@ public abstract class PyAssignNode extends PyStatementNode {
     protected Object writeBoolean(VirtualFrame frame, boolean value) {
         getSlot().setKind(FrameSlotKind.Boolean);
         frame.setBoolean(getSlot(), value);
-        System.out.println("write bool - "+value);
         return null; // Declaring function return type void causes annotation processor error
     }
 
@@ -34,7 +31,6 @@ public abstract class PyAssignNode extends PyStatementNode {
     protected Object writeGeneric(VirtualFrame frame, Object value) {
         getSlot().setKind(FrameSlotKind.Object);
         frame.setObject(getSlot(), value);
-        System.out.println("write generic - "+value);
         return null; // Declaring function return type void causes annotation processor error
     }
 

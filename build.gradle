@@ -4,7 +4,7 @@ version '1.0-SNAPSHOT'
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'application'
-apply plugin: "com.github.johnrengelman.shadow"
+//apply plugin: "com.github.johnrengelman.shadow"
 
 sourceCompatibility = 1.8
 
@@ -31,9 +31,9 @@ buildscript {
             dirs 'build/libs'
         }
     }
-    dependencies {
-        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.1"
-    }
+//    dependencies {
+//        classpath "com.github.jengelman.gradle.plugins:shadow:2.0.1"
+//    }
 }
 
 sourceSets.main.java.srcDir new File(buildDir, 'build/classes/java/main')
@@ -46,12 +46,6 @@ idea {
     }
 }
 
-idea.module {
-    generatedSourceDirs += file('someextrafile')
-}
-
-jar.dependsOn << shadowJar
-
 jar {
     manifest {
         attributes(
@@ -61,4 +55,19 @@ jar {
     }
 }
 
+task fatJar(type: Jar) {
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'cz.melkamar.pyterpreter.Pyterpreter'
+        )
+    }
+
+    with jar
+}
+
 mainClassName = 'cz.melkamar.pyterpreter.Pyterpreter'
+jar.dependsOn << fatJar

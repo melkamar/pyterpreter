@@ -34,7 +34,7 @@
     <orderEntry type="library" name="Gradle: org.abego.treelayout:org.abego.treelayout.core:1.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="module-library" scope="RUNTIME">
-      <library name="Gradle: pyterpreter-1.0-SNAPSHOT-all">
+      <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/build/libs/pyterpreter-1.0-SNAPSHOT-all.jar!/" />
         </CLASSES>
@@ -43,7 +43,7 @@
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
-      <library name="Gradle: pyterpreter-1.0-SNAPSHOT-all">
+      <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/build/libs/pyterpreter-1.0-SNAPSHOT-all.jar!/" />
         </CLASSES>

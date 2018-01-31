@@ -308,10 +308,8 @@ public class SimpleParseTree {
                     String tokenEscaped = token.getText().replace("\n", "\\n").replace("\r", "\\r");
                     caption = String.format("TOKEN[type: %s, text: %s]",
                                             token.getType(), tokenEscaped);
-//                    System.out.println("got token: " + tokenEscaped + " (" + token.getType() + ")");
                 } else {
                     caption = String.valueOf(simpleParseTree.payload);
-//                    System.out.println("got non-token: " + caption);
                 }
 
                 String indent = "";
