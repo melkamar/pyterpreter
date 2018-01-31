@@ -26,4 +26,9 @@ public final class PyPrintBuiltinNode extends PyBuiltinNode {
     public void print(int indent) {
         printIndented("PRINT", indent);
     }
+
+    @Override
+    public int getArgCount() {
+        return 1;
+    }
 }

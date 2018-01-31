@@ -5,7 +5,8 @@ import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import cz.melkamar.pyterpreter.functions.PyBuiltinFunction;
-import cz.melkamar.pyterpreter.functions.builtin.PyPrintBuiltinFunction;
+import cz.melkamar.pyterpreter.nodes.builtin.PyInputBuiltinNode;
+import cz.melkamar.pyterpreter.nodes.builtin.PyPrintBuiltinNode;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -24,28 +25,32 @@ public class Environment {
 //    public static Environment DEFAULT = new EnvironmentBuilder().createEnvironment();
 
     protected Environment(FrameDescriptor baseFrameDescriptor,
-                       MaterializedFrame baseFrame,
-                       InputStream stdin,
-                       PrintStream stdout, PrintStream stderr) {
+                          MaterializedFrame baseFrame,
+                          InputStream stdin,
+                          PrintStream stdout, PrintStream stderr) {
         this.baseFrameDescriptor = baseFrameDescriptor;
         this.baseFrame = baseFrame;
         this.stdin = stdin;
         this.stdout = stdout;
         this.stderr = stderr;
 
-        // TODO initialize frame with builtin methods. print and input will have stdin/stdout as their streams
         initializeBuiltins();
     }
 
-    private void initializeBuiltins(){
-        PyBuiltinFunction builtinFunction = new PyPrintBuiltinFunction(this);
-        baseFrame.setObject(baseFrameDescriptor.findOrAddFrameSlot(builtinFunction.getName()), builtinFunction);
+    private void initializeBuiltins() {
+        PyBuiltinFunction[] builtinFunctions = {
+                new PyBuiltinFunction("print", new PyPrintBuiltinNode(stdout)),
+                new PyBuiltinFunction("input", new PyInputBuiltinNode(stdin)),
+        };
 
-        if (DEBUG_MODE){
-            System.out.println("Initialized builtins for frame "+baseFrame + " with descriptor "+baseFrameDescriptor);
+        for (PyBuiltinFunction builtinFunction: builtinFunctions){
+            baseFrame.setObject(baseFrameDescriptor.findOrAddFrameSlot(builtinFunction.getName()), builtinFunction);
+        }
+
+        if (DEBUG_MODE) {
+            System.out.println("Initialized builtins for frame " + baseFrame + " with descriptor " + baseFrameDescriptor);
         }
     }
-
 
 
     public FrameDescriptor getBaseFrameDescriptor() {

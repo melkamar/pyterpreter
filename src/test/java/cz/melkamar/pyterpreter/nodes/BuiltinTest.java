@@ -6,7 +6,9 @@ import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.PrintStream;
 
 public class BuiltinTest {
@@ -56,6 +58,45 @@ public class BuiltinTest {
                 "- 2\n" +
                 "- 1\n";
         Assert.assertEquals(expected, byteArrayOutputStream.toString());
+    }
+
+    @Test
+    public void input() {
+        String input = "hello 42";
+        String code = "" +
+                "x = input()\n" +
+                "";
+
+        InputStream stdin = new ByteArrayInputStream(input.getBytes());
+        Environment environment = new EnvironmentBuilder().setStdin(stdin).createEnvironment();
+
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code, environment);
+        rootNode.run();
+
+        Assert.assertEquals("hello 42", rootNode.getFrameValue("x"));
+    }
+
+    @Test
+    public void inputInFunc() {
+        String input = "a\nb\nc\nd\ne\n";
+        String code = "" +
+                "def f():\n" +
+                "    return \"[\"+input()+\"]\"\n" +
+                "\n" +
+                "x=5\n" +
+                "s = ''\n" +
+                "while x>0:\n" +
+                "    s = s + f()\n" +
+                "    x = x-1\n" +
+                "";
+
+        InputStream stdin = new ByteArrayInputStream(input.getBytes());
+        Environment environment = new EnvironmentBuilder().setStdin(stdin).createEnvironment();
+
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code, environment);
+        rootNode.run();
+
+        Assert.assertEquals("[a][b][c][d][e]", rootNode.getFrameValue("s"));
     }
 
 }
