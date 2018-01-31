@@ -34,18 +34,18 @@
     <orderEntry type="library" name="Gradle: org.abego.treelayout:org.abego.treelayout.core:1.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:1.3" level="project" />
     <orderEntry type="module-library" scope="RUNTIME">
-      <library>
+      <library name="Gradle: pyterpreter-all-1.0-SNAPSHOT">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/build/libs/pyterpreter-1.0-SNAPSHOT-all.jar!/" />
+          <root url="jar://$MODULE_DIR$/build/libs/pyterpreter-all-1.0-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" scope="TEST">
-      <library>
+      <library name="Gradle: pyterpreter-all-1.0-SNAPSHOT">
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/build/libs/pyterpreter-1.0-SNAPSHOT-all.jar!/" />
+          <root url="jar://$MODULE_DIR$/build/libs/pyterpreter-all-1.0-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

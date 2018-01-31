@@ -4,6 +4,7 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.Frame;
 import cz.melkamar.pyterpreter.exceptions.ParseException;
+import cz.melkamar.pyterpreter.exceptions.SystemExitException;
 import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
@@ -14,7 +15,7 @@ public class REPL {
 
     /**
      * Start a REPL loop.
-     *
+     * <p>
      * Not every enter will be interpreted as running a command - if we are indented, then we will
      * have to wait to dedent to run the whole thing.
      */
@@ -71,12 +72,13 @@ public class REPL {
                 lastFrame = rootNode.lastExecutionFrame;
 
 
-            } catch (UndefinedVariableException e){
+            } catch (UndefinedVariableException e) {
                 System.err.println(e.toString());
             } catch (ParseException e) {
                 System.err.println(e.getMessage());
-            }
-            catch (Exception e) {
+            } catch (SystemExitException e) {
+                System.exit(0);
+            } catch (Exception e) {
                 e.printStackTrace(System.out);
             }
         }

@@ -19,7 +19,7 @@ dependencies {
     compile "com.oracle.truffle:truffle-dsl-processor:0.30"
     compile "com.oracle.truffle:truffle-tck:0.30"
 //    runtime name: 'pyterpreter-1.0-SNAPSHOT-all'
-    runtime files('build/libs/pyterpreter-1.0-SNAPSHOT-all.jar')
+    runtime files('build/libs/pyterpreter-all-1.0-SNAPSHOT.jar')
 }
 
 buildscript {

@@ -2,6 +2,7 @@ package cz.melkamar.pyterpreter;
 
 import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.Truffle;
+import cz.melkamar.pyterpreter.exceptions.SystemExitException;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.nodes.PyTopProgramNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
@@ -25,6 +26,8 @@ public class Pyterpreter {
                 rootNode.run();
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (SystemExitException e){
+                System.exit(0);
             }
         } else {
             System.out.println("Expected zero or one argument.");

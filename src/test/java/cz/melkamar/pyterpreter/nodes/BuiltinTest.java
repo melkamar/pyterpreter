@@ -2,6 +2,7 @@ package cz.melkamar.pyterpreter.nodes;
 
 import cz.melkamar.pyterpreter.Environment;
 import cz.melkamar.pyterpreter.EnvironmentBuilder;
+import cz.melkamar.pyterpreter.exceptions.SystemExitException;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import org.junit.Assert;
 import org.junit.Test;
@@ -122,7 +123,8 @@ public class BuiltinTest {
         PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
-        Assert.assertTrue((Long) rootNode.getFrameValue("diff") > 2);
+        // Leave some leeway for the sleep time, 1500 is safer than 2000
+        Assert.assertTrue((Long) rootNode.getFrameValue("diff") > 1500);
     }
 
     @Test
@@ -133,5 +135,18 @@ public class BuiltinTest {
 
         PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
+    }
+
+    @Test(expected = SystemExitException.class)
+    public void exit() {
+        String code = "" +
+                "x=1\n" +
+                "exit()\n" +
+                "x=2";
+
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
+        rootNode.run();
+
+        Assert.assertEquals(1, rootNode.getFrameValue("x"));
     }
 }
