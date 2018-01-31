@@ -18,8 +18,10 @@ public class Pyterpreter {
             try {
                 File file = new File(args[0]);
                 SimpleParseTree simpleParseTree = SimpleParseTree.fromFile(file);
-                rootNode = simpleParseTree.generateAST();
-//                Environment env = Environment.getDefaultEnvironment();
+
+                Environment environment = new EnvironmentBuilder().createEnvironment();
+                rootNode = simpleParseTree.generateAST(environment);
+
 
                 CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
                 target.call();
@@ -35,7 +37,8 @@ public class Pyterpreter {
     }
 
     public static Object runCodeForResult(String code){
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        Environment environment = new EnvironmentBuilder().createEnvironment();
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code, environment);
         CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
         Object result = target.call();
         rootNode.print();

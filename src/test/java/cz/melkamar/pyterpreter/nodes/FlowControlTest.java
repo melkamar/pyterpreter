@@ -14,7 +14,7 @@ public class FlowControlTest {
                 "if x==0:\n" +
                 "    y=1\n";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(1L, rootNode.getFrameValue("y"));
@@ -30,7 +30,7 @@ public class FlowControlTest {
                 "if 0:\n" +
                 "    z=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(1L, rootNode.getFrameValue("y"));
@@ -49,7 +49,7 @@ public class FlowControlTest {
                 "if 0:\n" +
                 "    z=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(1L, rootNode.getFrameValue("y"));
@@ -65,7 +65,7 @@ public class FlowControlTest {
                 "else:\n" +
                 "    y=2";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(2L, rootNode.getFrameValue("y"));
@@ -93,7 +93,7 @@ public class FlowControlTest {
                 "if not 1:\n" +
                 "    g=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(1L, rootNode.getFrameValue("a"));
@@ -123,7 +123,7 @@ public class FlowControlTest {
                 "if 1==1 and 2==2 and 3==4:\n" +
                 "    e=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertNull(rootNode.getFrameValue("a"));
@@ -151,7 +151,7 @@ public class FlowControlTest {
                 "if 1==1 or 2==2: \n" +
                 "    e=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(1L, rootNode.getFrameValue("a"));
@@ -173,7 +173,7 @@ public class FlowControlTest {
                 "if (2==2 or 1==2) and 2==3:\n" +
                 "    c=1" ;
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(1L, rootNode.getFrameValue("a"));
@@ -192,7 +192,7 @@ public class FlowControlTest {
                 "if x>6:\n" +
                 "    a=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(1L, rootNode.getFrameValue("y"));
@@ -211,7 +211,7 @@ public class FlowControlTest {
                 "if x>=6:\n" +
                 "    a=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(1L, rootNode.getFrameValue("y"));
@@ -230,7 +230,7 @@ public class FlowControlTest {
                 "if x==6:\n" +
                 "    a=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertNull(rootNode.getFrameValue("y"));
@@ -249,7 +249,7 @@ public class FlowControlTest {
                 "if x!=6:\n" +
                 "    a=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(1L, rootNode.getFrameValue("y"));
@@ -268,7 +268,7 @@ public class FlowControlTest {
                 "if x<6:\n" +
                 "    a=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertNull(rootNode.getFrameValue("y"));
@@ -287,7 +287,7 @@ public class FlowControlTest {
                 "if x<=6:\n" +
                 "    a=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertNull(rootNode.getFrameValue("y"));
@@ -306,7 +306,7 @@ public class FlowControlTest {
                 "if x>9999999999999999999999999999999999999999999999999999999999:\n" +
                 "    a=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(1L, rootNode.getFrameValue("y"));
@@ -325,7 +325,7 @@ public class FlowControlTest {
                 "if x>'abd':\n" +
                 "    a=1";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(1L, rootNode.getFrameValue("y"));
@@ -344,7 +344,7 @@ public class FlowControlTest {
                 "";
 
         SimpleParseTree.printParseTree(code);
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(-1L, rootNode.getFrameValue("x"));
@@ -362,7 +362,7 @@ public class FlowControlTest {
                 "";
 
         SimpleParseTree.printParseTree(code);
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(5L, rootNode.getFrameValue("x"));
@@ -382,7 +382,7 @@ public class FlowControlTest {
                 "";
 
         SimpleParseTree.printParseTree(code);
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(-1L, rootNode.getFrameValue("x"));
@@ -402,7 +402,7 @@ public class FlowControlTest {
                 "";
 
         SimpleParseTree.printParseTree(code);
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         assertEquals(2L, rootNode.getFrameValue("x"));

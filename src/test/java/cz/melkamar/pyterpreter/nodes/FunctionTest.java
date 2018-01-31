@@ -14,7 +14,7 @@ public class FunctionTest {
         String code = "" +
                 "def f():\n" +
                 "    return 5\n";
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
 
         Assert.assertNotNull(rootNode.getFrameValue("f"));
@@ -27,7 +27,7 @@ public class FunctionTest {
                 "def f():\n" +
                 "    return 5\n" +
                 "f()";
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         Object result = rootNode.run();
 
         Assert.assertTrue(result instanceof Long);
@@ -42,7 +42,7 @@ public class FunctionTest {
                 "def f(a):\n" +
                 "    return a\n" +
                 "f(6)";
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.print();
         Object result = rootNode.run();
 
@@ -58,7 +58,7 @@ public class FunctionTest {
                 "def f(a,b):\n" +
                 "    return a+b\n" +
                 "f(1,2)";
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.print();
         Object result = rootNode.run();
 
@@ -74,7 +74,7 @@ public class FunctionTest {
                 "def f():\n" +
                 "    1+2\n" +
                 "f()";
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         Object result = rootNode.run();
 
         Assert.assertTrue(result == PyNoneType.NONE_SINGLETON);
@@ -99,7 +99,7 @@ public class FunctionTest {
                 "    return 3\n" +
                 "y = f()\n" +
                 "y";
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         Object result = rootNode.run();
 
         Assert.assertTrue(result instanceof Long);
@@ -117,7 +117,7 @@ public class FunctionTest {
                 "    return a+x\n" +
                 "y = f(2)\n" +
                 "y";
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         Object result = rootNode.run();
 
         Assert.assertTrue(result instanceof Long);
@@ -135,7 +135,7 @@ public class FunctionTest {
                 "    return 3\n" +
                 "f()\n" +
                 "a";
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         Object result = rootNode.run();
         System.out.println(result);
     }
@@ -147,7 +147,7 @@ public class FunctionTest {
                 "    a=2\n" +
                 "    return 3\n" +
                 "f(1)";
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         Object result = rootNode.run();
         System.out.println(result);
     }

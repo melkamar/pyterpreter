@@ -24,14 +24,14 @@
  */
 package cz.melkamar.pyterpreter.parser;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import cz.melkamar.pyterpreter.Environment;
+import cz.melkamar.pyterpreter.EnvironmentBuilder;
 import cz.melkamar.pyterpreter.antlr.Python3Lexer;
 import cz.melkamar.pyterpreter.antlr.Python3Parser;
 import cz.melkamar.pyterpreter.exceptions.NotImplementedException;
 import cz.melkamar.pyterpreter.exceptions.ParseException;
-import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.nodes.PySuiteNode;
+import cz.melkamar.pyterpreter.nodes.PyTopProgramNode;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
@@ -203,9 +203,15 @@ public class SimpleParseTree {
     /**
      * Parse given code into AST. Return root node.
      */
-    public static PyRootNode astFromCode(String code) {
+    public static PyTopProgramNode astFromCode(String code, Environment environment) {
         SimpleParseTree ast = genParseTree(code);
-        return ast.generateAST();
+        return ast.generateAST(environment);
+    }
+
+    public static PyTopProgramNode astFromCode(String code) {
+        Environment environment = new EnvironmentBuilder().createEnvironment();
+        SimpleParseTree ast = genParseTree(code);
+        return ast.generateAST(environment);
     }
 
     public static SimpleParseTree fromFile(File file) throws IOException {
@@ -226,10 +232,9 @@ public class SimpleParseTree {
     /**
      * Generate AST from this SimpleParseTree.
      */
-    public PyRootNode generateAST() {
-        FrameDescriptor frameDescriptor = Environment.DEFAULT.getDefaultFrameDescriptor();
-        PySuiteNode suiteNode = SptToAstTransformer.parseFileInputBlock(this, frameDescriptor);
-        PyRootNode rootPyNode = new PyRootNode(suiteNode, frameDescriptor);
+    public PyTopProgramNode generateAST(Environment environment) {
+        PySuiteNode suiteNode = SptToAstTransformer.parseFileInputBlock(this, environment.getBaseFrameDescriptor());
+        PyTopProgramNode rootPyNode = new PyTopProgramNode(suiteNode, environment);
         return rootPyNode;
     }
 

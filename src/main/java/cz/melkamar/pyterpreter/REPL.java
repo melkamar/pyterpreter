@@ -20,8 +20,8 @@ public class REPL {
      */
     public static void startRepl() {
         Scanner sc = new Scanner(System.in);
-        Environment environment = new Environment();
-        Frame lastFrame = environment.getDefaultFrame();
+        Environment environment = new EnvironmentBuilder().createEnvironment();
+        Frame lastFrame = environment.getBaseFrame();
 
         int indentLevel = 0;
         StringBuilder inputBuffer = new StringBuilder();
@@ -60,7 +60,7 @@ public class REPL {
             inputBuffer.delete(0, inputBuffer.length());
 
             try {
-                PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+                PyRootNode rootNode = SimpleParseTree.astFromCode(code, environment);
                 CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
                 Object result = target.call(lastFrame);
 

@@ -21,7 +21,7 @@ public class FunctionAdvancedTest {
                 "\n" +
                 "result = sum_to_one(sum_start)";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         System.out.println(rootNode);
         rootNode.run();
 
@@ -42,7 +42,7 @@ public class FunctionAdvancedTest {
                 "c = f(10)\n" +
                 "d = f(999)";
 
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         System.out.println(rootNode);
         rootNode.run();
 

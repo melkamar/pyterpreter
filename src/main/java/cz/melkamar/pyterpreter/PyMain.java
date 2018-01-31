@@ -56,9 +56,9 @@ public class PyMain {
                 "pwr(1, 20)\n" +
                 "";
 
-
+        Environment environment = new EnvironmentBuilder().createEnvironment();
         SimpleParseTree.printParseTree(code);
-        PyRootNode rootNode = SimpleParseTree.astFromCode(code);
+        PyRootNode rootNode = SimpleParseTree.astFromCode(code, environment);
         rootNode.print();
 
         CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
