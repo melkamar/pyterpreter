@@ -6,14 +6,18 @@ Python interpreter built on Truffle and Graal VM
 
 ## Installation
 #### Requirements
-- Java (tested on 8)
+- JVM (tested on 8)
+    - It will work on regular HotspotVM
+    - For better performance run on GraalVM (Linux/MAC)
+        - [Download labsjdk on bottom of the page](http://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html)
+        - Set `JAVA_HOME` to point to extracted LabsJDK archive and `PATH` to `JAVA_HOME/bin` 
 - Gradle (tested on 3.0)
 
 #### Steps 
 ```
 $ git clone git@github.com:melkamar/pyterpreter.git
 $ cd pyterpreter
-$ gradle clean test jar
+$ ./gradlew clean test jar
 $ java -jar build/libs/pyterpreter*all*.jar [args]
 ```
 
