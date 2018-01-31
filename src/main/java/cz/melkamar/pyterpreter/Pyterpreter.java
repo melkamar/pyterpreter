@@ -17,6 +17,7 @@ import static cz.melkamar.pyterpreter.REPL.startRepl;
 
 public class Pyterpreter {
     public static void main(String[] args) {
+        System.err.println("== running on " + Truffle.getRuntime().getName());
         if (args.length == 0) startRepl();
         else if (args.length == 1) {
             try {

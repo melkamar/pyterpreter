@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+JAVACMD=${JAVACMD:=./graalvm/bin/java}
+
+PROGRAM_ARGS=""
+JAVA_ARGS=""
+TRUFFLE_LIB=./graalvm/jre/lib/truffle
+
+for opt in "$@"
+do
+  case $opt in
+    *)
+      PROGRAM_ARGS="$PROGRAM_ARGS $opt" ;;
+  esac
+done
+
+set -x
+
+$JAVACMD $JAVA_ARGS -XX:-UseJVMCIClassLoader -Xbootclasspath/a:$TRUFFLE_LIB/truffle-api.jar:$TRUFFLE_LIB/locator.jar:$TRUFFLE_LIB/truffle-nfi.jar -jar build/libs/pyterpreter-all-1.0-SNAPSHOT.jar $PROGRAM_ARGS
