@@ -9,6 +9,7 @@ import cz.melkamar.pyterpreter.nodes.PyExpressionNode;
 import cz.melkamar.pyterpreter.nodes.PyReadVarNode;
 
 public class PyFunctionCallNode extends PyExpressionNode {
+    @Child
     private PyReadVarNode nameNode;
     @Children
     private final PyExpressionNode[] argNodes;
