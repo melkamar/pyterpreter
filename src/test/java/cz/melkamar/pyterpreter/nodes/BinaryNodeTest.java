@@ -76,4 +76,11 @@ public class BinaryNodeTest {
         Object result = Pyterpreter.runCodeForResult(code);
         assertEquals((((2 + 4 / 2) - 2) * 4) / 2, (long) result);
     }
+
+    @Test
+    public void modulo() {
+        String code = "5%2";
+        Object result = Pyterpreter.runCodeForResult(code);
+        assertEquals(5 % 2, (long) result);
+    }
 }

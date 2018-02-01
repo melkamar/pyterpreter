@@ -10,10 +10,7 @@ import cz.melkamar.pyterpreter.functions.PyUserFunction;
 import cz.melkamar.pyterpreter.nodes.*;
 import cz.melkamar.pyterpreter.nodes.control.*;
 import cz.melkamar.pyterpreter.nodes.expr.PyNotNodeGen;
-import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyAddNodeGen;
-import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyDivideNodeGen;
-import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PyMultiplyNodeGen;
-import cz.melkamar.pyterpreter.nodes.expr.arithmetic.PySubtractNodeGen;
+import cz.melkamar.pyterpreter.nodes.expr.arithmetic.*;
 import cz.melkamar.pyterpreter.nodes.expr.compare.*;
 import cz.melkamar.pyterpreter.nodes.expr.literal.*;
 import cz.melkamar.pyterpreter.nodes.function.*;
@@ -536,6 +533,8 @@ public class SptToAstTransformer {
                         return PyMultiplyNodeGen.create(left, right);
                     case Python3Lexer.DIV:
                         return PyDivideNodeGen.create(left, right);
+                    case Python3Lexer.MOD:
+                        return PyModNodeGen.create(left, right);
                     case Python3Lexer.EQUALS:
                         // TODO
                         throw new NotImplementedException();
