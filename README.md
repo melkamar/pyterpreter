@@ -71,6 +71,7 @@ $ ./pyterpreter-graal [args]  # Graal-enabled
 
 Using benchmark `countdown.py`
 
-#### Before variable lookup improvement
 - Hotspot 679/348
 - Graal   1986/503
+
+:( 
