@@ -8,6 +8,7 @@ import cz.melkamar.pyterpreter.exceptions.SystemExitException;
 import cz.melkamar.pyterpreter.exceptions.UndefinedVariableException;
 import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
+import cz.melkamar.pyterpreter.types.PyNoneType;
 
 import java.util.Scanner;
 
@@ -65,7 +66,7 @@ public class REPL {
                 CallTarget target = Truffle.getRuntime().createCallTarget(rootNode);
                 Object result = target.call(lastFrame);
 
-                if (result != null) {
+                if (result != null && result != PyNoneType.NONE_SINGLETON) {
                     if (result instanceof String) {
                         System.out.println("'"+result+"'");
                     } else {
