@@ -10,6 +10,7 @@ import cz.melkamar.pyterpreter.nodes.PyRootNode;
 import cz.melkamar.pyterpreter.parser.SimpleParseTree;
 import cz.melkamar.pyterpreter.types.PyNoneType;
 
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class REPL {
@@ -39,7 +40,14 @@ public class REPL {
                 }
             }
 
-            String input = sc.nextLine();
+            String input = "";
+            try {
+                // Gracefully handle ctrl+d exit
+                input = sc.nextLine();
+            } catch (NoSuchElementException e){
+                System.out.println();
+                System.exit(0);
+            }
 
             if (input.isEmpty() && indentLevel > 0) {
                 indentLevel--;
