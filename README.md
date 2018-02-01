@@ -32,6 +32,9 @@ Python interpreter built on Truffle and Graal VM
       - Similar to Python's `time.time()` but Pyterpreter cannot do imports so there we go
       - For compatibility in running pyterpreter scripts in Python, user a wrapper script where you import `time()`, e.g. `from time import time; import pyterpreter_script.py`
 
+#### Examples
+- Some scripts that Pyterpreter can handle are in the [benchmark folder](src/main/resources/benchmark)
+
 ## Installation
 #### Requirements
 - JVM (tested on 8)
