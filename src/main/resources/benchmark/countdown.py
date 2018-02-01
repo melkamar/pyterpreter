@@ -7,14 +7,14 @@ def run_benchmark():
         y = 0
         while x > 0:
             y = (y + 1) * 2
-            x = x - 1
+            x -= 1
         return y
 
     def warmup():
         i = 0
         while i < 50:
             do_stuff()
-            i = i + 1
+            i += 1
 
     start_time = time()
     do_stuff()

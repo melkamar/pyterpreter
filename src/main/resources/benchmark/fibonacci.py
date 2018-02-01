@@ -8,7 +8,7 @@ def run_benchmark():
         i = 0
 
         while i < number_idx:
-            i = i + 1
+            i += 1
             new = first + second
             if should_print:
                 print(i + ". fib number: " + new)
@@ -21,7 +21,7 @@ def run_benchmark():
         i = 0
         while i < 50:
             fibonacci(10000, False)
-            i = i + 1
+            i += 1
 
     start_time = time()
     fibonacci(10000, False)

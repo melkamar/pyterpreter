@@ -12,7 +12,7 @@ def run_benchmark():
         i = 0
         while i < 50:
             factorial_recursive(fact_num)
-            i = i + 1
+            i -= 1
 
     start_time = time()
     factorial_recursive(fact_num)
@@ -26,7 +26,7 @@ def run_benchmark():
 
     print(benchmark_name + " | no warmup | " + str(no_warmup_time))
     print(benchmark_name + " | warmup    | " + str(end_time - start_time))
-    print(fact_num + "! = "+res)
+    print(fact_num + "! = " + res)
 
 
 run_benchmark()
