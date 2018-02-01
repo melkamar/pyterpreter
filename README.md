@@ -18,7 +18,8 @@ Python interpreter built on Truffle and Graal VM
 $ git clone git@github.com:melkamar/pyterpreter.git
 $ cd pyterpreter
 $ ./gradlew clean test jar
-$ java -jar build/libs/pyterpreter*all*.jar [args]
+$ ./pyterpreter [args]  # Non-graal
+$ ./pyterpreter-graal [args]  # Graal-enabled
 ```
 
 ## Usage
@@ -28,3 +29,10 @@ $ java -jar build/libs/pyterpreter*all*.jar [args]
 - `-r file/in/resources` - run file from inside pyterpreter jar. See [resources folder](src/main/resources)
     - e.g. `java -jar build/libs/pyt*all* -r benchmark/fibonacci.py` will start fibonacci benchmark.
     
+## Numbers
+
+Using benchmark `countdown.py`
+
+#### Before variable lookup improvement
+- Hotspot 679/348
+- Graal   1986/503
