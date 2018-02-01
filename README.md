@@ -4,6 +4,12 @@
 
 Python interpreter built on Truffle and Graal VM
 
+
+## Disclaimer
+This is a pure Java interpreter of Python - it is less capable than what is in the `master` branch 
+(which uses Truffle). This branch is discontinued.
+
+
 ## Installation
 #### Requirements
 - Java (tested on 8)
