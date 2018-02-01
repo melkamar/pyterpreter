@@ -2,12 +2,13 @@ package cz.melkamar.pyterpreter.nodes;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlot;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.RootNode;
 
 public class PyRootNode extends RootNode {
     @Child private PyStatementNode child;
-    public VirtualFrame lastExecutionFrame = null;
+    public MaterializedFrame lastExecutionFrame = null;
 
     public PyRootNode(PyStatementNode child, FrameDescriptor frameDescriptor) {
         super(null, frameDescriptor);
@@ -26,7 +27,7 @@ public class PyRootNode extends RootNode {
 
     @Override
     public Object execute(VirtualFrame frame) {
-        lastExecutionFrame = frame; // Keep track of last frame for debugging
+        lastExecutionFrame = frame.materialize(); // Keep track of last frame for debugging
         // keep track of result for REPL
         return child.executeGeneric(frame);
     }
