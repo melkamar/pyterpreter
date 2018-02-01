@@ -31,7 +31,8 @@ public class FunctionAdvancedTest {
 
     @Test
     public void nestedFunctions() {
-        String code = "def f(a):\n" +
+        String code = "" +
+                "def f(a):\n" +
                 "    def g(b):\n" +
                 "        return b*b\n" +
                 "        \n" +

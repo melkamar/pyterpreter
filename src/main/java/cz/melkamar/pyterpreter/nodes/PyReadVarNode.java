@@ -49,13 +49,13 @@ public abstract class PyReadVarNode extends PyExpressionNode {
 
     @Override
     public void print(int indent) {
-        printIndented("READ "+getVarName() + " (desc "+getSlot().getFrameDescriptor()+")", indent);
+        printIndented("READ " + getVarName() + " (desc " + getSlot().getFrameDescriptor() + ")", indent);
     }
 
-    private Frame getScope(Frame frame){
+    private Frame getScope(Frame frame) {
         Object[] args = frame.getArguments();
         if (args == null || args.length == 0) return null;
-        return (Frame) args [0];
+        return (Frame) args[0];
     }
 
     public static interface FrameGet<T> {
@@ -63,7 +63,9 @@ public abstract class PyReadVarNode extends PyExpressionNode {
     }
 
     public <T> T readUpStack(FrameGet<T> getter, Frame frame) throws FrameSlotTypeException {
+        Frame originalFrame = frame;
         T value = getter.get(frame, this.getSlot());
+        FrameSlot slot = this.getSlot();
 
         while (value == null) {
             frame = this.getScope(frame);
@@ -72,9 +74,15 @@ public abstract class PyReadVarNode extends PyExpressionNode {
                 throw new UndefinedVariableException(getVarName());
             }
 //            value = getter.get(frame, this.getSlot());
-            FrameSlot slot = frame.getFrameDescriptor().findFrameSlot(getVarName());
-            if (slot != null) value = getter.get(frame, slot);
+            slot = frame.getFrameDescriptor().findFrameSlot(getVarName());
+            if (slot != null) {
+                value = getter.get(frame, slot);
+            }
         }
+
+        CompilerDirectives.transferToInterpreterAndInvalidate();
+        PyReadDirectNode newReadNode = PyReadDirectNodeGen.create(slot, frame, originalFrame, this);
+        this.replace(newReadNode);
         return value;
     }
 }
