@@ -4,6 +4,34 @@
 
 Python interpreter built on Truffle and Graal VM
 
+## Features
+
+#### Types
+- int (arbitrary precision)
+- str
+- bool
+
+#### Flow control
+- logical operators (==, !=, >, >=, <, <=)
+- if/else (no elif)
+- while loop (no for)
+
+#### Functions
+- function definition, arbitrary argument number (only positional, no named)
+- function nesting, recursion
+- no `pass` blank statement
+- builtin functions:
+    - `x = str(arg)` - convert `arg` to string type
+    - `x = int(arg)` - convert `arg` to int type
+    - `print(arg)` - print `arg` to console (with newline)
+    - `x = input()` - read user input from console, assign to variable
+    - `sleep(seconds)` - sleep for given number of seconds
+    - `exit()` - exit the program
+    - `x = time()` - get millisecond-precision time 
+      - Not actual clock time, but good for measuring elapsed time
+      - Similar to Python's `time.time()` but Pyterpreter cannot do imports so there we go
+      - For compatibility in running pyterpreter scripts in Python, user a wrapper script where you import `time()`, e.g. `from time import time; import pyterpreter_script.py`
+
 ## Installation
 #### Requirements
 - JVM (tested on 8)
