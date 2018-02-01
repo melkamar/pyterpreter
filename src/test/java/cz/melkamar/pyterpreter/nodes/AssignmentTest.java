@@ -133,50 +133,50 @@ public class AssignmentTest {
     @Test
     public void increment() {
         String code = "" +
-                "x = 1" +
+                "x = 1\n" +
                 "x+=1";
         PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
-        assertEquals(2, rootNode.getFrameValue("x"));
+        assertEquals(2L, rootNode.getFrameValue("x"));
     }
 
     @Test
     public void decrement() {
         String code = "" +
-                "x = 1" +
+                "x = 1\n" +
                 "x-=1";
         PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
-        assertEquals(1, rootNode.getFrameValue("x"));
+        assertEquals(0L, rootNode.getFrameValue("x"));
     }
 
     @Test
     public void timesIncrement() {
         String code = "" +
-                "x = 1" +
+                "x = 1\n" +
                 "x*=4";
         PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
-        assertEquals(4, rootNode.getFrameValue("x"));
+        assertEquals(4L, rootNode.getFrameValue("x"));
     }
 
     @Test
     public void divDecrement() {
         String code = "" +
-                "x = 6" +
+                "x = 6\n" +
                 "x/=2";
         PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
-        assertEquals(3, rootNode.getFrameValue("x"));
+        assertEquals(3L, rootNode.getFrameValue("x"));
     }
 
     @Test
     public void modDecrement() {
         String code = "" +
-                "x = 5" +
+                "x = 5\n" +
                 "x%=2";
         PyTopProgramNode rootNode = SimpleParseTree.astFromCode(code);
         rootNode.run();
-        assertEquals(1, rootNode.getFrameValue("x"));
+        assertEquals(1L, rootNode.getFrameValue("x"));
     }
 }

@@ -11,8 +11,13 @@ Python interpreter built on Truffle and Graal VM
 - str
 - bool
 
+#### Operators
+- arithmetic (+, -, *, /, %)
+- assignment (=, +=, -=, *=, /=, %=)
+- comparison (==, !=, >, >=, <, <=)
+- logical (not, and, or)
+
 #### Flow control
-- logical operators (==, !=, >, >=, <, <=)
 - if/else (no elif)
 - while loop (no for)
 

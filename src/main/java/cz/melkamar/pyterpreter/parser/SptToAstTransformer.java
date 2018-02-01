@@ -35,6 +35,7 @@ public class SptToAstTransformer {
     final static String NODE_STR_ARGUMENT = "argument";
     final static String NODE_STR_TEST = "test";
     final static String NODE_STR_COMP_OP = "comp_op";
+    final static String NODE_STR_AUGASSIGN = "augassign";
 
     /**
      * Parse function call argument list, e.g.
@@ -375,6 +376,42 @@ public class SptToAstTransformer {
 
                     return assignNode;
                 }
+            }
+            /*
+             * augassign, e.g. x += 1
+             */
+            if (simpleParseTree.getChildPayload(1).equals(NODE_STR_AUGASSIGN)) {
+                PyExpressionNode right = parseExpression(simpleParseTree.getChild(2), frameDescriptor);
+                PyExpressionNode left = parseExpression(simpleParseTree.getChild(0), frameDescriptor);
+
+                String varName = ((PyReadVarNode) left).getVarName();
+                FrameSlot slot = frameDescriptor.findOrAddFrameSlot(varName);
+                PyStatementNode assignStatement = null;
+
+                switch (simpleParseTree.getChild(1).childAsToken(0).getType()) {
+                    case Python3Parser.ADD_ASSIGN:
+                        assignStatement = PyAddNodeGen.create(left, right);
+                        break;
+                    case Python3Parser.SUB_ASSIGN:
+                        assignStatement = PySubtractNodeGen.create(left, right);
+                        break;
+                    case Python3Parser.MULT_ASSIGN:
+                        assignStatement = PyMultiplyNodeGen.create(left, right);
+                        break;
+                    case Python3Parser.DIV_ASSIGN:
+                        assignStatement = PyDivideNodeGen.create(left, right);
+                        break;
+                    case Python3Parser.MOD_ASSIGN:
+                        assignStatement = PyModNodeGen.create(left, right);
+                        break;
+                    default:
+                        throw new NotImplementedException("augassign not implemented: " + simpleParseTree.getChild(1)
+                                .childAsToken(0)
+                                .getType());
+                }
+
+                PyAssignNode assignNode = PyAssignNodeGen.create(assignStatement, slot);
+                return assignNode;
             }
         }
 

@@ -7,7 +7,7 @@ import cz.melkamar.pyterpreter.nodes.PyBinaryNode;
 
 import java.math.BigInteger;
 
-@NodeInfo(shortName = "/")
+@NodeInfo(shortName = "%")
 public abstract class PyModNode extends PyBinaryNode {
     @Specialization
     protected long modulo(long left, long right) {
