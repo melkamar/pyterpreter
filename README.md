@@ -69,7 +69,7 @@ $ ./pyterpreter-graal [args]  # Graal-enabled
     
 ## Numbers
 
-Using benchmark `countdown.py`
+Using benchmark `countdown.py`, in milliseconds
 
 - Hotspot 1722/356
 - Graal   2627/438
