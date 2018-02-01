@@ -55,12 +55,13 @@ Python interpreter built on Truffle and Graal VM
 $ git clone git@github.com:melkamar/pyterpreter.git
 $ cd pyterpreter
 $ ./gradlew clean test jar
-$ ./pyterpreter [args]  # Non-graal
-$ ./pyterpreter-graal [args]  # Graal-enabled
 ```
 
 ## Usage
-
+```
+$ ./pyterpreter [args]  # Non-graal
+$ ./pyterpreter-graal [args]  # Graal-enabled
+```
 - No arguments - start REPL
 - Single argument - path to file - execute that file
 - `-r file/in/resources` - run file from inside pyterpreter jar. See [resources folder](src/main/resources)
