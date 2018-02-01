@@ -79,6 +79,18 @@ public abstract class PyReadVarNode extends PyExpressionNode {
                 value = getter.get(frame, slot);
             }
         }
+        /*
+        When a variable is resolved, replace the general read node with one that knows exactly where to look.
+
+        Saving a reference to the scope where the variable was found does not work because of loops -
+        the same part of AST can be iterated over multiple times. In the first iteration the variable
+        will be cached to refer to its scope A (i.e. AST node will be rewritten, pointing to A) - but during
+        a second execution (over another frame, B), the readnode will still point to now-obsolete scope A.
+
+        The dirty solution is to save the parent scope whenever caching a node and always check we are in the
+        same scope when cache-reading. That effectively speeds up reads for the slow-down price of equality
+        check with EVERY variable read.
+        */
 
         CompilerDirectives.transferToInterpreterAndInvalidate();
         PyReadDirectNode newReadNode = PyReadDirectNodeGen.create(slot, frame, originalFrame, this);
