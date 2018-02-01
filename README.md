@@ -43,6 +43,7 @@ Python interpreter built on Truffle and Graal VM
         - [Download labsjdk on bottom of the page](http://www.oracle.com/technetwork/oracle-labs/program-languages/downloads/index.html)
         - Set `JAVA_HOME` to point to extracted LabsJDK archive and `PATH` to `JAVA_HOME/bin` 
 - Gradle will be used or automatically downloaded when running `gradlew` (see below) 
+- In order to run Pyterpreter on Graal, copy or symlink Graal root directory to `pyterpreter/graalvm` (download on the same URL as above, but use the links on the top of the page)
 
 #### Steps 
 ```
