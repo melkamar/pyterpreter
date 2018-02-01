@@ -71,7 +71,7 @@ $ ./pyterpreter-graal [args]  # Graal-enabled
 
 Using benchmark `countdown.py`
 
-- Hotspot 679/348
-- Graal   1986/503
+- Hotspot 1722/356
+- Graal   2627/438
 
 :( 
